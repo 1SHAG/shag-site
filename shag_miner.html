@@ -42,6 +42,7 @@
       overflow: hidden;
     }
 
+    /* Фонова сітка */
     .bg-rack {
       position: absolute;
       inset: 0;
@@ -121,6 +122,7 @@
       margin-top: 4px;
     }
 
+    /* Монета SHAG — із твого лого */
     .coin-wrap {
       display: flex;
       flex-direction: column;
@@ -157,6 +159,7 @@
       100% { transform: rotateY(0deg); }
     }
 
+    /* Ферма — риги, вентилятори, лампочки */
     .farm {
       width: 100%;
       max-width: 380px;
@@ -358,7 +361,7 @@
       border-radius: 999px;
       background: linear-gradient(90deg, #f1c550, #b8741a);
       box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-      transition: width 0.25s ease-out;
+      transition: width 0.25s.ease-out;
     }
 
     .status {
@@ -478,17 +481,134 @@
         </div>
       </div>
 
-      <!-- ферма, лічильники, кнопки – залишив як було -->
-      <!-- ... (усе середнє тіло без змін) ... -->
-      <!-- Я не скорочую тут, бо ти вже маєш цей блок вище в своєму файлі. 
-           Просто залиш те, що було, тільки з новою картинкою. -->
+      <div class="farm">
+        <div class="rig-row">
+          <div class="rig">
+            <div class="rig-header">
+              <div class="rig-name">RIG-01</div>
+              <div class="rig-leds">
+                <div class="rig-led rig-led--green"></div>
+                <div class="rig-led rig-led--amber"></div>
+                <div class="rig-led rig-led--blue"></div>
+              </div>
+            </div>
+            <div class="rig-body">
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="rig-temp">
+                Темп:<br><span>100 SHAG/24h</span>
+              </div>
+            </div>
+          </div>
+          <div class="rig">
+            <div class="rig-header">
+              <div class="rig-name">RIG-02</div>
+              <div class="rig-leds">
+                <div class="rig-led rig-led--green"></div>
+                <div class="rig-led rig-led--amber"></div>
+                <div class="rig-led rig-led--blue"></div>
+              </div>
+            </div>
+            <div class="rig-body">
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="rig-temp">
+                Статус:<br><span>Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rig-row">
+          <div class="rig">
+            <div class="rig-header">
+              <div class="rig-name">RIG-03</div>
+              <div class="rig-leds">
+                <div class="rig-led rig-led--green"></div>
+                <div class="rig-led rig-led--amber"></div>
+              </div>
+            </div>
+            <div class="rig-body">
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="rig-temp">
+                Мережа:<br><span>BSC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="width: 100%; max-width: 380px;">
+        <div class="panel-label">Лічильник видобутку</div>
+        <div class="counter">
+          <span id="counterValue" class="counter-value">0.00000000</span>
+          <span class="counter-unit">SHAG</span>
+          <div class="speed" id="speedInfo">Швидкість: 100 SHAG / 24 години</div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="panel-label">Прогрес до наступного отримання</div>
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="statusText" class="status status-warn">
+          Підключіть гаманець у мережі BNB Smart Chain, щоб розпочати.
+        </div>
+
+        <button id="claimBtn" class="claim-btn" disabled>
+          ОТРИМАТИ 100 SHAG
+        </button>
+
+        <div id="timerText" class="timer">
+          До наступного отримання: 24:00:00
+        </div>
+
+        <div class="info">
+          Баланс Faucet та обмеження зберігаються у смартконтракті. <br />
+          Усі виплати прозорі та відстежуються через BscScan.
+          <div class="small" id="faucetInfo"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
   // ================== НАЛАШТУВАННЯ АДРЕС ==================
-  const TOKEN_ADDRESS  = "0xd4c35feccf968f4a73be4717524c087d7d0ed229"; // 1SHAG v2
+  const TOKEN_ADDRESS = "0xd4c35feccf968f4a73be4717524c087d7d0ed229"; // 1SHAG v2
   const FAUCET_ADDRESS = "0xea4b64d8eecbe54ba18444c6522a7f19f7ca152e"; // ShagFaucet
   const TOKEN_DECIMALS = 18;
 
@@ -534,7 +654,8 @@
 
   function setStatus(message, type = "warn") {
     statusTextEl.textContent = message;
-    statusTextEl.className = "status " + (type === "ok" ? "status-ok" : type === "error" ? "status-error" : "status-warn");
+    statusTextEl.className =
+      "status " + (type === "ok" ? "status-ok" : type === "error" ? "status-error" : "status-warn");
   }
 
   function setWalletIndicator(status, text) {
@@ -575,7 +696,8 @@
       setWalletIndicator("warn", "Неправильна мережа");
       return false;
     }
-    const netName = network.chainId === 56 ? "BNB Smart Chain (mainnet)" : "BNB Smart Chain Testnet";
+    const netName =
+      network.chainId === 56 ? "BNB Smart Chain (mainnet)" : "BNB Smart Chain Testnet";
     setWalletIndicator("ok", `Підключено: ${netName}`);
     return true;
   }
@@ -660,7 +782,8 @@
       setStatus("Ще не минув інтервал 24 години з минулого отримання.", "warn");
     }
 
-    timerTextEl.textContent = "До наступного отримання: " + formatTimeLeft(remainingSec);
+    timerTextEl.textContent =
+      "До наступного отримання: " + formatTimeLeft(remainingSec);
   }
 
   function startMiningLoop() {
@@ -686,7 +809,8 @@
       progressFillEl.style.width = (progress * 100).toFixed(1) + "%";
 
       const remainingSec = Math.max(0, claimIntervalSec - elapsed);
-      timerTextEl.textContent = "До наступного отримання: " + formatTimeLeft(remainingSec);
+      timerTextEl.textContent =
+        "До наступного отримання: " + formatTimeLeft(remainingSec);
     }, 1000);
   }
 
@@ -735,8 +859,11 @@
       await refreshUserState();
     } catch (e) {
       console.error(e);
-      setStatus("Отримання скасовано або сталася помилка. Переконайтеся, що ви в правильній мережі та маєте газ.", "error");
-      await refreshUserState();
+      setStatus(
+        "Отримання скасовано або сталася помилка. Переконайтеся, що ви в правильній мережі та маєте газ.",
+        "error"
+      );
+      await.refreshUserState();
     }
   });
 </script>
