@@ -379,11 +379,6 @@
 
     .results-card p + p { margin-top: 2px; }
 
-    .results-highlight {
-      color: #2ecc71;
-      font-weight: 600;
-    }
-
     .prize-card {
       border-radius: 14px;
       padding: 9px 10px;
@@ -493,10 +488,6 @@
           <div class="stat-label">Час</div>
           <div class="stat-value" id="timeValue">00:00</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Рекорд</div>
-          <div class="stat-value" id="bestValue">—</div>
-        </div>
       </div>
 
       <div class="grid-wrapper">
@@ -525,8 +516,6 @@
           <p><strong>Рівень:</strong> <span id="resultLevel"></span></p>
           <p><strong>Ходи:</strong> <span id="resultMoves"></span></p>
           <p><strong>Час:</strong> <span id="resultTime"></span></p>
-          <p><strong>Твій рекорд:</strong> <span id="resultBest"></span></p>
-          <p id="resultBestNote" class="results-highlight" style="display:none;">Новий рекорд! 🔥</p>
         </div>
 
         <div class="prize-card">
@@ -566,8 +555,6 @@
     const levelLabel = document.getElementById("levelLabel");
     const movesValue = document.getElementById("movesValue");
     const timeValue = document.getElementById("timeValue");
-    const bestValue = document.getElementById("bestValue");
-
     const gridElement = document.getElementById("grid");
 
     const playAgainBtn = document.getElementById("playAgainBtn");
@@ -576,8 +563,6 @@
     const resultLevel = document.getElementById("resultLevel");
     const resultMoves = document.getElementById("resultMoves");
     const resultTime = document.getElementById("resultTime");
-    const resultBest = document.getElementById("resultBest");
-    const resultBestNote = document.getElementById("resultBestNote");
 
     let currentSize = 4;
     let tiles = [];
@@ -586,29 +571,9 @@
     let timerId = null;
     let gameStarted = false;
 
-    function bestKey(size) {
-      return "shag_puzzle_best_" + size;
-    }
-
-    function loadBest(size) {
-      try {
-        const raw = localStorage.getItem(bestKey(size));
-        if (!raw) return null;
-        return JSON.parse(raw);
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function saveBest(size, data) {
-      try {
-        localStorage.setItem(bestKey(size), JSON.stringify(data));
-      } catch (e) {}
-    }
-
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
       return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
     }
 
@@ -633,16 +598,10 @@
       gameStarted = false;
       movesValue.textContent = "0";
       timeValue.textContent = "00:00";
-      const best = loadBest(currentSize);
-      if (best) {
-        bestValue.textContent = formatTime(best.seconds) + " / " + best.moves + " ходи";
-      } else {
-        bestValue.textContent = "—";
-      }
       stopTimer();
     }
 
-    function createSolvedTiles(size) {
+    function createSolved(size) {
       const total = size * size;
       const arr = [];
       for (let i = 1; i < total; i++) arr.push(i);
@@ -650,84 +609,78 @@
       return arr;
     }
 
-    function shuffleByRandomMoves(size, steps = 300) {
-      tiles = createSolvedTiles(size);
+    function shuffle(size) {
+      tiles = createSolved(size);
 
-      function getNeighbors(index) {
-        const neighbors = [];
-        const row = Math.floor(index / size);
-        const col = index % size;
-        if (row > 0) neighbors.push(index - size);
-        if (row < size - 1) neighbors.push(index + size);
-        if (col > 0) neighbors.push(index - 1);
-        if (col < size - 1) neighbors.push(index + 1);
-        return neighbors;
+      function neighbors(idx) {
+        const list = [];
+        const row = Math.floor(idx / size);
+        const col = idx % size;
+        if (row > 0) list.push(idx - size);
+        if (row < size - 1) list.push(idx + size);
+        if (col > 0) list.push(idx - 1);
+        if (col < size - 1) list.push(idx + 1);
+        return list;
       }
 
-      const totalSteps = steps + size * size * 30;
-
-      for (let i = 0; i < totalSteps; i++) {
+      const steps = size * size * 50;
+      for (let i = 0; i < steps; i++) {
         const emptyIndex = tiles.indexOf(0);
-        const neighbors = getNeighbors(emptyIndex);
-        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
-        const temp = tiles[emptyIndex];
-        tiles[emptyIndex] = tiles[randomNeighbor];
-        tiles[randomNeighbor] = temp;
+        const n = neighbors(emptyIndex);
+        const r = n[Math.floor(Math.random() * n.length)];
+        [tiles[emptyIndex], tiles[r]] = [tiles[r], tiles[emptyIndex]];
       }
 
-      if (isSolved()) {
-        shuffleByRandomMoves(size, steps);
-      }
+      if (isSolved()) shuffle(size);
     }
 
     function renderGrid() {
       gridElement.innerHTML = "";
       gridElement.style.gridTemplateColumns = `repeat(${currentSize}, 1fr)`;
 
-      tiles.forEach((value, index) => {
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("grid-square");
+      tiles.forEach((val, idx) => {
+        const wrap = document.createElement("div");
+        wrap.classList.add("grid-square");
 
         const tile = document.createElement("div");
         tile.classList.add("tile");
 
-        if (value === 0) {
+        if (val === 0) {
           tile.classList.add("empty");
         } else {
-          tile.textContent = value;
-          tile.addEventListener("click", () => handleTileClick(index));
+          tile.textContent = val;
+          tile.addEventListener("click", () => handleTileClick(idx));
         }
 
-        wrapper.appendChild(tile);
-        gridElement.appendChild(wrapper);
+        wrap.appendChild(tile);
+        gridElement.appendChild(wrap);
       });
     }
 
-    function canMove(index) {
+    function canMove(idx) {
       const size = currentSize;
       const emptyIndex = tiles.indexOf(0);
-      const row = Math.floor(index / size);
-      const col = index % size;
-      const emptyRow = Math.floor(emptyIndex / size);
-      const emptyCol = emptyIndex % size;
-      const isNeighbor =
-        (row === emptyRow && Math.abs(col - emptyCol) === 1) ||
-        (col === emptyCol && Math.abs(row - emptyRow) === 1);
-      return isNeighbor;
+      const row = Math.floor(idx / size);
+      const col = idx % size;
+      const erow = Math.floor(emptyIndex / size);
+      const ecol = emptyIndex % size;
+
+      return (
+        (row === erow && Math.abs(col - ecol) === 1) ||
+        (col === ecol && Math.abs(row - erow) === 1)
+      );
     }
 
-    function handleTileClick(index) {
+    function handleTileClick(idx) {
       if (!gameStarted) {
         gameStarted = true;
         startTimer();
       }
 
-      if (!canMove(index)) return;
+      if (!canMove(idx)) return;
 
       const emptyIndex = tiles.indexOf(0);
-      const temp = tiles[index];
-      tiles[index] = tiles[emptyIndex];
-      tiles[emptyIndex] = temp;
+      [tiles[idx], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[idx]];
 
       moves++;
       movesValue.textContent = String(moves);
@@ -735,7 +688,7 @@
 
       if (isSolved()) {
         stopTimer();
-        handleWin();
+        showWin();
       }
     }
 
@@ -747,45 +700,9 @@
       return tiles[total - 1] === 0;
     }
 
-    function handleWin() {
-      const prevBest = loadBest(currentSize);
-      let isNewBest = false;
-      const currentResult = { seconds, moves };
-
-      if (!prevBest) {
-        saveBest(currentSize, currentResult);
-        isNewBest = true;
-      } else {
-        if (
-          seconds < prevBest.seconds ||
-          (seconds === prevBest.seconds && moves < prevBest.moves)
-        ) {
-          saveBest(currentSize, currentResult);
-          isNewBest = true;
-        }
-      }
-
-      const best = loadBest(currentSize);
-      if (best) {
-        bestValue.textContent = formatTime(best.seconds) + " / " + best.moves + " ходи";
-      } else {
-        bestValue.textContent = "—";
-      }
-
-      resultLevel.textContent = currentSize + "×" + currentSize;
-      resultMoves.textContent = moves;
-      resultTime.textContent = formatTime(seconds);
-      resultBest.textContent = best
-        ? formatTime(best.seconds) + " / " + best.moves + " ходи"
-        : "—";
-      resultBestNote.style.display = isNewBest ? "block" : "none";
-
-      winOverlay.classList.remove("hidden");
-    }
-
     function newGame() {
       resetStats();
-      shuffleByRandomMoves(currentSize);
+      shuffle(currentSize);
       renderGrid();
     }
 
@@ -805,7 +722,15 @@
       startScreen.classList.remove("hidden");
     }
 
-    levelButtons.forEach((btn) => {
+    function showWin() {
+      resultLevel.textContent = currentSize + "×" + currentSize;
+      resultMoves.textContent = moves;
+      resultTime.textContent = formatTime(seconds);
+      winOverlay.classList.remove("hidden");
+    }
+
+    // Обробники
+    levelButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const size = parseInt(btn.getAttribute("data-size"), 10);
         startLevel(size);
