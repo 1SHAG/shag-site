@@ -5,451 +5,92 @@
   <title>П'ятнашки SHAG</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
-      color: #f7f7ff;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #1a1d29, #0b0e16 80%);
+      color: #fff;
       display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 16px;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-
-    .app {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(7, 10, 22, 0.96);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 215, 0, 0.4);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
-      padding: 20px 18px 22px;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(12px);
+    .container {
+      text-align: center;
+      background: rgba(10, 10, 20, 0.9);
+      padding: 20px;
+      border-radius: 20px;
+      width: 320px;
+      border: 1px solid gold;
     }
-
+    h1 { color: gold; }
     .hidden { display: none; }
-
-    .logo-circle {
-      width: 72px;
-      height: 72px;
-      border-radius: 999px;
-      margin: 0 auto 8px;
-      background: radial-gradient(circle at 30% 20%, #ffeaa7 0, #f1c40f 35%, #b37b16 80%, #2b1a07 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.4rem;
-      color: #1c1307;
-      border: 2px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 16px rgba(255, 215, 0, 0.75);
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
-    }
-
-    .title {
-      text-align: center;
-      font-size: 1.45rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 0.85rem;
-      opacity: 0.8;
-      margin-bottom: 16px;
-    }
-
-    .level-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .level-btn {
-      border-radius: 18px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: linear-gradient(135deg, rgba(241, 196, 15, 0.12), rgba(179, 123, 22, 0.16));
-      cursor: pointer;
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      transition: transform 0.09s ease-out, box-shadow 0.09s ease-out, border-color 0.09s ease-out, background 0.09s ease-out;
-    }
-
-    .level-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
-      border-color: rgba(241, 196, 15, 0.7);
-      background: linear-gradient(135deg, rgba(241, 196, 15, 0.2), rgba(179, 123, 22, 0.26));
-    }
-
-    .level-name {
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .level-desc {
-      font-size: 0.78rem;
-      opacity: 0.82;
-    }
-
-    .footer-note {
-      text-align: center;
-      font-size: 0.75rem;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
-
-    /* Екран гри */
-    .game-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .back-btn {
-      border: none;
-      outline: none;
-      cursor: pointer;
-      background: transparent;
-      color: #f7f7ff;
-      font-size: 0.8rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      opacity: 0.8;
-      padding: 4px 6px;
-      border-radius: 999px;
-      transition: background 0.08s ease-out, opacity 0.08s ease-out;
-    }
-
-    .back-btn:hover {
-      background: rgba(255, 255, 255, 0.06);
-      opacity: 1;
-    }
-
-    .game-title-block {
-      flex: 1;
-      text-align: center;
-    }
-
-    .game-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-    }
-
-    .game-subtitle {
-      font-size: 0.72rem;
-      opacity: 0.75;
-    }
-
-    .logo-chip-small {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #ffeaa7 0, #f1c40f 35%, #b37b16 80%, #2b1a07 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.8rem;
-      color: #1c1307;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-    }
-
-    .helper-text {
-      font-size: 0.78rem;
-      opacity: 0.78;
-      margin-bottom: 8px;
-    }
-
-    .grid-wrapper {
-      margin-bottom: 10px;
-    }
-
     .grid {
       display: grid;
-      gap: 7px;
-      user-select: none;
+      gap: 5px;
+      margin: 10px auto;
     }
-
-    .grid-square {
-      position: relative;
-      width: 100%;
-    }
-
-    .grid-square::before {
-      content: "";
-      display: block;
-      padding-bottom: 100%;
-    }
-
     .tile {
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-      background: radial-gradient(circle at 30% 20%, #ffeaa7 0, #f1c40f 35%, #b37b16 80%, #2b1a07 100%);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+      background: linear-gradient(145deg, #f1c40f, #b37b16);
+      border-radius: 10px;
+      color: #1a1a1a;
+      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-weight: 800;
-      font-size: 1.2rem;
-      color: #1c1307;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+      font-size: 20px;
+      transition: 0.1s;
     }
-
-    .tile:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 7px 18px rgba(0, 0, 0, 0.9);
-      filter: brightness(1.05);
-    }
-
-    .tile:active {
-      transform: translateY(0);
-      box-shadow: 0 3px 9px rgba(0, 0, 0, 0.7);
-      filter: brightness(0.97);
-    }
-
-    .tile.empty {
-      background: transparent;
-      border: 1px dashed rgba(255, 255, 255, 0.35);
-      box-shadow: none;
-      cursor: default;
-      text-shadow: none;
-    }
-
-    .tile.empty:hover,
-    .tile.empty:active {
-      transform: none;
-      filter: none;
-    }
-
-    .actions-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
+    .tile:hover { filter: brightness(1.1); }
+    .empty { background: transparent; border: 1px dashed #555; cursor: default; }
+    button {
+      background: gold;
       border: none;
-      outline: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      margin: 5px;
       cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out, background 0.08s ease-out;
-      white-space: nowrap;
+      font-weight: bold;
     }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #f1c40f, #b37b16);
-      color: #1c1307;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
-      filter: brightness(1.03);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
-      filter: brightness(0.97);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.04);
-      color: #f7f7ff;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.7);
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    }
-
-    /* Екран перемоги */
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(241, 196, 15, 0.1), transparent 55%),
-        rgba(2, 3, 8, 0.86);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 10;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 360px;
-      background: rgba(9, 14, 26, 0.98);
-      border-radius: 20px;
-      padding: 16px 16px 14px;
-      border: 1px solid rgba(255, 215, 0, 0.8);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
-      font-size: 0.85rem;
-    }
-
-    .modal h2 {
-      font-size: 1.05rem;
-      margin-bottom: 6px;
-    }
-
-    .modal p { margin-bottom: 8px; }
-
-    .telegram-btn {
-      justify-content: center;
-      width: 100%;
-      background: linear-gradient(135deg, #0088cc, #00a2ff);
-      color: #f7f7ff;
+    button:hover { filter: brightness(1.1); }
+    a.telegram {
+      display: block;
+      background: #0088cc;
+      color: #fff;
       text-decoration: none;
-      margin: 4px 0 8px;
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.9);
-    }
-
-    .telegram-btn:hover {
-      filter: brightness(1.05);
-      transform: translateY(-1px);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.95);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 4px;
-    }
-
-    .modal-actions .btn {
-      flex: 1;
-      justify-content: center;
-    }
-
-    .modal-note {
-      font-size: 0.7rem;
-      opacity: 0.78;
-      margin-top: 4px;
-      text-align: center;
-    }
-
-    @media (max-width: 420px) {
-      .app { padding: 16px 14px 20px; border-radius: 20px; }
-      .grid { gap: 6px; }
-      .tile { border-radius: 14px; font-size: 1.05rem; }
-      .logo-circle { width: 64px; height: 64px; font-size: 1.3rem; }
-      .title { font-size: 1.3rem; }
-      .subtitle { font-size: 0.8rem; }
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="container">
     <!-- Стартовий екран -->
     <div id="menu">
-      <div class="logo-circle">SHAG</div>
-      <div class="title">П'ятнашки SHAG</div>
-      <div class="subtitle">Обери рівень і зроби свій перший ШАГ у гру.</div>
-
-      <div class="level-buttons">
-        <button class="level-btn" onclick="startGame(3)">
-          <div class="level-name">🟦 Легко — 3×3</div>
-          <div class="level-desc">8 плиток. Швидко і просто, ідеально для розігріву.</div>
-        </button>
-        <button class="level-btn" onclick="startGame(4)">
-          <div class="level-name">🟪 Класика SHAG — 4×4</div>
-          <div class="level-desc">Класичні п'ятнашки. Баланс швидкості і складності.</div>
-        </button>
-        <button class="level-btn" onclick="startGame(5)">
-          <div class="level-name">🟥 Профі — 5×5</div>
-          <div class="level-desc">24 плитки. Виклик для справжніх майстрів SHAG.</div>
-        </button>
-      </div>
-
-      <div class="footer-note">SHAG — твоя дорога до вершин криптоіндустрії.</div>
+      <h1>П'ятнашки SHAG</h1>
+      <p>Обери рівень складності:</p>
+      <button onclick="startGame(3)">3×3 (Легко)</button><br/>
+      <button onclick="startGame(4)">4×4 (Класика)</button><br/>
+      <button onclick="startGame(5)">5×5 (Профі)</button>
     </div>
 
-    <!-- Екран гри -->
+    <!-- Ігровий екран -->
     <div id="game" class="hidden">
-      <div class="game-header">
-        <button class="back-btn" onclick="backToMenu()">⬅ Назад</button>
-        <div class="game-title-block">
-          <div class="game-title" id="levelTitle"></div>
-          <div class="game-subtitle">Пересувай плитки поруч із порожньою клітинкою.</div>
-        </div>
-        <div class="logo-chip-small">SHAG</div>
-      </div>
-
-      <div class="helper-text">
-        Збери всі числа у правильному порядку. Класична логічна гра для розумних.
-      </div>
-
-      <div class="grid-wrapper">
-        <div id="grid" class="grid"></div>
-      </div>
-
-      <div class="actions-row">
-        <button class="btn btn-primary" onclick="newGame()">🔁 Нова гра</button>
-        <button class="btn btn-secondary" onclick="backToMenu()">⬅ До меню</button>
-      </div>
+      <h2 id="levelTitle"></h2>
+      <div id="grid" class="grid"></div>
+      <button onclick="newGame()">Нова гра</button>
+      <button onclick="backToMenu()">До меню</button>
     </div>
 
     <!-- Екран перемоги -->
-    <div id="winOverlay" class="overlay hidden">
-      <div class="modal">
-        <h2>🎉 Вітаємо! Ти склав п'ятнашки SHAG!</h2>
-        <p>Чудовий результат. Продовжуй тренувати мозок і робити правильні кроки — ШАГ за ШАГом.</p>
-        <p><strong>📬 Призовий фонд SHAG</strong><br>
-          Найкращий гравець протягом 24 годин отримує бонус із призового фонду SHAG.
-          Щоб взяти участь — поділись своїм результатом у Telegram-каналі.
-        </p>
-
-        <a class="btn telegram-btn" href="https://t.me/coin_1SHAG" target="_blank" rel="noopener noreferrer">
-          🔗 Перейти до Telegram каналу
-        </a>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" onclick="playAgain()">🔁 Почати знову</button>
-          <button class="btn btn-primary" onclick="backToMenu()">⬅ Обрати рівень</button>
-        </div>
-
-        <div class="modal-note">
-          Виклади скрін свого результату — і, можливо, саме ти станеш переможцем дня SHAG.
-        </div>
-      </div>
+    <div id="win" class="hidden">
+      <h2>🎉 Вітаємо! Ти склав п'ятнашки!</h2>
+      <p>Найкращий гравець за 24 години отримає бонус із фонду SHAG!</p>
+      <a class="telegram" href="https://t.me/coin_1SHAG" target="_blank">🔗 Перейти до Telegram каналу</a>
+      <button onclick="newGame()">Почати знову</button>
+      <button onclick="backToMenu()">⬅ Обрати рівень</button>
     </div>
   </div>
 
@@ -461,7 +102,7 @@
       size = n;
       document.getElementById("menu").classList.add("hidden");
       document.getElementById("game").classList.remove("hidden");
-      document.getElementById("winOverlay").classList.add("hidden");
+      document.getElementById("win").classList.add("hidden");
       document.getElementById("levelTitle").textContent = "Рівень " + n + "×" + n;
       newGame();
     }
@@ -469,15 +110,11 @@
     function backToMenu() {
       document.getElementById("menu").classList.remove("hidden");
       document.getElementById("game").classList.add("hidden");
-      document.getElementById("winOverlay").classList.add("hidden");
-    }
-
-    function playAgain() {
-      document.getElementById("winOverlay").classList.add("hidden");
-      newGame();
+      document.getElementById("win").classList.add("hidden");
     }
 
     function newGame() {
+      document.getElementById("win").classList.add("hidden");
       const grid = document.getElementById("grid");
       grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
       const numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
@@ -491,14 +128,11 @@
       const grid = document.getElementById("grid");
       grid.innerHTML = "";
       tiles.forEach((n, i) => {
-        const wrap = document.createElement("div");
-        wrap.className = "grid-square";
         const div = document.createElement("div");
         div.className = "tile" + (n === 0 ? " empty" : "");
         if (n !== 0) div.textContent = n;
         div.onclick = () => move(i);
-        wrap.appendChild(div);
-        grid.appendChild(wrap);
+        grid.appendChild(div);
       });
     }
 
@@ -514,14 +148,14 @@
     }
 
     function checkWin() {
-      for (let i = 0; i < tiles.length - 1; i++) {
+      for (let i = 0; i < tiles.length - 1; i++)
         if (tiles[i] !== i + 1) return false;
-      }
       return tiles[tiles.length - 1] === 0;
     }
 
     function showWin() {
-      document.getElementById("winOverlay").classList.remove("hidden");
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("win").classList.remove("hidden");
     }
   </script>
 </body>
