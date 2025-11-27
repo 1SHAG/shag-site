@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>П'ятнашки SHAG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
+      color: #f7f7ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(7, 10, 22, 0.96);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+      padding: 20px 20px 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .logo-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 999px;
+      margin: 0 auto 8px;
+      background: radial-gradient(circle at 30% 20%, #ffeaa7 0, #f1c40f 35%, #b37b16 80%, #2b1a07 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: #1c1307;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.75);
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+    }
+
+    .title {
+      text-align: center;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-bottom: 16px;
+    }
+
+    .level-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .level-btn {
+      border-radius: 18px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(179, 123, 22, 0.12));
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: transform 0.09s ease-out, box-shadow 0.09s ease-out, border-color 0.09s ease-out, background 0.09s ease-out;
+    }
+
+    .level-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      border-color: rgba(241, 196, 15, 0.7);
+      background: linear-gradient(135deg, rgba(241, 196, 15, 0.18), rgba(179, 123, 22, 0.22));
+    }
+
+    .level-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .level-desc {
+      font-size: 0.78rem;
+      opacity: 0.8;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .back-btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: transparent;
+      color: #f7f7ff;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.8;
+      padding: 4px 6px;
+      border-radius: 999px;
+      transition: background 0.08s ease-out, opacity 0.08s ease-out;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      opacity: 1;
+    }
+
+    .game-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .game-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .game-subtitle {
+      font-size: 0.72rem;
+      opacity: 0.75;
+    }
+
+    .logo-chip-small {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffeaa7 0, #f1c40f 35%, #b37b16 80%, #2b1a07 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #1c1307;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(17, 24, 48, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      opacity: 0.7;
+    }
+
+    .stat-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .grid-wrapper {
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .grid-square {
+      position: relative;
+      width: 100%;
+    }
+
+    .grid-square::before {
+      content: "";
+      display: block;
+      padding-bottom: 100%;
+    }
+
+    .tile {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 20%, #ffeaa7 0, #f1c40f 35%, #b37b16 80%, #2b1a07 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #1c1307;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+    }
+
+    .tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 18px rgba(0, 0, 0, 0.85);
+      filter: brightness(1.04);
+    }
+
+    .tile:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+      filter: brightness(0.97);
+    }
+
+    .tile.empty {
+      background: transparent;
+      border: 1px dashed rgba(255, 255, 255, 0.3);
+      box-shadow: none;
+      cursor: default;
+      text-shadow: none;
+    }
+
+    .tile.empty:hover,
+    .tile.empty:active {
+      transform: none;
+      filter: none;
+    }
+
+    .helper-text {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      margin-bottom: 10px;
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out, background 0.08s ease-out;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f1c40f, #b37b16);
+      color: #1c1307;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
+      filter: brightness(1.03);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+      filter: brightness(0.97);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: #f7f7ff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(241, 196, 15, 0.08), transparent 60%),
+        rgba(2, 3, 8, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 10;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 360px;
+      background: rgba(9, 14, 26, 0.98);
+      border-radius: 20px;
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(255, 215, 0, 0.7);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .modal-subtitle {
+      font-size: 0.82rem;
+      opacity: 0.85;
+      margin-bottom: 10px;
+    }
+
+    .results-card {
+      border-radius: 14px;
+      padding: 8px 10px;
+      background: rgba(18, 27, 54, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.82rem;
+      margin-bottom: 10px;
+    }
+
+    .results-card p + p {
+      margin-top: 2px;
+    }
+
+    .results-highlight {
+      color: #2ecc71;
+      font-weight: 600;
+    }
+
+    .prize-card {
+      border-radius: 14px;
+      padding: 9px 10px;
+      background: rgba(241, 196, 15, 0.08);
+      border: 1px solid rgba(241, 196, 15, 0.6);
+      font-size: 0.82rem;
+      margin-bottom: 10px;
+    }
+
+    .prize-card strong {
+      color: #f1c40f;
+    }
+
+    .modal-actions-main {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .telegram-btn {
+      justify-content: center;
+      width: 100%;
+      background: linear-gradient(135deg, #0088cc, #00a2ff);
+      color: #f7f7ff;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.9);
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .telegram-btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.95);
+    }
+
+    .modal-actions-secondary {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions-secondary .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .modal-note {
+      font-size: 0.7rem;
+      opacity: 0.75;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    @media (max-width: 420px) {
+      .app {
+        padding: 16px 14px 18px;
+        border-radius: 20px;
+      }
+      .grid {
+        gap: 6px;
+      }
+      .tile {
+        border-radius: 14px;
+        font-size: 1.05rem;
+      }
+      .logo-circle {
+        width: 64px;
+        height: 64px;
+        font-size: 1.3rem;
+      }
+      .title {
+        font-size: 1.3rem;
+      }
+      .subtitle {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Стартовий екран -->
+    <div id="startScreen">
+      <div class="logo-circle">SHAG</div>
+      <div class="title">П'ятнашки SHAG</div>
+      <div class="subtitle">Обери рівень і зроби свій перший ШАГ у гру.</div>
+
+      <div class="level-buttons">
+        <button class="level-btn" data-size="3">
+          <div class="level-name">🟦 Легко — 3×3</div>
+          <div class="level-desc">8 плиток. Швидко і просто, ідеально для розігріву.</div>
+        </button>
+        <button class="level-btn" data-size="4">
+          <div class="level-name">🟪 Класика SHAG — 4×4</div>
+          <div class="level-desc">Класичні п'ятнашки. Баланс швидкості і складності.</div>
+        </button>
+        <button class="level-btn" data-size="5">
+          <div class="level-name">🟥 Профі — 5×5</div>
+          <div class="level-desc">24 плитки. Виклик для справжніх майстрів SHAG.</div>
+        </button>
+      </div>
+
+      <div class="footer-note">SHAG — твоя дорога до вершин криптоіндустрії.</div>
+    </div>
+
+    <!-- Екран гри -->
+    <div id="gameScreen" class="hidden">
+      <div class="game-header">
+        <button class="back-btn" id="backToMenuBtn">
+          ⬅ Назад
+        </button>
+        <div class="game-title-block">
+          <div class="game-title">Рівень: <span id="levelLabel"></span></div>
+          <div class="game-subtitle">Збери плитки у правильному порядку.</div>
+        </div>
+        <div class="logo-chip-small">SHAG</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Ходи</div>
+          <div class="stat-value" id="movesValue">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Час</div>
+          <div class="stat-value" id="timeValue">00:00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Рекорд</div>
+          <div class="stat-value" id="bestValue">—</div>
+        </div>
+      </div>
+
+      <div class="grid-wrapper">
+        <div id="grid" class="grid"></div>
+      </div>
+
+      <div class="helper-text">
+        Підказка: натискай тільки на плитки, що стоять поруч із порожньою клітинкою. Збери всі числа по порядку.
+      </div>
+
+      <div class="actions-row">
+        <button class="btn btn-primary" id="newGameBtn">
+          🔁 Нова гра
+        </button>
+        <button class="btn btn-secondary" id="backToMenuBtnBottom">
+          ⬅ До меню
+        </button>
+      </div>
+    </div>
+
+    <!-- Екран перемоги -->
+    <div id="winOverlay" class="overlay hidden">
+      <div class="modal">
+        <div class="modal-title">🎉 Вітаємо! Ти склав п'ятнашки SHAG!</div>
+        <div class="modal-subtitle">
+          Чудовий результат. Продовжуй тренувати мозок і вміння робити правильні кроки — ШАГ за ШАГом.
+        </div>
+
+        <div class="results-card">
+          <p><strong>Рівень:</strong> <span id="resultLevel"></span></p>
+          <p><strong>Ходи:</strong> <span id="resultMoves"></span></p>
+          <p><strong>Час:</strong> <span id="resultTime"></span></p>
+          <p><strong>Твій рекорд:</strong> <span id="resultBest"></span></p>
+          <p id="resultBestNote" class="results-highlight" style="display:none;">Новий рекорд! 🔥</p>
+        </div>
+
+        <div class="prize-card">
+          <strong>📬 Призовий фонд SHAG</strong><br />
+          Найкращий гравець протягом 24 годин отримує бонус із призового фонду SHAG.<br />
+          Щоб взяти участь — поділись своїм результатом у Telegram-каналі.
+        </div>
+
+        <div class="modal-actions-main">
+          <a
+            href="https://t.me/coin_1SHAG"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn telegram-btn"
+          >
+            🔗 Перейти до Telegram каналу
+          </a>
+        </div>
+
+        <div class="modal-actions-secondary">
+          <button class="btn btn-secondary" id="playAgainBtn">
+            🔁 Почати знову
+          </button>
+          <button class="btn btn-primary" id="chooseLevelBtn">
+            ⬅ Обрати рівень
+          </button>
+        </div>
+
+        <div class="modal-note">
+          Виклади скрін свого результату — і, можливо, саме ти станеш переможцем дня SHAG.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM елементи
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const winOverlay = document.getElementById("winOverlay");
+
+    const levelButtons = document.querySelectorAll(".level-btn");
+    const backToMenuBtn = document.getElementById("backToMenuBtn");
+    const backToMenuBtnBottom = document.getElementById("backToMenuBtnBottom");
+    const newGameBtn = document.getElementById("newGameBtn");
+
+    const levelLabel = document.getElementById("levelLabel");
+    const movesValue = document.getElementById("movesValue");
+    const timeValue = document.getElementById("timeValue");
+    const bestValue = document.getElementById("bestValue");
+
+    const gridElement = document.getElementById("grid");
+
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const chooseLevelBtn = document.getElementById("chooseLevelBtn");
+
+    const resultLevel = document.getElementById("resultLevel");
+    const resultMoves = document.getElementById("resultMoves");
+    const resultTime = document.getElementById("resultTime");
+    const resultBest = document.getElementById("resultBest");
+    const resultBestNote = document.getElementById("resultBestNote");
+
+    // Стан гри
+    let currentSize = 4;
+    let tiles = [];
+    let moves = 0;
+    let seconds = 0;
+    let timerId = null;
+    let gameStarted = false;
+
+    // Ключі для localStorage
+    function bestKey(size) {
+      return "shag_puzzle_best_" + size;
+    }
+
+    function loadBest(size) {
+      try {
+        const raw = localStorage.getItem(bestKey(size));
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveBest(size, data) {
+      try {
+        localStorage.setItem(bestKey(size), JSON.stringify(data));
+      } catch (e) {
+        // ігноруємо помилку
+      }
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }
+
+    function startTimer() {
+      if (timerId) return;
+      timerId = setInterval(() => {
+        seconds++;
+        timeValue.textContent = formatTime(seconds);
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function resetStats() {
+      moves = 0;
+      seconds = 0;
+      gameStarted = false;
+      movesValue.textContent = "0";
+      timeValue.textContent = "00:00";
+      const best = loadBest(currentSize);
+      if (best) {
+        bestValue.textContent = formatTime(best.seconds) + " / " + best.moves + " ходи";
+      } else {
+        bestValue.textContent = "—";
+      }
+      stopTimer();
+    }
+
+    function createSolvedTiles(size) {
+      const total = size * size;
+      const arr = [];
+      for (let i = 1; i < total; i++) {
+        arr.push(i);
+      }
+      arr.push(0); // пусте
+      return arr;
+    }
+
+    function shuffleByRandomMoves(size, steps = 300) {
+      tiles = createSolvedTiles(size);
+
+      function getNeighbors(index) {
+        const neighbors = [];
+        const row = Math.floor(index / size);
+        const col = index % size;
+
+        if (row > 0) neighbors.push(index - size);
+        if (row < size - 1) neighbors.push(index + size);
+        if (col > 0) neighbors.push(index - 1);
+        if (col < size - 1) neighbors.push(index + 1);
+
+        return neighbors;
+      }
+
+      const totalSteps = steps + size * size * 30;
+
+      for (let i = 0; i < totalSteps; i++) {
+        const emptyIndex = tiles.indexOf(0);
+        const neighbors = getNeighbors(emptyIndex);
+        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+        const temp = tiles[emptyIndex];
+        tiles[emptyIndex] = tiles[randomNeighbor];
+        tiles[randomNeighbor] = temp;
+      }
+
+      // На випадок, якщо випадково залишили вирішений стан
+      if (isSolved()) {
+        shuffleByRandomMoves(size, steps);
+      }
+    }
+
+    function renderGrid() {
+      gridElement.innerHTML = "";
+      gridElement.style.gridTemplateColumns = `repeat(${currentSize}, 1fr)`;
+
+      tiles.forEach((value, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("grid-square");
+
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+
+        if (value === 0) {
+          tile.classList.add("empty");
+        } else {
+          tile.textContent = value;
+          tile.addEventListener("click", () => handleTileClick(index));
+        }
+
+        wrapper.appendChild(tile);
+        gridElement.appendChild(wrapper);
+      });
+    }
+
+    function canMove(index) {
+      const size = currentSize;
+      const emptyIndex = tiles.indexOf(0);
+      const row = Math.floor(index / size);
+      const col = index % size;
+      const emptyRow = Math.floor(emptyIndex / size);
+      const emptyCol = emptyIndex % size;
+
+      const isNeighbor =
+        (row === emptyRow && Math.abs(col - emptyCol) === 1) ||
+        (col === emptyCol && Math.abs(row - emptyRow) === 1);
+
+      return isNeighbor;
+    }
+
+    function handleTileClick(index) {
+      if (!gameStarted) {
+        gameStarted = true;
+        startTimer();
+      }
+
+      if (!canMove(index)) return;
+
+      const emptyIndex = tiles.indexOf(0);
+      const temp = tiles[index];
+      tiles[index] = tiles[emptyIndex];
+      tiles[emptyIndex] = temp;
+
+      moves++;
+      movesValue.textContent = String(moves);
+      renderGrid();
+
+      if (isSolved()) {
+        stopTimer();
+        handleWin();
+      }
+    }
+
+    function isSolved() {
+      const total = currentSize * currentSize;
+      for (let i = 0; i < total - 1; i++) {
+        if (tiles[i] !== i + 1) return false;
+      }
+      return tiles[total - 1] === 0;
+    }
+
+    function handleWin() {
+      // Оновлюємо рекорд
+      const prevBest = loadBest(currentSize);
+      let isNewBest = false;
+      const currentResult = { seconds, moves };
+
+      if (!prevBest) {
+        saveBest(currentSize, currentResult);
+        isNewBest = true;
+      } else {
+        if (
+          seconds < prevBest.seconds ||
+          (seconds === prevBest.seconds && moves < prevBest.moves)
+        ) {
+          saveBest(currentSize, currentResult);
+          isNewBest = true;
+        }
+      }
+
+      // Оновлюємо відображення рекорду
+      const best = loadBest(currentSize);
+      if (best) {
+        bestValue.textContent = formatTime(best.seconds) + " / " + best.moves + " ходи";
+      } else {
+        bestValue.textContent = "—";
+      }
+
+      // Заповнюємо дані в модальному вікні
+      resultLevel.textContent = currentSize + "×" + currentSize;
+      resultMoves.textContent = moves;
+      resultTime.textContent = formatTime(seconds);
+      resultBest.textContent = best
+        ? formatTime(best.seconds) + " / " + best.moves + " ходи"
+        : "—";
+      resultBestNote.style.display = isNewBest ? "block" : "none";
+
+      winOverlay.classList.remove("hidden");
+    }
+
+    function newGame() {
+      resetStats();
+      shuffleByRandomMoves(currentSize);
+      renderGrid();
+    }
+
+    function startLevel(size) {
+      currentSize = size;
+      levelLabel.textContent = size + "×" + size;
+      startScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      winOverlay.classList.add("hidden");
+      newGame();
+    }
+
+    function backToMenu() {
+      stopTimer();
+      gameScreen.classList.add("hidden");
+      winOverlay.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+    }
+
+    // Обробники подій
+    levelButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const size = parseInt(btn.getAttribute("data-size"), 10);
+        startLevel(size);
+      });
+    });
+
+    newGameBtn.addEventListener("click", () => {
+      newGame();
+    });
+
+    backToMenuBtn.addEventListener("click", () => {
+      backToMenu();
+    });
+
+    backToMenuBtnBottom.addEventListener("click", () => {
+      backToMenu();
+    });
+
+    playAgainBtn.addEventListener("click", () => {
+      winOverlay.classList.add("hidden");
+      newGame();
+    });
+
+    chooseLevelBtn.addEventListener("click", () => {
+      backToMenu();
+    });
+  </script>
+</body>
+</html>
