@@ -46,6 +46,19 @@
       margin: 10px auto;
     }
 
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin: 6px 0 4px;
+      opacity: 0.9;
+    }
+
+    .stats span strong {
+      font-weight: 700;
+      color: #f1c40f;
+    }
+
     .tile {
       position: relative;
       background: radial-gradient(circle at 30% 20%, #ffeaa7 0%, #f1c40f 40%, #b37b16 75%, #2b1a07 100%);
@@ -166,6 +179,12 @@
     <!-- Ігровий екран -->
     <div id="game" class="hidden">
       <h2 id="levelTitle"></h2>
+
+      <div class="stats">
+        <span>Ходи: <strong id="movesCount">0</strong></span>
+        <span>Час: <strong id="timeCount">00:00</strong></span>
+      </div>
+
       <div id="grid" class="grid"></div>
       <button onclick="newGame()">Нова гра</button>
       <button onclick="backToMenu()">До меню</button>
@@ -185,6 +204,47 @@
     let size = 4;
     let tiles = [];
 
+    let moves = 0;
+    let seconds = 0;
+    let timerId = null;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      const mm = m < 10 ? "0" + m : String(m);
+      const ss = s < 10 ? "0" + s : String(s);
+      return mm + ":" + ss;
+    }
+
+    function updateStats() {
+      const movesEl = document.getElementById("movesCount");
+      const timeEl = document.getElementById("timeCount");
+      if (movesEl) movesEl.textContent = moves;
+      if (timeEl) timeEl.textContent = formatTime(seconds);
+    }
+
+    function resetStats() {
+      moves = 0;
+      seconds = 0;
+      stopTimer();
+      updateStats();
+    }
+
+    function startTimer() {
+      if (timerId) return;
+      timerId = setInterval(() => {
+        seconds++;
+        updateStats();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
     function startGame(n) {
       size = n;
       document.getElementById("menu").classList.add("hidden");
@@ -195,6 +255,7 @@
     }
 
     function backToMenu() {
+      stopTimer();
       document.getElementById("menu").classList.remove("hidden");
       document.getElementById("game").classList.add("hidden");
       document.getElementById("win").classList.add("hidden");
@@ -209,6 +270,8 @@
       numbers.push(0);
       tiles = numbers;
       draw();
+      resetStats();
+      startTimer();
     }
 
     function draw() {
@@ -227,8 +290,11 @@
       const empty = tiles.indexOf(0);
       const row = Math.floor(i / size), col = i % size;
       const er = Math.floor(empty / size), ec = empty % size;
+
       if (Math.abs(row - er) + Math.abs(col - ec) === 1) {
         [tiles[i], tiles[empty]] = [tiles[empty], tiles[i]];
+        moves++;
+        updateStats();
         draw();
         if (checkWin()) showWin();
       }
@@ -242,6 +308,7 @@
     }
 
     function showWin() {
+      stopTimer();
       document.getElementById("game").classList.add("hidden");
       document.getElementById("win").classList.remove("hidden");
     }
