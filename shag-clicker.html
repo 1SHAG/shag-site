@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>SHAG Clicker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --accent: #00f0ff;
+            --accent-soft: #00c8ff;
+            --bg: #020617;
+            --bg-soft: #0b1220;
+            --gold: #facc15;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #e5e7eb;
+        }
+        .game-wrapper {
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 18px;
+            padding: 18px 18px 22px;
+            max-width: 960px;
+            width: 100%;
+            box-shadow: 0 0 35px rgba(0, 200, 255, 0.35);
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+            gap: 18px;
+        }
+        @media (max-width: 800px) {
+            .game-wrapper {
+                grid-template-columns: 1fr;
+                margin: 10px;
+            }
+        }
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .title-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .title-block img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 0 18px rgba(0, 200, 255, 0.8);
+        }
+        .title-block h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .subtitle {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        .stats {
+            text-align: right;
+            font-size: 13px;
+        }
+        .stats div {
+            margin: 2px 0;
+        }
+        .shag-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.9);
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            border-right: 1px solid rgba(148, 163, 184, 0.35);
+            padding-right: 12px;
+        }
+        @media (max-width: 800px) {
+            .left-panel {
+                border-right: none;
+                border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+                padding-right: 0;
+                padding-bottom: 12px;
+            }
+        }
+
+        .coin-button {
+            position: relative;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            background: radial-gradient(circle at 30% 20%, #fef9c3 0%, #facc15 20%, #b45309 70%, #451a03 100%);
+            box-shadow:
+                0 0 25px rgba(250, 204, 21, 0.9),
+                0 0 65px rgba(0, 200, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.05s ease-out, box-shadow 0.1s ease-out;
+            overflow: hidden;
+        }
+        .coin-button::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 50%;
+            border: 2px solid rgba(248, 250, 252, 0.65);
+        }
+        .coin-button img {
+            position: relative;
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+        }
+        .coin-button:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow:
+                0 0 10px rgba(250, 204, 21, 0.7),
+                0 0 30px rgba(0, 200, 255, 0.4);
+        }
+
+        .per-click {
+            font-size: 14px;
+            margin-top: 4px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.3);
+            border: 1px solid rgba(45, 212, 191, 0.5);
+        }
+
+        .info-row {
+            font-size: 13px;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upgrades-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .upgrade-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(8, 47, 73, 0.9));
+            border: 1px solid rgba(148, 163, 184, 0.6);
+        }
+        .upgrade-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .upgrade-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .upgrade-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .upgrade-meta {
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .upgrade-button {
+            border: none;
+            border-radius: 999px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 110px;
+            background: linear-gradient(135deg, var(--accent-soft), var(--accent));
+            color: #020617;
+            box-shadow: 0 0 12px rgba(0, 200, 255, 0.8);
+        }
+        .upgrade-button[disabled] {
+            background: #1f2937;
+            color: #9ca3af;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .bottom-row {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .reset-btn {
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+
+        /* 👇 Анімаційний текст “+N SHAG” над монетою */
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow:
+                0 0 6px rgba(250, 204, 21, 0.9),
+                0 0 14px rgba(0, 200, 255, 0.8);
+            font-size: 14px;
+            z-index: 9999;
+            transform: translate(-50%, 0);
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -40px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-wrapper">
+    <div class="header">
+        <div class="title-block">
+            <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png" alt="SHAG">
+            <div>
+                <h1>SHAG Clicker</h1>
+                <div class="subtitle">Клікай по монеті SHAG, купуй майнери та ферми — розганяй свій цифровий ШАГ 🚀</div>
+            </div>
+        </div>
+        <div class="stats">
+            <div>Баланс:</div>
+            <div class="shag-value"><span id="shagAmount">0</span> SHAG</div>
+            <div>+<span id="spc">1</span> за клік • <span id="sps">0</span> / сек</div>
+        </div>
+    </div>
+
+    <div class="left-panel">
+        <button class="coin-button" id="coinButton">
+            <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png" alt="SHAG">
+        </button>
+        <div class="per-click">+<span id="spcBadge">1</span> SHAG за один клік</div>
+        <div class="info-row">
+            Натискай на монету, щоб майнити SHAG вручну.<br>
+            Потім купуй апгрейди — і ШАГ видобуватиметься автоматично.
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="section-title">
+            Апгрейди майнінгу
+            <span style="font-size: 11px; opacity: 0.8;">Прогрес зберігається в браузері</span>
+        </div>
+        <div class="upgrades-list" id="upgradesList">
+            <!-- Сюди JS додасть картки апгрейдів -->
+        </div>
+
+        <div class="bottom-row">
+            <div>
+                Частина екосистеми <a class="link" href="https://1shag.github.io/shag-site/" target="_blank">1SHAG</a> 💠
+            </div>
+            <div>
+                <button class="reset-btn" id="resetProgress">Скинути прогрес</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = "shagClickerV1";
+
+const defaultGame = {
+    shag: 0,
+    perClick: 1,
+    perSecond: 0,
+    upgrades: {
+        clickPower: 0,
+        miner: 0,
+        farm: 0
+    }
+};
+
+let game = loadGame();
+
+const upgradesConfig = {
+    clickPower: {
+        id: "clickPower",
+        name: "Сильніший клік",
+        desc: "+1 SHAG за клік",
+        baseCost: 10,
+        costMult: 1.5,
+        apply: () => {
+            game.perClick += 1;
+        },
+        effectText: (level) => `Рівень: ${level} • +${level} SHAG/клік`
+    },
+    miner: {
+        id: "miner",
+        name: "Домашній майнер",
+        desc: "+1 SHAG / сек",
+        baseCost: 50,
+        costMult: 1.6,
+        apply: () => {
+            game.perSecond += 1;
+        },
+        effectText: (level) => `Рівень: ${level} • +${level} SHAG/сек`
+    },
+    farm: {
+        id: "farm",
+        name: "Майнінг-ферма",
+        desc: "+5 SHAG / сек",
+        baseCost: 250,
+        costMult: 1.7,
+        apply: () => {
+            game.perSecond += 5;
+        },
+        effectText: (level) => `Рівень: ${level} • +${level * 5} SHAG/сек`
+    }
+};
+
+const shagAmountEl = document.getElementById("shagAmount");
+const spcEl = document.getElementById("spc");
+const spcBadgeEl = document.getElementById("spcBadge");
+const spsEl = document.getElementById("sps");
+const coinButton = document.getElementById("coinButton");
+const upgradesListEl = document.getElementById("upgradesList");
+const resetBtn = document.getElementById("resetProgress");
+
+function loadGame() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return structuredClone(defaultGame);
+        const parsed = JSON.parse(saved);
+        const game = structuredClone(defaultGame);
+        game.shag = parsed.shag ?? 0;
+        game.perClick = parsed.perClick ?? 1;
+        game.perSecond = parsed.perSecond ?? 0;
+        game.upgrades = Object.assign({}, defaultGame.upgrades, parsed.upgrades || {});
+        return game;
+    } catch (e) {
+        return structuredClone(defaultGame);
+    }
+}
+
+function saveGame() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+}
+
+function formatNumber(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + "M";
+    if (n >= 1_000) return (n / 1_000).toFixed(2) + "K";
+    if (Number.isInteger(n)) return n.toString();
+    return n.toFixed(1);
+}
+
+function getUpgradeCost(config, level) {
+    const cost = config.baseCost * Math.pow(config.costMult, level);
+    return Math.round(cost);
+}
+
+function renderStats() {
+    shagAmountEl.textContent = formatNumber(game.shag);
+    spcEl.textContent = formatNumber(game.perClick);
+    spcBadgeEl.textContent = formatNumber(game.perClick);
+    spsEl.textContent = formatNumber(game.perSecond);
+}
+
+/* 👇 Створюємо літаючий текст +N SHAG над монетою */
+function spawnFloatingText(amount) {
+    const rect = coinButton.getBoundingClientRect();
+    const span = document.createElement("div");
+    span.className = "floating-text";
+    span.textContent = `+${formatNumber(amount)} SHAG`;
+    // позиція над монетою (по центру)
+    span.style.left = (rect.left + rect.width / 2) + "px";
+    span.style.top = (rect.top + rect.height * 0.2) + "px";
+    document.body.appendChild(span);
+
+    span.addEventListener("animationend", () => {
+        span.remove();
+    });
+}
+
+function createUpgradesUI() {
+    upgradesListEl.innerHTML = "";
+    Object.values(upgradesConfig).forEach(cfg => {
+        const level = game.upgrades[cfg.id] || 0;
+        const cost = getUpgradeCost(cfg, level);
+
+        const card = document.createElement("div");
+        card.className = "upgrade-card";
+
+        const main = document.createElement("div");
+        main.className = "upgrade-main";
+
+        const name = document.createElement("div");
+        name.className = "upgrade-name";
+        name.textContent = cfg.name;
+
+        const desc = documentElement("div", "upgrade-desc", cfg.desc);
+
+        const meta = document.createElement("div");
+        meta.className = "upgrade-meta";
+        meta.textContent = `${cfg.effectText(level)} • Наступний рівень: ${cost} SHAG`;
+
+        main.appendChild(name);
+        main.appendChild(desc);
+        main.appendChild(meta);
+
+        const btn = document.createElement("button");
+        btn.className = "upgrade-button";
+        btn.textContent = `Купити за ${formatNumber(cost)} SHAG`;
+        btn.disabled = game.shag < cost;
+
+        btn.addEventListener("click", () => {
+            if (game.shag < cost) return;
+            game.shag -= cost;
+            game.upgrades[cfg.id] = (game.upgrades[cfg.id] || 0) + 1;
+            cfg.apply();
+            saveGame();
+            renderStats();
+            createUpgradesUI();
+        });
+
+        card.appendChild(main);
+        card.appendChild(btn);
+        upgradesListEl.appendChild(card);
+    });
+}
+
+function documentElement(tag, className, text) {
+    const el = document.createElement(tag);
+    el.className = className;
+    el.textContent = text;
+    return el;
+}
+
+coinButton.addEventListener("click", () => {
+    game.shag += game.perClick;
+    renderStats();
+    saveGame();
+    // ✨ показуємо анімаційний текст над монетою
+    spawnFloatingText(game.perClick);
+});
+
+resetBtn.addEventListener("click", () => {
+    if (!confirm("Скинути весь прогрес у SHAG Clicker?")) return;
+    game = structuredClone(defaultGame);
+    saveGame();
+    renderStats();
+    createUpgradesUI();
+});
+
+// пасивний дохід
+setInterval(() => {
+    if (game.perSecond <= 0) return;
+    game.shag += game.perSecond;
+    renderStats();
+    saveGame();
+}, 1000);
+
+// періодично оновлюємо доступність кнопок
+setInterval(() => {
+    createUpgradesUI();
+}, 1500);
+
+// старт
+renderStats();
+createUpgradesUI();
+</script>
+
+</body>
+</html>
