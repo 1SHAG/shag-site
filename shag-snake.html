@@ -1,51 +1,74 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<title>SHAG Snake 🐍</title>
-<style>
-    body {
-        background: #0a0f1c;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        flex-direction: column;
-    }
-    canvas {
-        background: #111827;
-        border: 3px solid #00c8ff;
-        box-shadow: 0 0 25px #00c8ff;
-    }
-    #score {
-        font-size: 24px;
-        margin: 15px;
-        color: #00f0ff;
-        text-shadow: 0 0 10px #00c8ff;
-    }
-    button {
-        padding: 10px 20px;
-        font-size: 20px;
-        border: none;
-        border-radius: 10px;
-        background: #00c8ff;
-        color: #000;
-        cursor: pointer;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    #shagLogo {
-        width: 30px;
-        vertical-align: middle;
-        margin-right: 5px;
-    }
-</style>
+    <meta charset="UTF-8">
+    <title>SHAG Snake 🐍</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+            margin: 0;
+        }
+        h1 {
+            margin: 5px 0 0;
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+        #shagLogo {
+            width: 32px;
+            vertical-align: middle;
+            margin-right: 6px;
+            border-radius: 50%;
+        }
+        #score {
+            font-size: 20px;
+            margin: 8px 0 10px;
+            color: #00f0ff;
+            text-shadow: 0 0 10px #00c8ff;
+        }
+        button {
+            padding: 8px 18px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #00c8ff, #00f6b4);
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px rgba(0, 200, 255, 0.8);
+        }
+        button:hover {
+            transform: translateY(-1px);
+        }
+        canvas {
+            background: #020617;
+            border: 3px solid #00c8ff;
+            box-shadow: 0 0 25px #00c8ff;
+            max-width: 95vw;
+            max-height: 70vh;
+        }
+        .controls {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 8px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
-<h1><img id="shagLogo" src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png"> SHAG Snake</h1>
+<h1>
+    <img id="shagLogo" src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png" alt="SHAG">
+    SHAG Snake
+</h1>
 
 <div id="score">Очки: 0 SHAG</div>
 
@@ -53,41 +76,60 @@
 
 <canvas id="game" width="400" height="400"></canvas>
 
+<div class="controls">
+    Керування: стрілки ⬅⬆➡⬇ або W A S D<br>
+    Збирай логотипи SHAG, щоб заробляти SHAG очки!
+</div>
+
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let grid = 20;
+const grid = 20;
 let snake = [];
 let direction = "right";
 let food = {};
 let score = 0;
-let gameLoop;
+let gameLoop = null;
+
+// Завантажуємо логотип SHAG один раз
+const foodImg = new Image();
+foodImg.src = "https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png";
 
 function startGame() {
     snake = [{x: 200, y: 200}];
     direction = "right";
     score = 0;
-    spawnFood();
-
     document.getElementById("score").textContent = "Очки: 0 SHAG";
 
-    clearInterval(gameLoop);
+    spawnFood();
+
+    if (gameLoop) {
+        clearInterval(gameLoop);
+    }
     gameLoop = setInterval(update, 120);
 }
 
 function spawnFood() {
     food = {
-        x: Math.floor(Math.random() * 20) * grid,
-        y: Math.floor(Math.random() * 20) * grid
+        x: Math.floor(Math.random() * (canvas.width / grid)) * grid,
+        y: Math.floor(Math.random() * (canvas.height / grid)) * grid
     };
 }
 
+// Керування з клавіатури
 document.addEventListener("keydown", event => {
-    if (event.key === "ArrowUp" && direction !== "down") direction = "up";
-    else if (event.key === "ArrowDown" && direction !== "up") direction = "down";
-    else if (event.key === "ArrowLeft" && direction !== "right") direction = "left";
-    else if (event.key === "ArrowRight" && direction !== "left") direction = "right";
+    const key = event.key;
+
+    if ((key === "ArrowUp" || key === "w" || key === "W") && direction !== "down") {
+        direction = "up";
+    } else if ((key === "ArrowDown" || key === "s" || key === "S") && direction !== "up") {
+        direction = "down";
+    } else if ((key === "ArrowLeft" || key === "a" || key === "A") && direction !== "right") {
+        direction = "left";
+    } else if ((key === "ArrowRight" || key === "d" || key === "D") && direction !== "left") {
+        direction = "right";
+    }
 });
 
 function update() {
@@ -98,15 +140,15 @@ function update() {
     if (direction === "left") head.x -= grid;
     if (direction === "right") head.x += grid;
 
-    // Вихід за межі
-    if (head.x < 0) head.x = 380;
-    if (head.x > 380) head.x = 0;
-    if (head.y < 0) head.y = 380;
-    if (head.y > 380) head.y = 0;
+    // Вихід за межі — з'являємось з іншого боку
+    if (head.x < 0) head.x = canvas.width - grid;
+    if (head.x >= canvas.width) head.x = 0;
+    if (head.y < 0) head.y = canvas.height - grid;
+    if (head.y >= canvas.height) head.y = 0;
 
     snake.unshift(head);
 
-    // З'їв SHAG
+    // Перевірка на "їжу"
     if (head.x === food.x && head.y === food.y) {
         score++;
         document.getElementById("score").textContent = "Очки: " + score + " SHAG";
@@ -128,19 +170,24 @@ function update() {
 }
 
 function draw() {
-    ctx.fillStyle = "#111827";
+    // фон
+    ctx.fillStyle = "#020617";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Змійка
     for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? "#00f0ff" : "#00c8ff";
-        ctx.fillRect(snake[i].x, snake[i].y, grid-1, grid-1);
+        ctx.fillRect(snake[i].x, snake[i].y, grid - 1, grid - 1);
     }
 
     // Їжа — логотип SHAG
-    const img = new Image();
-    img.src = "https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png";
-    ctx.drawImage(img, food.x, food.y, grid, grid);
+    if (foodImg.complete) {
+        ctx.drawImage(foodImg, food.x, food.y, grid, grid);
+    } else {
+        // якщо ще не завантажилось — малюємо світлу клітинку
+        ctx.fillStyle = "#facc15";
+        ctx.fillRect(food.x, food.y, grid - 1, grid - 1);
+    }
 }
 </script>
 
