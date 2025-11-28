@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ігри SHAG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
+        radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: gold;
+      margin-bottom: 20px;
+      text-shadow: 0px 0px 10px rgba(255, 215, 0, 0.7);
+    }
+
+    .game-card {
+      background: rgba(10, 10, 20, 0.9);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(241, 196, 15, 0.8);
+      box-shadow:
+        0 14px 28px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(241, 196, 15, 0.25);
+    }
+
+    .game-card h2 {
+      margin: 0 0 6px;
+      color: #f1c40f;
+    }
+
+    .game-card p {
+      margin: 0 0 12px;
+      opacity: 0.9;
+      line-height: 1.4;
+      font-size: 0.92rem;
+    }
+
+    .game-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #f1c40f, #b37b16);
+      color: #1c1307;
+      text-decoration: none;
+      padding: 9px 20px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+    }
+
+    .game-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
+      filter: brightness(1.04);
+    }
+
+    .game-button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 9px rgba(0, 0, 0, 0.7);
+      filter: brightness(0.97);
+    }
+
+    .back {
+      margin-top: 20px;
+      display: inline-block;
+      color: #f1c40f;
+      text-decoration: none;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ігри SHAG</h1>
+
+    <!-- П'ятнашки SHAG -->
+    <div class="game-card">
+      <h2>П’ятнашки SHAG</h2>
+      <p>Класична логічна гра в золотому SHAG-стилі.  
+      Змагайся за найкращий час і кількість ходів!</p>
+      <a href="shag-puzzle.html" class="game-button">Грати</a>
+    </div>
+
+    <!-- Для майбутніх ігор -->
+    <div class="game-card">
+      <h2>SHAG Snake (скоро)</h2>
+      <p>Змійка на швидкість, реакцію і координацію.  
+      Набери рекорд — отримай бонус.</p>
+      <a class="game-button" style="opacity:0.5; pointer-events:none;">Скоро</a>
+    </div>
+
+    <div class="game-card">
+      <h2>SHAG Clicker (скоро)</h2>
+      <p>Клікай монетку SHAG, прокачуй рівень і відкривай бонуси.</p>
+      <a class="game-button" style="opacity:0.5; pointer-events:none;">Скоро</a>
+    </div>
+
+    <a href="index.html" class="back">⬅ Повернутись на головну</a>
+  </div>
+</body>
+</html>
