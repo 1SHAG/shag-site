@@ -125,7 +125,7 @@
       filter: brightness(0.96);
     }
 
-    /* Оформлення екрану перемоги */
+    /* Екран перемоги */
     #win h2 {
       color: #f1c40f;
       text-shadow: 0 0 8px rgba(241, 196, 15, 0.8);
@@ -136,6 +136,15 @@
       font-size: 0.9rem;
       opacity: 0.9;
       margin-bottom: 10px;
+    }
+
+    .result-line {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .result-line strong {
+      color: #f1c40f;
     }
 
     a.telegram {
@@ -193,7 +202,14 @@
     <!-- Екран перемоги -->
     <div id="win" class="hidden">
       <h2>🎉 Вітаємо! Ти склав п'ятнашки!</h2>
-      <p>Найкращий гравець за 24 години отримає бонус із фонду SHAG!</p>
+
+      <p class="result-line">
+        Твій результат: <strong><span id="resultMoves">0</span> ходів</strong>,
+        час — <strong><span id="resultTime">00:00</span></strong>.
+      </p>
+
+      <p>Найкращий гравець за 24 години отримує бонус із фонду SHAG!</p>
+
       <a class="telegram" href="https://t.me/coin_1SHAG" target="_blank">🔗 Перейти до Telegram каналу</a>
       <button onclick="newGame()">Почати знову</button>
       <button onclick="backToMenu()">⬅ Обрати рівень</button>
@@ -262,13 +278,18 @@
     }
 
     function newGame() {
+      // ховаємо екран перемоги й показуємо ігровий
       document.getElementById("win").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+
       const grid = document.getElementById("grid");
       grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
       const numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
       numbers.sort(() => Math.random() - 0.5);
       numbers.push(0);
       tiles = numbers;
+
       draw();
       resetStats();
       startTimer();
@@ -309,6 +330,11 @@
 
     function showWin() {
       stopTimer();
+      const resMoves = document.getElementById("resultMoves");
+      const resTime = document.getElementById("resultTime");
+      if (resMoves) resMoves.textContent = moves;
+      if (resTime) resTime.textContent = formatTime(seconds);
+
       document.getElementById("game").classList.add("hidden");
       document.getElementById("win").classList.remove("hidden");
     }
