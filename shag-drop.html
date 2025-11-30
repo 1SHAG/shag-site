@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SHAG Drop — Лови монети</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --panel: rgba(10, 10, 20, 0.96);
+      --accent: #ffd54a;
+      --accent-strong: #ffb300;
+      --text: #f7f7ff;
+      --muted: #a9b0c2;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
+        radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .container {
+      background: var(--panel);
+      border-radius: 20px;
+      border: 1px solid rgba(241, 196, 15, 0.8);
+      width: 340px;
+      max-width: 100%;
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.9),
+        0 0 24px rgba(241, 196, 15, 0.35);
+      padding: 14px 14px 16px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
+    }
+
+    .subtitle {
+      margin: 4px 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .score-box {
+      background: rgba(5, 8, 22, 0.95);
+      border-radius: 10px;
+      padding: 6px 10px;
+      min-width: 70px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .score-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .score-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 7px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #1b1305;
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.7),
+        0 0 14px rgba(241, 196, 15, 0.6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+      white-space: nowrap;
+    }
+
+    .btn.secondary {
+      background: rgba(11, 16, 32, 0.96);
+      color: var(--muted);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+      border-color: var(--border);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow:
+        0 7px 16px rgba(0, 0, 0, 0.8),
+        0 0 18px rgba(241, 196, 15, 0.7);
+    }
+
+    .btn.secondary:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+      border-color: var(--accent-strong);
+      color: var(--accent);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      filter: brightness(0.97);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    canvas {
+      background: #050814;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.8),
+        0 10px 22px rgba(0, 0, 0, 0.9);
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .info {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .status {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .status.win {
+      color: #c5e1a5;
+    }
+
+    .status.lose {
+      color: #ff867c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SHAG Drop</h1>
+    <div class="subtitle">Лови золоті монети SHAG, ухиляйся від бомб 💣</div>
+
+    <div class="top-row">
+      <div class="score-box">
+        <div class="score-label">Очки</div>
+        <div class="score-value" id="score">0</div>
+      </div>
+      <div class="score-box">
+        <div class="score-label">Рекорд</div>
+        <div class="score-value" id="best">0</div>
+      </div>
+      <button class="btn secondary" onclick="goHome()">На ігри</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="restartGame()">Нова гра</button>
+    </div>
+
+    <canvas id="game" width="320" height="420"></canvas>
+
+    <div class="info">
+      Керування: <strong>← →</strong> або <strong>A / D</strong>.  
+      Лови <strong>золоті монети</strong>, уникай <strong>червоних бомб</strong>.  
+      Якщо життя закінчились — гра завершується.
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const statusEl = document.getElementById('status');
+
+    const PLAYER_WIDTH = 70;
+    const PLAYER_HEIGHT = 14;
+    const PLAYER_SPEED = 5;
+
+    const COIN_RADIUS = 10;
+    const BOMB_RADIUS = 10;
+
+    let player = {
+      x: canvas.width / 2 - PLAYER_WIDTH / 2,
+      y: canvas.height - 40,
+      width: PLAYER_WIDTH,
+      height: PLAYER_HEIGHT
+    };
+
+    let leftPressed = false;
+    let rightPressed = false;
+
+    let objects = []; // монети та бомби
+    let frame = 0;
+    let score = 0;
+    let best = 0;
+    let lives = 3;
+    let gameOver = false;
+
+    function loadBest() {
+      const saved = localStorage.getItem('shag_drop_best');
+      best = saved ? parseInt(saved, 10) || 0 : 0;
+      bestEl.textContent = best;
+    }
+
+    function saveBest() {
+      if (score > best) {
+        best = score;
+        bestEl.textContent = best;
+        localStorage.setItem('shag_drop_best', best.toString());
+      }
+    }
+
+    function restartGame() {
+      score = 0;
+      lives = 3;
+      gameOver = false;
+      objects = [];
+      frame = 0;
+      player.x = canvas.width / 2 - PLAYER_WIDTH / 2;
+      scoreEl.textContent = score;
+      statusEl.textContent = '';
+      animate();
+    }
+
+    function spawnObjects() {
+      // монета кожні ~35 кадрів
+      if (frame % 35 === 0) {
+        objects.push({
+          type: 'coin',
+          x: 20 + Math.random() * (canvas.width - 40),
+          y: -COIN_RADIUS,
+          radius: COIN_RADIUS,
+          speed: 2 + Math.random() * 2
+        });
+      }
+
+      // бомба кожні ~110 кадрів
+      if (frame % 110 === 0) {
+        objects.push({
+          type: 'bomb',
+          x: 20 + Math.random() * (canvas.width - 40),
+          y: -BOMB_RADIUS,
+          radius: BOMB_RADIUS,
+          speed: 2.2 + Math.random() * 2.2
+        });
+      }
+    }
+
+    function update() {
+      if (gameOver) {
+        return;
+      }
+
+      frame++;
+
+      // рух гравця
+      if (leftPressed) {
+        player.x -= PLAYER_SPEED;
+      } else if (rightPressed) {
+        player.x += PLAYER_SPEED;
+      }
+
+      if (player.x < 4) player.x = 4;
+      if (player.x + player.width > canvas.width - 4) {
+        player.x = canvas.width - 4 - player.width;
+      }
+
+      spawnObjects();
+
+      // рух об'єктів
+      for (let i = objects.length - 1; i >= 0; i--) {
+        const o = objects[i];
+        o.y += o.speed;
+
+        // перевірка зіткнення з платформою
+        if (
+          o.y + o.radius >= player.y &&
+          o.y - o.radius <= player.y + player.height &&
+          o.x >= player.x &&
+          o.x <= player.x + player.width
+        ) {
+          if (o.type === 'coin') {
+            score++;
+            scoreEl.textContent = score;
+            saveBest();
+          } else if (o.type === 'bomb') {
+            lives--;
+            if (lives <= 0) {
+              gameOver = true;
+              statusEl.textContent = '💥 Гру закінчено. Очки: ' + score + '. Натисни "Нова гра", щоб спробувати знову.';
+              statusEl.className = 'status lose';
+            } else {
+              statusEl.textContent = 'Обережно! Залишилось життів: ' + lives;
+              statusEl.className = 'status';
+            }
+          }
+          objects.splice(i, 1);
+          continue;
+        }
+
+        // видалити, якщо вийшло за межі
+        if (o.y - o.radius > canvas.height + 20) {
+          objects.splice(i, 1);
+        }
+      }
+    }
+
+    function drawPlayer() {
+      // платформа
+      const grd = ctx.createLinearGradient(player.x, player.y, player.x, player.y + player.height);
+      grd.addColorStop(0, '#ffd54f');
+      grd.addColorStop(1, '#b37b16');
+      ctx.fillStyle = grd;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawObjects() {
+      objects.forEach(o => {
+        if (o.type === 'coin') {
+          // золота монета
+          const grd = ctx.createRadialGradient(
+            o.x - 3, o.y - 3, 2,
+            o.x, o.y, o.radius
+          );
+          grd.addColorStop(0, '#ffffff');
+          grd.addColorStop(0.2, '#fff9c4');
+          grd.addColorStop(0.5, '#ffd54f');
+          grd.addColorStop(1, '#b37b16');
+          ctx.fillStyle = grd;
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.closePath();
+
+          // контур
+          ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.closePath();
+
+          // літера S
+          ctx.fillStyle = '#2b1906';
+          ctx.font = 'bold 11px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('S', o.x, o.y + 0.5);
+        } else {
+          // бомба
+          const grdB = ctx.createRadialGradient(
+            o.x - 3, o.y - 3, 2,
+            o.x, o.y, o.radius
+          );
+          grdB.addColorStop(0, '#ffebee');
+          grdB.addColorStop(0.3, '#ff5252');
+          grdB.addColorStop(1, '#b71c1c');
+          ctx.fillStyle = grdB;
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.closePath();
+
+          ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.closePath();
+
+          // "ґніт"
+          ctx.strokeStyle = '#ffeb3b';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(o.x, o.y - o.radius);
+          ctx.lineTo(o.x - 4, o.y - o.radius - 6);
+          ctx.stroke();
+          ctx.closePath();
+        }
+      });
+    }
+
+    function drawBackground() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // легкий градієнт зверху
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGrad.addColorStop(0, '#0b1020');
+      bgGrad.addColorStop(1, '#020308');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // "підлога"
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(0, canvas.height - 18, canvas.width, 18);
+    }
+
+    function drawHud() {
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.font = '11px system-ui';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('Життя: ' + lives, 8, 6);
+    }
+
+    function drawGameOver() {
+      if (!gameOver) return;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#ffd54f';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = 'bold 20px system-ui';
+      ctx.fillText('Гру закінчено', canvas.width / 2, canvas.height / 2 - 12);
+
+      ctx.font = '13px system-ui';
+      ctx.fillStyle = '#f7f7ff';
+      ctx.fillText('Очки: ' + score + ' | Рекорд: ' + best, canvas.width / 2, canvas.height / 2 + 10);
+      ctx.fillText('Натисни "Нова гра"', canvas.width / 2, canvas.height / 2 + 28);
+    }
+
+    function animate() {
+      drawBackground();
+      update();
+      drawObjects();
+      drawPlayer();
+      drawHud();
+      drawGameOver();
+
+      if (!gameOver) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    // керування клавіатурою
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (key === 'arrowleft' || key === 'a') {
+        leftPressed = true;
+      } else if (key === 'arrowright' || key === 'd') {
+        rightPressed = true;
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      const key = e.key.toLowerCase();
+      if (key === 'arrowleft' || key === 'a') {
+        leftPressed = false;
+      } else if (key === 'arrowright' || key === 'd') {
+        rightPressed = false;
+      }
+    });
+
+    function goHome() {
+      window.location.href = 'shag-games.html';
+    }
+
+    loadBest();
+    restartGame();
+  </script>
+</body>
+</html>
