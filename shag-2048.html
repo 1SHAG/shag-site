@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SHAG 2048</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --panel: rgba(10, 10, 20, 0.96);
+      --board: #0b1020;
+      --accent: #ffd54a;
+      --accent-strong: #ffb300;
+      --text: #f7f7ff;
+      --muted: #a9b0c2;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
+        radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .container {
+      background: var(--panel);
+      border-radius: 20px;
+      border: 1px solid rgba(241, 196, 15, 0.8);
+      width: 340px;
+      max-width: 100%;
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.9),
+        0 0 24px rgba(241, 196, 15, 0.25);
+      padding: 16px 16px 18px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
+    }
+
+    .subtitle {
+      margin: 4px 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .scores {
+      display: flex;
+      gap: 6px;
+    }
+
+    .score-box {
+      background: rgba(5, 8, 22, 0.95);
+      border-radius: 10px;
+      padding: 6px 10px;
+      min-width: 70px;
+      border: 1px solid var(--border);
+    }
+
+    .score-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .score-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #1b1305;
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.7),
+        0 0 14px rgba(241, 196, 15, 0.6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+      white-space: nowrap;
+    }
+
+    .btn.secondary {
+      background: rgba(11, 16, 32, 0.96);
+      color: var(--muted);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+      border-color: var(--border);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow:
+        0 7px 16px rgba(0, 0, 0, 0.8),
+        0 0 18px rgba(241, 196, 15, 0.7);
+    }
+
+    .btn.secondary:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+      border-color: var(--accent-strong);
+      color: var(--accent);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      filter: brightness(0.97);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    .board {
+      margin-top: 10px;
+      background: var(--board);
+      border-radius: 16px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .cell {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      position: relative;
+      padding-bottom: 100%; /* квадрат */
+      overflow: hidden;
+    }
+
+    .tile {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 20px;
+      color: #2b1906;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+      box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.5),
+        inset 0 1px 3px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+      transition: transform 0.08s ease-out, filter 0.08s ease-out;
+    }
+
+    .tile-2    { background: #fff9c4; }
+    .tile-4    { background: #ffe082; }
+    .tile-8    { background: #ffca28; }
+    .tile-16   { background: #ffb300; }
+    .tile-32   { background: #ff9800; color: #3b2505; }
+    .tile-64   { background: #fb8c00; color: #3b2505; }
+    .tile-128  { background: #fbc02d; }
+    .tile-256  { background: linear-gradient(135deg, #ffd54f, #ffb300); }
+    .tile-512  { background: linear-gradient(135deg, #ffeb3b, #42a5f5); }
+    .tile-1024 { background: linear-gradient(135deg, #ffeb3b, #ff9800); font-size: 18px; }
+
+    /* 2048 — "монета SHAG" */
+    .tile-2048 {
+      background:
+        radial-gradient(circle at 30% 20%, #ffffff 0, #ffe082 18%, #ffb300 40%, #ff6f00 70%, #3e2723 100%);
+      box-shadow:
+        0 0 18px rgba(255, 213, 74, 1),
+        0 0 40px rgba(255, 143, 0, 0.8);
+      color: #1a1205;
+      font-size: 18px;
+    }
+
+    /* 4096 — "супер SHAG" */
+    .tile-4096 {
+      background:
+        radial-gradient(circle at 30% 20%, #ffffff 0, #fff59d 15%, #ffeb3b 35%, #ffb300 55%, #ff6f00 80%, #1a0b03 100%);
+      box-shadow:
+        0 0 22px rgba(255, 255, 255, 1),
+        0 0 60px rgba(255, 215, 64, 1);
+      color: #120b03;
+      font-size: 18px;
+    }
+
+    .info {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .info strong {
+      color: var(--accent);
+    }
+
+    .status {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .status.win {
+      color: #c5e1a5;
+    }
+
+    .status.lose {
+      color: #ff867c;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        width: 100%;
+        padding: 14px 10px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SHAG 2048</h1>
+    <div class="subtitle">Злий плитки, щоб дійти до <strong>2048</strong> і монети SHAG</div>
+
+    <div class="top-row">
+      <div class="scores">
+        <div class="score-box">
+          <div class="score-label">Очки</div>
+          <div class="score-value" id="score">0</div>
+        </div>
+        <div class="score-box">
+          <div class="score-label">Рекорд</div>
+          <div class="score-value" id="bestScore">0</div>
+        </div>
+      </div>
+      <div>
+        <button class="btn secondary" onclick="goHome()">На головну</button>
+      </div>
+    </div>
+
+    <button class="btn" onclick="newGame()">Нова гра</button>
+
+    <div class="board" id="board"></div>
+
+    <div class="info">
+      Керування: <strong>стрілки</strong> або <strong>W/A/S/D</strong>. На телефоні — свайп.
+      <br>
+      На плитці <strong>2048</strong> з’являється монета SHAG, а <strong>4096</strong> — супер SHAG.
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const size = 4;
+    let grid = [];
+    let score = 0;
+    let bestScore = 0;
+    let hasWon = false;
+    const boardEl = document.getElementById('board');
+    const scoreEl = document.getElementById('score');
+    const bestScoreEl = document.getElementById('bestScore');
+    const statusEl = document.getElementById('status');
+
+    function loadBestScore() {
+      const saved = localStorage.getItem('shag2048_best');
+      bestScore = saved ? parseInt(saved, 10) || 0 : 0;
+      bestScoreEl.textContent = bestScore;
+    }
+
+    function saveBestScore() {
+      if (score > bestScore) {
+        bestScore = score;
+        bestScoreEl.textContent = bestScore;
+        localStorage.setItem('shag2048_best', bestScore.toString());
+      }
+    }
+
+    function emptyGrid() {
+      grid = Array.from({ length: size }, () => Array(size).fill(0));
+    }
+
+    function getEmptyCells() {
+      const cells = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] === 0) cells.push({ r, c });
+        }
+      }
+      return cells;
+    }
+
+    function addRandomTile() {
+      const empty = getEmptyCells();
+      if (!empty.length) return;
+      const { r, c } = empty[Math.floor(Math.random() * empty.length)];
+      grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+    }
+
+    function renderBoard() {
+      boardEl.innerHTML = '';
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          const value = grid[r][c];
+          if (value !== 0) {
+            const tile = document.createElement('div');
+            tile.className = 'tile tile-' + value;
+            tile.textContent = value;
+            cell.appendChild(tile);
+          }
+          boardEl.appendChild(cell);
+        }
+      }
+      scoreEl.textContent = score;
+    }
+
+    function compress(line) {
+      line = line.filter(v => v !== 0);
+      const result = [];
+      let gained = 0;
+      for (let i = 0; i < line.length; i++) {
+        if (i < line.length - 1 && line[i] === line[i + 1]) {
+          const merged = line[i] * 2;
+          result.push(merged);
+          gained += merged;
+          i++;
+        } else {
+          result.push(line[i]);
+        }
+      }
+      while (result.length < size) result.push(0);
+      return { line: result, gained };
+    }
+
+    function moveLeft() {
+      let moved = false;
+      let totalGained = 0;
+      for (let r = 0; r < size; r++) {
+        const original = grid[r].slice();
+        const { line, gained } = compress(original);
+        grid[r] = line;
+        totalGained += gained;
+        if (!arraysEqual(original, line)) moved = true;
+      }
+      return { moved, totalGained };
+    }
+
+    function moveRight() {
+      let moved = false;
+      let totalGained = 0;
+      for (let r = 0; r < size; r++) {
+        const reversed = grid[r].slice().reverse();
+        const { line, gained } = compress(reversed);
+        const restored = line.reverse();
+        totalGained += gained;
+        if (!arraysEqual(grid[r], restored)) moved = true;
+        grid[r] = restored;
+      }
+      return { moved, totalGained };
+    }
+
+    function moveUp() {
+      let moved = false;
+      let totalGained = 0;
+      for (let c = 0; c < size; c++) {
+        const col = [];
+        for (let r = 0; r < size; r++) col.push(grid[r][c]);
+        const { line, gained } = compress(col);
+        totalGained += gained;
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] !== line[r]) moved = true;
+          grid[r][c] = line[r];
+        }
+      }
+      return { moved, totalGained };
+    }
+
+    function moveDown() {
+      let moved = false;
+      let totalGained = 0;
+      for (let c = 0; c < size; c++) {
+        const col = [];
+        for (let r = 0; r < size; r++) col.push(grid[r][c]);
+        const reversed = col.reverse();
+        const { line, gained } = compress(reversed);
+        const restored = line.reverse();
+        totalGained += gained;
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] !== restored[r]) moved = true;
+          grid[r][c] = restored[r];
+        }
+      }
+      return { moved, totalGained };
+    }
+
+    function arraysEqual(a, b) {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    }
+
+    function anyMovesAvailable() {
+      if (getEmptyCells().length > 0) return true;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const v = grid[r][c];
+          if (r < size - 1 && grid[r + 1][c] === v) return true;
+          if (c < size - 1 && grid[r][c + 1] === v) return true;
+        }
+      }
+      return false;
+    }
+
+    function checkWinLose() {
+      let maxTile = 0;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] > maxTile) maxTile = grid[r][c];
+        }
+      }
+
+      if (!hasWon && maxTile >= 2048) {
+        hasWon = true;
+        statusEl.textContent = '🎉 Ти зібрав 2048! Це монета SHAG. Спробуй дійти до 4096 😉';
+        statusEl.className = 'status win';
+      } else if (!anyMovesAvailable()) {
+        statusEl.textContent = '😔 Немає ходів. Спробуй ще раз!';
+        statusEl.className = 'status lose';
+      } else {
+        statusEl.textContent = '';
+        statusEl.className = 'status';
+      }
+    }
+
+    function handleMove(direction) {
+      let result;
+      switch (direction) {
+        case 'left':  result = moveLeft(); break;
+        case 'right': result = moveRight(); break;
+        case 'up':    result = moveUp(); break;
+        case 'down':  result = moveDown(); break;
+        default: return;
+      }
+
+      if (result.moved) {
+        score += result.totalGained;
+        saveBestScore();
+        addRandomTile();
+        renderBoard();
+        checkWinLose();
+      }
+    }
+
+    // Керування клавіатурою
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (['arrowleft', 'a'].includes(key)) {
+        e.preventDefault(); handleMove('left');
+      } else if (['arrowright', 'd'].includes(key)) {
+        e.preventDefault(); handleMove('right');
+      } else if (['arrowup', 'w'].includes(key)) {
+        e.preventDefault(); handleMove('up');
+      } else if (['arrowdown', 's'].includes(key)) {
+        e.preventDefault(); handleMove('down');
+      }
+    });
+
+    // Свайпи для мобільних
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      const threshold = 20;
+      if (Math.max(absX, absY) < threshold) return;
+
+      if (absX > absY) {
+        if (dx > 0) handleMove('right');
+        else handleMove('left');
+      } else {
+        if (dy > 0) handleMove('down');
+        else handleMove('up');
+      }
+    }, { passive: true });
+
+    function newGame() {
+      emptyGrid();
+      score = 0;
+      hasWon = false;
+      statusEl.textContent = '';
+      statusEl.className = 'status';
+      addRandomTile();
+      addRandomTile();
+      renderBoard();
+    }
+
+    function goHome() {
+      window.location.href = 'shag-games.html';
+    }
+
+    // Старт
+    loadBestScore();
+    newGame();
+  </script>
+</body>
+</html>
