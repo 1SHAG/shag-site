@@ -25,40 +25,20 @@
       padding: 20px;
       border-radius: 20px;
       width: 320px;
-      border: 1px solid rgba(241, 196, 15, 0.85);
-      box-shadow:
-        0 14px 30px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(241, 196, 15, 0.25);
+      border: 1px solid gold;
     }
 
-    h1 {
-      color: gold;
-      margin-bottom: 8px;
-    }
+    h1 { color: gold; }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     .grid {
       display: grid;
-      gap: 5px;
-      margin: 10px auto;
+      gap: 6px;
+      margin: 12px auto;
     }
 
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin: 6px 0 4px;
-      opacity: 0.9;
-    }
-
-    .stats span strong {
-      font-weight: 700;
-      color: #f1c40f;
-    }
-
+    /* 🔥 Плитки (збільшена висота) */
     .tile {
       position: relative;
       background: radial-gradient(circle at 30% 20%, #ffeaa7 0%, #f1c40f 40%, #b37b16 75%, #2b1a07 100%);
@@ -70,41 +50,32 @@
       justify-content: center;
       cursor: pointer;
       font-size: 22px;
+      height: 56px; /* ⬅️ було ~45, тепер більше */
       border: 1px solid rgba(255, 255, 255, 0.6);
       text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
       box-shadow:
         0 4px 8px rgba(0, 0, 0, 0.5),
         inset 0 1px 3px rgba(255, 255, 255, 0.5),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+        inset 0 -2px 4px rgba(0,0,0,0.4);
       transition: transform 0.12s ease-out, filter 0.12s ease-out;
-      /* трохи вища плитка */
-      min-height: 64px;
     }
 
-    .tile:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.06);
-    }
-
-    .tile:active {
-      transform: translateY(0);
-      filter: brightness(0.95);
-    }
+    .tile:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .tile:active { transform: translateY(0); filter: brightness(0.95); }
 
     .empty {
       background: transparent;
-      border: 1px dashed rgba(255, 255, 255, 0.3);
+      border: 1px dashed rgba(255,255,255,0.3);
       box-shadow: none !important;
       cursor: default;
-      text-shadow: none;
     }
 
     button {
       background: linear-gradient(135deg, #f1c40f, #b37b16);
       border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: 999px;
-      padding: 8px 18px;
-      margin: 5px;
+      padding: 10px 18px;
+      margin-top: 10px; /* ⬅️ Кнопки опустили нижче */
       cursor: pointer;
       font-weight: 600;
       font-size: 0.9rem;
@@ -127,70 +98,28 @@
       filter: brightness(0.96);
     }
 
-    /* відступ над кнопками під полем */
-    .controls {
-      margin-top: 20px;
-    }
-
-    /* Екран перемоги */
-    #win h2 {
-      color: #f1c40f;
-      text-shadow: 0 0 8px rgba(241, 196, 15, 0.8);
-      margin-bottom: 8px;
-    }
-
-    #win p {
-      font-size: 0.9rem;
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin: 6px 0 4px;
       opacity: 0.9;
-      margin-bottom: 10px;
     }
 
-    .result-line {
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-    }
-
-    .result-line strong {
-      color: #f1c40f;
-    }
-
-    a.telegram {
-      display: block;
-      background: linear-gradient(135deg, #0088cc, #00a2ff);
-      color: #fff;
-      text-decoration: none;
-      padding: 10px 14px;
-      border-radius: 999px;
-      margin-top: 10px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
-    }
-
-    a.telegram:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.9);
-      filter: brightness(1.05);
-    }
-
-    a.telegram:active {
-      transform: translateY(0);
-      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.8);
-      filter: brightness(0.97);
-    }
+    .stats span strong { color: #f1c40f; }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <!-- Стартовий екран -->
+
+    <!-- Стартове меню -->
     <div id="menu">
       <h1>П'ятнашки SHAG</h1>
       <p>Обери рівень складності:</p>
-      <button onclick="startGame(3)">3×3 (Легко)</button><br/>
-      <button onclick="startGame(4)">4×4 (Класика)</button><br/>
-      <button onclick="startGame(5)">5×5 (Профі)</button><br/>
-      <button onclick="goHome()">На головну</button>
+      <button onclick="startGame(3)">3×3</button><br/>
+      <button onclick="startGame(4)">4×4</button><br/>
+      <button onclick="startGame(5)">5×5</button>
     </div>
 
     <!-- Ігровий екран -->
@@ -204,33 +133,32 @@
 
       <div id="grid" class="grid"></div>
 
-      <div class="controls">
-        <button onclick="newGame()">Нова гра</button>
-        <button onclick="backToMenu()">До меню</button>
-      </div>
+      <button onclick="newGame()">Нова гра</button>
+      <button onclick="backToMenu()">⬅ Меню</button>
     </div>
 
     <!-- Екран перемоги -->
     <div id="win" class="hidden">
       <h2>🎉 Вітаємо! Ти склав п'ятнашки!</h2>
 
-      <p class="result-line">
-        Твій результат: <strong><span id="resultMoves">0</span> ходів</strong>,
+      <p>Рівень: <strong><span id="resultLevel"></span></strong></p>
+
+      <p>Твій результат:
+        <strong><span id="resultMoves">0</span> ходів</strong>,
         час — <strong><span id="resultTime">00:00</span></strong>.
       </p>
 
       <p>Найкращий гравець за 24 години отримує бонус із фонду SHAG!</p>
 
-      <a class="telegram" href="https://t.me/coin_1SHAG" target="_blank">🔗 Перейти до Telegram каналу</a>
       <button onclick="newGame()">Почати знову</button>
-      <button onclick="backToMenu()">⬅ Обрати рівень</button>
+      <button onclick="backToMenu()">⬅ Меню</button>
     </div>
+
   </div>
 
   <script>
     let size = 4;
     let tiles = [];
-
     let moves = 0;
     let seconds = 0;
     let timerId = null;
@@ -238,16 +166,12 @@
     function formatTime(sec) {
       const m = Math.floor(sec / 60);
       const s = sec % 60;
-      const mm = m < 10 ? "0" + m : String(m);
-      const ss = s < 10 ? "0" + s : String(s);
-      return mm + ":" + ss;
+      return (m<10?"0":"")+m + ":" + (s<10?"0":"")+s;
     }
 
     function updateStats() {
-      const movesEl = document.getElementById("movesCount");
-      const timeEl = document.getElementById("timeCount");
-      if (movesEl) movesEl.textContent = moves;
-      if (timeEl) timeEl.textContent = formatTime(seconds);
+      movesCount.textContent = moves;
+      timeCount.textContent = formatTime(seconds);
     }
 
     function resetStats() {
@@ -259,40 +183,34 @@
 
     function startTimer() {
       if (timerId) return;
-      timerId = setInterval(() => {
-        seconds++;
-        updateStats();
-      }, 1000);
+      timerId = setInterval(() => { seconds++; updateStats(); }, 1000);
     }
 
     function stopTimer() {
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-      }
+      clearInterval(timerId);
+      timerId = null;
     }
 
     function startGame(n) {
       size = n;
-      document.getElementById("menu").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
-      document.getElementById("win").classList.add("hidden");
-      document.getElementById("levelTitle").textContent = "Рівень " + n + "×" + n;
+      menu.classList.add("hidden");
+      game.classList.remove("hidden");
+      win.classList.add("hidden");
+      levelTitle.textContent = "Рівень " + n + "×" + n;
       newGame();
     }
 
     function backToMenu() {
       stopTimer();
-      document.getElementById("menu").classList.remove("hidden");
-      document.getElementById("game").classList.add("hidden");
-      document.getElementById("win").classList.add("hidden");
+      menu.classList.remove("hidden");
+      game.classList.add("hidden");
+      win.classList.add("hidden");
     }
 
     function newGame() {
-      document.getElementById("win").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
+      win.classList.add("hidden");
+      game.classList.remove("hidden");
 
-      const grid = document.getElementById("grid");
       grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
       const numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
@@ -306,7 +224,6 @@
     }
 
     function draw() {
-      const grid = document.getElementById("grid");
       grid.innerHTML = "";
       tiles.forEach((n, i) => {
         const div = document.createElement("div");
@@ -332,26 +249,22 @@
     }
 
     function checkWin() {
-      for (let i = 0; i < tiles.length - 1; i++) {
+      for (let i = 0; i < tiles.length - 1; i++)
         if (tiles[i] !== i + 1) return false;
-      }
       return tiles[tiles.length - 1] === 0;
     }
 
     function showWin() {
       stopTimer();
-      const resMoves = document.getElementById("resultMoves");
-      const resTime = document.getElementById("resultTime");
-      if (resMoves) resMoves.textContent = moves;
-      if (resTime) resTime.textContent = formatTime(seconds);
 
-      document.getElementById("game").classList.add("hidden");
-      document.getElementById("win").classList.remove("hidden");
-    }
+      resultMoves.textContent = moves;
+      resultTime.textContent = formatTime(seconds);
+      resultLevel.textContent = size + "×" + size;
 
-    function goHome() {
-      window.location.href = "index.html"; // або shag-games.html, якщо хочеш на сторінку ігор
+      game.classList.add("hidden");
+      win.classList.remove("hidden");
     }
   </script>
+
 </body>
 </html>
