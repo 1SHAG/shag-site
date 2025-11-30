@@ -1,367 +1,218 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8" />
-  <title>П'ятнашки SHAG</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
-        radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
-      color: #f7f7ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+<script>
+  let size = 4;
+  let tiles = [];
 
-    .container {
-      text-align: center;
-      background: rgba(10, 10, 20, 0.9);
-      padding: 20px;
-      border-radius: 20px;
-      width: 320px;
-      border: 1px solid rgba(241, 196, 15, 0.85);
-      box-shadow:
-        0 14px 30px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(241, 196, 15, 0.25);
-    }
+  let moves = 0;
+  let seconds = 0;
+  let timerId = null;
 
-    h1 {
-      color: gold;
-      margin-bottom: 8px;
-    }
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    const mm = m < 10 ? "0" + m : String(m);
+    const ss = s < 10 ? "0" + s : String(s);
+    return mm + ":" + ss;
+  }
 
-    .hidden {
-      display: none;
-    }
+  function updateStats() {
+    const movesEl = document.getElementById("movesCount");
+    const timeEl = document.getElementById("timeCount");
+    if (movesEl) movesEl.textContent = moves;
+    if (timeEl) timeEl.textContent = formatTime(seconds);
+  }
 
-    .grid {
-      display: grid;
-      gap: 5px;
-      margin: 10px auto;
-    }
+  function resetStats() {
+    moves = 0;
+    seconds = 0;
+    stopTimer();
+    updateStats();
+  }
 
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin: 6px 0 4px;
-      opacity: 0.9;
-    }
-
-    .stats span strong {
-      font-weight: 700;
-      color: #f1c40f;
-    }
-
-    .tile {
-      position: relative;
-      background: radial-gradient(circle at 30% 20%, #ffeaa7 0%, #f1c40f 40%, #b37b16 75%, #2b1a07 100%);
-      border-radius: 16px;
-      color: #1c1307;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
-      box-shadow:
-        0 4px 8px rgba(0, 0, 0, 0.5),
-        inset 0 1px 3px rgba(255, 255, 255, 0.5),
-        inset 0 -2px 4px rgba(0,0,0,0.4);
-      transition: transform 0.12s ease-out, filter 0.12s ease-out;
-      /* трохи вища плитка */
-      min-height: 64px;
-    }
-
-    .tile:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.06);
-    }
-
-    .tile:active {
-      transform: translateY(0);
-      filter: brightness(0.95);
-    }
-
-    .empty {
-      background: transparent;
-      border: 1px dashed rgba(255, 255, 255, 0.3);
-      box-shadow: none !important;
-      cursor: default;
-      text-shadow: none;
-    }
-
-    button {
-      background: linear-gradient(135deg, #f1c40f, #b37b16);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 999px;
-      padding: 8px 18px;
-      margin: 5px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #1c1307;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 7px 16px rgba(0, 0, 0, 0.8);
-      filter: brightness(1.04);
-    }
-
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
-      filter: brightness(0.96);
-    }
-
-    /* блок з кнопками під полем */
-    .controls {
-      margin-top: 12px;
-    }
-
-    /* Екран перемоги */
-    #win h2 {
-      color: #f1c40f;
-      text-shadow: 0 0 8px rgba(241, 196, 15, 0.8);
-      margin-bottom: 8px;
-    }
-
-    #win p {
-      font-size: 0.9rem;
-      opacity: 0.9;
-      margin-bottom: 8px;
-    }
-
-    .result-line {
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-    }
-
-    .result-line strong {
-      color: #f1c40f;
-    }
-
-    a.telegram {
-      display: block;
-      background: linear-gradient(135deg, #0088cc, #00a2ff);
-      color: #fff;
-      text-decoration: none;
-      padding: 10px 14px;
-      border-radius: 999px;
-      margin-top: 10px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
-    }
-
-    a.telegram:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.9);
-      filter: brightness(1.05);
-    }
-
-    a.telegram:active {
-      transform: translateY(0);
-      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.8);
-      filter: brightness(0.97);
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <!-- Стартовий екран -->
-    <div id="menu">
-      <h1>П'ятнашки SHAG</h1>
-      <p>Обери рівень складності:</p>
-      <button onclick="startGame(3)">3×3 (Легко)</button><br/>
-      <button onclick="startGame(4)">4×4 (Класика)</button><br/>
-      <button onclick="startGame(5)">5×5 (Профі)</button><br/>
-      <button onclick="goHome()">На головну</button>
-    </div>
-
-    <!-- Ігровий екран -->
-    <div id="game" class="hidden">
-      <h2 id="levelTitle"></h2>
-
-      <div class="stats">
-        <span>Ходи: <strong id="movesCount">0</strong></span>
-        <span>Час: <strong id="timeCount">00:00</strong></span>
-      </div>
-
-      <div id="grid" class="grid"></div>
-
-      <div class="controls">
-        <button onclick="newGame()">Нова гра</button>
-        <button onclick="backToMenu()">До меню</button>
-      </div>
-    </div>
-
-    <!-- Екран перемоги -->
-    <div id="win" class="hidden">
-      <h2>🎉 Вітаємо! Ти склав п'ятнашки!</h2>
-
-      <p class="result-line">
-        Рівень: <strong><span id="resultLevel">4×4</span></strong>
-      </p>
-
-      <p class="result-line">
-        Твій результат:
-        <strong><span id="resultMoves">0</span> ходів</strong>,
-        час — <strong><span id="resultTime">00:00</span></strong>.
-      </p>
-
-      <p>Найкращий гравець за 24 години отримує бонус із фонду SHAG!</p>
-
-      <a class="telegram" href="https://t.me/coin_1SHAG" target="_blank">🔗 Перейти до Telegram каналу</a>
-      <button onclick="newGame()">Почати знову</button>
-      <button onclick="backToMenu()">⬅ Обрати рівень</button>
-    </div>
-  </div>
-
-  <script>
-    let size = 4;
-    let tiles = [];
-
-    let moves = 0;
-    let seconds = 0;
-    let timerId = null;
-
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      const mm = m < 10 ? "0" + m : String(m);
-      const ss = s < 10 ? "0" + s : String(s);
-      return mm + ":" + ss;
-    }
-
-    function updateStats() {
-      const movesEl = document.getElementById("movesCount");
-      const timeEl = document.getElementById("timeCount");
-      if (movesEl) movesEl.textContent = moves;
-      if (timeEl) timeEl.textContent = formatTime(seconds);
-    }
-
-    function resetStats() {
-      moves = 0;
-      seconds = 0;
-      stopTimer();
+  function startTimer() {
+    if (timerId) return;
+    timerId = setInterval(() => {
+      seconds++;
       updateStats();
-    }
+    }, 1000);
+  }
 
-    function startTimer() {
-      if (timerId) return;
-      timerId = setInterval(() => {
-        seconds++;
-        updateStats();
-      }, 1000);
+  function stopTimer() {
+    if (timerId) {
+      clearInterval(timerId);
+      timerId = null;
     }
+  }
 
-    function stopTimer() {
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
+  function startGame(n) {
+    size = n;
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+    document.getElementById("win").classList.add("hidden");
+    document.getElementById("levelTitle").textContent = "Рівень " + n + "×" + n;
+    newGame();
+  }
+
+  function backToMenu() {
+    stopTimer();
+    document.getElementById("menu").classList.remove("hidden");
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("win").classList.add("hidden");
+  }
+
+  function isSolvable(arr) {
+    const n = size;
+    const emptyIndex = arr.indexOf(0);
+    const emptyRow = n - Math.floor(emptyIndex / n);
+    const flatTiles = arr.filter(n => n !== 0);
+
+    let inversions = 0;
+    for (let i = 0; i < flatTiles.length; i++) {
+      for (let j = i + 1; j < flatTiles.length; j++) {
+        if (flatTiles[i] > flatTiles[j]) {
+          inversions++;
+        }
       }
     }
 
-    function startGame(n) {
-      size = n;
-      document.getElementById("menu").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
-      document.getElementById("win").classList.add("hidden");
-      document.getElementById("levelTitle").textContent = "Рівень " + n + "×" + n;
-      newGame();
+    if (n % 2 !== 0) {
+      return inversions % 2 === 0;
+    } else {
+      if (emptyRow % 2 !== 0) {
+        return inversions % 2 === 0;
+      } else {
+        return inversions % 2 !== 0;
+      }
     }
+  }
 
-    function backToMenu() {
-      stopTimer();
-      document.getElementById("menu").classList.remove("hidden");
-      document.getElementById("game").classList.add("hidden");
-      document.getElementById("win").classList.add("hidden");
-    }
+  function newGame() {
+    document.getElementById("win").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
 
-    function newGame() {
-      document.getElementById("win").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
+    const grid = document.getElementById("grid");
+    grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
-      const grid = document.getElementById("grid");
-      grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    let numbers;
+    let solvable = false;
 
-      const numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
+    while (!solvable) {
+      numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
       numbers.sort(() => Math.random() - 0.5);
       numbers.push(0);
-      tiles = numbers;
+      solvable = isSolvable(numbers);
+    }
 
+    tiles = numbers;
+    draw();
+    resetStats();
+    startTimer();
+  }
+
+  function draw() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    tiles.forEach((n, i) => {
+      const div = document.createElement("div");
+      div.className = "tile" + (n === 0 ? " empty" : "");
+      if (n !== 0) div.textContent = n;
+      div.onclick = () => move(i);
+      grid.appendChild(div);
+    });
+  }
+
+  function move(i) {
+    const empty = tiles.indexOf(0);
+    const row = Math.floor(i / size), col = i % size;
+    const er = Math.floor(empty / size), ec = empty % size;
+
+    if (Math.abs(row - er) + Math.abs(col - ec) === 1) {
+      [tiles[i], tiles[empty]] = [tiles[empty], tiles[i]];
+      moves++;
+      updateStats();
       draw();
-      resetStats();
-      startTimer();
+      if (checkWin()) showWin();
+    }
+  }
+
+  function checkWin() {
+    for (let i = 0; i < tiles.length - 1; i++) {
+      if (tiles[i] !== i + 1) return false;
+    }
+    return tiles[tiles.length - 1] === 0;
+  }
+
+  // ---- ЗБЕРЕЖЕННЯ РЕКОРДІВ ----
+  function saveAndShowRecord() {
+    const key = "shag15_record_" + size; // окремий рекорд для 3×3, 4×4, 5×5
+    let isRecord = false;
+    let prevData = null;
+
+    try {
+      const prev = localStorage.getItem(key);
+      if (prev) {
+        prevData = JSON.parse(prev);
+      }
+    } catch (e) {
+      // якщо щось не так з localStorage – просто ігноруємо
+      prevData = null;
     }
 
-    function draw() {
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
-      tiles.forEach((n, i) => {
-        const div = document.createElement("div");
-        div.className = "tile" + (n === 0 ? " empty" : "");
-        if (n !== 0) div.textContent = n;
-        div.onclick = () => move(i);
-        grid.appendChild(div);
-      });
-    }
-
-    function move(i) {
-      const empty = tiles.indexOf(0);
-      const row = Math.floor(i / size), col = i % size;
-      const er = Math.floor(empty / size), ec = empty % size;
-
-      if (Math.abs(row - er) + Math.abs(col - ec) === 1) {
-        [tiles[i], tiles[empty]] = [tiles[empty], tiles[i]];
-        moves++;
-        updateStats();
-        draw();
-        if (checkWin()) showWin();
+    if (!prevData) {
+      // ще не було рекорду
+      isRecord = true;
+    } else {
+      // менше ходів – краще
+      if (moves < prevData.moves) {
+        isRecord = true;
+      } else if (moves === prevData.moves && seconds < prevData.seconds) {
+        // однаково ходів, але менший час – теж новий рекорд
+        isRecord = true;
       }
     }
 
-    function checkWin() {
-      for (let i = 0; i < tiles.length - 1; i++) {
-        if (tiles[i] !== i + 1) return false;
+    if (isRecord) {
+      const toSave = { moves: moves, seconds: seconds };
+      try {
+        localStorage.setItem(key, JSON.stringify(toSave));
+      } catch (e) {
+        // якщо не вдалось зберегти – нічого страшного
       }
-      return tiles[tiles.length - 1] === 0;
+      alert(
+        "🎉 Новий рекорд для рівня " +
+        size + "×" + size +
+        "!\nХоди: " + moves +
+        "\nЧас: " + formatTime(seconds)
+      );
+    } else if (prevData) {
+      alert(
+        "Твій результат:\n" +
+        "Ходи: " + moves + ", час: " + formatTime(seconds) +
+        "\n\nПоточний рекорд для " + size + "×" + size + ":\n" +
+        "Ходи: " + prevData.moves + ", час: " + formatTime(prevData.seconds)
+      );
     }
+  }
+  // ---- КІНЕЦЬ БЛОКУ РЕКОРДІВ ----
 
-    function showWin() {
-      stopTimer();
+  function showWin() {
+    stopTimer();
 
-      const resMoves = document.getElementById("resultMoves");
-      const resTime = document.getElementById("resultTime");
-      const resLevel = document.getElementById("resultLevel");
+    const resMoves = document.getElementById("resultMoves");
+    const resTime = document.getElementById("resultTime");
+    const resLevel = document.getElementById("resultLevel");
 
-      if (resMoves) resMoves.textContent = moves;
-      if (resTime) resTime.textContent = formatTime(seconds);
-      if (resLevel) resLevel.textContent = size + "×" + size;
+    if (resMoves) resMoves.textContent = moves;
+    if (resTime) resTime.textContent = formatTime(seconds);
+    if (resLevel) resLevel.textContent = size + "×" + size;
 
-      document.getElementById("game").classList.add("hidden");
-      document.getElementById("win").classList.remove("hidden");
-    }
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("win").classList.remove("hidden");
 
-    function goHome() {
-      // кнопка "На головну" → сторінка ігор SHAG
-      window.location.href = "shag-games.html";
-    }
-  </script>
-</body>
-</html>
+    // показати/оновити рекорд
+    saveAndShowRecord();
+  }
+
+  function goHome() {
+    window.location.href = "shag-games.html";
+  }
+</script>
