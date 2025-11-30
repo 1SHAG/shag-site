@@ -77,6 +77,8 @@
         inset 0 1px 3px rgba(255, 255, 255, 0.5),
         inset 0 -2px 4px rgba(0, 0, 0, 0.4);
       transition: transform 0.12s ease-out, filter 0.12s ease-out;
+      /* трохи вища плитка */
+      min-height: 64px;
     }
 
     .tile:hover {
@@ -123,6 +125,11 @@
       transform: translateY(0);
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
       filter: brightness(0.96);
+    }
+
+    /* відступ над кнопками під полем */
+    .controls {
+      margin-top: 12px;
     }
 
     /* Екран перемоги */
@@ -182,7 +189,8 @@
       <p>Обери рівень складності:</p>
       <button onclick="startGame(3)">3×3 (Легко)</button><br/>
       <button onclick="startGame(4)">4×4 (Класика)</button><br/>
-      <button onclick="startGame(5)">5×5 (Профі)</button>
+      <button onclick="startGame(5)">5×5 (Профі)</button><br/>
+      <button onclick="goHome()">На головну</button>
     </div>
 
     <!-- Ігровий екран -->
@@ -195,8 +203,11 @@
       </div>
 
       <div id="grid" class="grid"></div>
-      <button onclick="newGame()">Нова гра</button>
-      <button onclick="backToMenu()">До меню</button>
+
+      <div class="controls">
+        <button onclick="newGame()">Нова гра</button>
+        <button onclick="backToMenu()">До меню</button>
+      </div>
     </div>
 
     <!-- Екран перемоги -->
@@ -278,7 +289,6 @@
     }
 
     function newGame() {
-      // ховаємо екран перемоги й показуємо ігровий
       document.getElementById("win").classList.add("hidden");
       document.getElementById("game").classList.remove("hidden");
 
@@ -337,6 +347,10 @@
 
       document.getElementById("game").classList.add("hidden");
       document.getElementById("win").classList.remove("hidden");
+    }
+
+    function goHome() {
+      window.location.href = "index.html"; // або shag-games.html, якщо хочеш на сторінку ігор
     }
   </script>
 </body>
