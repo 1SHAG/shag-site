@@ -1,195 +1,539 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>SHAG Snake 🐍</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            flex-direction: column;
-            margin: 0;
-        }
-        h1 {
-            margin: 5px 0 0;
-            font-size: 26px;
-            letter-spacing: 1px;
-        }
-        #shagLogo {
-            width: 32px;
-            vertical-align: middle;
-            margin-right: 6px;
-            border-radius: 50%;
-        }
-        #score {
-            font-size: 20px;
-            margin: 8px 0 10px;
-            color: #00f0ff;
-            text-shadow: 0 0 10px #00c8ff;
-        }
-        button {
-            padding: 8px 18px;
-            font-size: 18px;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(90deg, #00c8ff, #00f6b4);
-            color: #000;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 10px;
-            box-shadow: 0 0 15px rgba(0, 200, 255, 0.8);
-        }
-        button:hover {
-            transform: translateY(-1px);
-        }
-        canvas {
-            background: #020617;
-            border: 3px solid #00c8ff;
-            box-shadow: 0 0 25px #00c8ff;
-            max-width: 95vw;
-            max-height: 70vh;
-        }
-        .controls {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 8px;
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>SHAG Snake</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --panel: rgba(10, 10, 20, 0.96);
+      --accent: #ffd54a;
+      --accent-strong: #ffb300;
+      --text: #f7f7ff;
+      --muted: #a9b0c2;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
+        radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .container {
+      background: var(--panel);
+      border-radius: 20px;
+      border: 1px solid rgba(241, 196, 15, 0.8);
+      width: 340px;
+      max-width: 100%;
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.9),
+        0 0 24px rgba(241, 196, 15, 0.35);
+      padding: 14px 14px 16px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
+    }
+
+    .subtitle {
+      margin: 4px 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .score-box {
+      background: rgba(5, 8, 22, 0.95);
+      border-radius: 10px;
+      padding: 6px 10px;
+      min-width: 70px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .score-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .score-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 7px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #1b1305;
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.7),
+        0 0 14px rgba(241, 196, 15, 0.6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+      white-space: nowrap;
+    }
+
+    .btn.secondary {
+      background: rgba(11, 16, 32, 0.96);
+      color: var(--muted);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+      border-color: var(--border);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow:
+        0 7px 16px rgba(0, 0, 0, 0.8),
+        0 0 18px rgba(241, 196, 15, 0.7);
+    }
+
+    .btn.secondary:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+      border-color: var(--accent-strong);
+      color: var(--accent);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      filter: brightness(0.97);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    canvas {
+      background: #050814;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.8),
+        0 10px 22px rgba(0, 0, 0, 0.9);
+      width: 100%;
+      max-width: 100%;
+      touch-action: none; /* щоб свайп не скролив сторінку */
+    }
+
+    .move-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(2, auto);
+      gap: 6px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .move-btn {
+      padding: 8px 0;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .move-btn.empty {
+      visibility: hidden;
+    }
+
+    .info {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .status {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .status.lose {
+      color: #ff867c;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>SHAG Snake</h1>
+    <div class="subtitle">Класична змійка в стилі SHAG. Їж монети, не врізайся 🐍</div>
 
-<h1>
-    <img id="shagLogo" src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png" alt="SHAG">
-    SHAG Snake
-</h1>
+    <div class="top-row">
+      <div class="score-box">
+        <div class="score-label">Очки</div>
+        <div class="score-value" id="score">0</div>
+      </div>
+      <div class="score-box">
+        <div class="score-label">Рекорд</div>
+        <div class="score-value" id="best">0</div>
+      </div>
+      <button class="btn secondary" onclick="goHome()">На ігри</button>
+    </div>
 
-<div id="score">Очки: 0 SHAG</div>
+    <div class="btn-row">
+      <button class="btn" onclick="newGame()">Нова гра</button>
+    </div>
 
-<button onclick="startGame()">Старт гри</button>
+    <canvas id="game" width="320" height="320"></canvas>
 
-<canvas id="game" width="400" height="400"></canvas>
+    <!-- Кнопки керування (вгору/вниз/вліво/вправо) -->
+    <div class="move-grid">
+      <div></div>
+      <button id="btnUp" class="btn move-btn">⬆ Вгору</button>
+      <div></div>
 
-<div class="controls">
-    Керування: стрілки ⬅⬆➡⬇ або W A S D<br>
-    Збирай логотипи SHAG, щоб заробляти SHAG очки!
-</div>
+      <button id="btnLeft" class="btn move-btn">⬅ Вліво</button>
+      <button id="btnDown" class="btn move-btn">⬇ Вниз</button>
+      <button id="btnRight" class="btn move-btn">Вправо ➡</button>
+    </div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    <div class="info">
+      ПК: <strong>стрілки</strong> або <strong>W/A/S/D</strong>.<br>
+      Телефон: кнопки керування або свайп по полю гри.
+    </div>
+    <div id="status" class="status"></div>
+  </div>
 
-const grid = 20;
-let snake = [];
-let direction = "right";
-let food = {};
-let score = 0;
-let gameLoop = null;
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
 
-// Завантажуємо логотип SHAG один раз
-const foodImg = new Image();
-foodImg.src = "https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png";
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const statusEl = document.getElementById('status');
 
-function startGame() {
-    snake = [{x: 200, y: 200}];
-    direction = "right";
-    score = 0;
-    document.getElementById("score").textContent = "Очки: 0 SHAG";
+    const btnUp = document.getElementById('btnUp');
+    const btnDown = document.getElementById('btnDown');
+    const btnLeft = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
 
-    spawnFood();
+    const GRID_SIZE = 20;       // 20x20 клітинок
+    const TILE = canvas.width / GRID_SIZE;
 
-    if (gameLoop) {
-        clearInterval(gameLoop);
-    }
-    gameLoop = setInterval(update, 120);
-}
+    let snake = [];
+    let direction = { x: 1, y: 0 }; // рух вправо
+    let nextDirection = { x: 1, y: 0 };
+    let food = { x: 10, y: 10 };
+    let score = 0;
+    let best = 0;
+    let gameOver = false;
+    let loopId = null;
+    let speed = 140; // мс між кадрами
+    let lastMoveTime = 0;
 
-function spawnFood() {
-    food = {
-        x: Math.floor(Math.random() * (canvas.width / grid)) * grid,
-        y: Math.floor(Math.random() * (canvas.height / grid)) * grid
-    };
-}
+    // для свайпів
+    let touchStartX = 0;
+    let touchStartY = 0;
 
-// Керування з клавіатури
-document.addEventListener("keydown", event => {
-    const key = event.key;
-
-    if ((key === "ArrowUp" || key === "w" || key === "W") && direction !== "down") {
-        direction = "up";
-    } else if ((key === "ArrowDown" || key === "s" || key === "S") && direction !== "up") {
-        direction = "down";
-    } else if ((key === "ArrowLeft" || key === "a" || key === "A") && direction !== "right") {
-        direction = "left";
-    } else if ((key === "ArrowRight" || key === "d" || key === "D") && direction !== "left") {
-        direction = "right";
-    }
-});
-
-function update() {
-    let head = {...snake[0]};
-
-    if (direction === "up") head.y -= grid;
-    if (direction === "down") head.y += grid;
-    if (direction === "left") head.x -= grid;
-    if (direction === "right") head.x += grid;
-
-    // Вихід за межі — з'являємось з іншого боку
-    if (head.x < 0) head.x = canvas.width - grid;
-    if (head.x >= canvas.width) head.x = 0;
-    if (head.y < 0) head.y = canvas.height - grid;
-    if (head.y >= canvas.height) head.y = 0;
-
-    snake.unshift(head);
-
-    // Перевірка на "їжу"
-    if (head.x === food.x && head.y === food.y) {
-        score++;
-        document.getElementById("score").textContent = "Очки: " + score + " SHAG";
-        spawnFood();
-    } else {
-        snake.pop();
+    function loadBest() {
+      const saved = localStorage.getItem('shag_snake_best');
+      best = saved ? parseInt(saved, 10) || 0 : 0;
+      bestEl.textContent = best;
     }
 
-    // Самоврізання
-    for (let i = 1; i < snake.length; i++) {
-        if (head.x === snake[i].x && head.y === snake[i].y) {
-            alert("Кінець гри! Ти заробив " + score + " SHAG!");
-            startGame();
-            return;
+    function saveBest() {
+      if (score > best) {
+        best = score;
+        bestEl.textContent = best;
+        localStorage.setItem('shag_snake_best', best.toString());
+      }
+    }
+
+    function randomCell() {
+      return {
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: Math.floor(Math.random() * GRID_SIZE)
+      };
+    }
+
+    function placeFood() {
+      let ok = false;
+      while (!ok) {
+        const f = randomCell();
+        ok = !snake.some(seg => seg.x === f.x && seg.y === f.y);
+        if (ok) {
+          food = f;
         }
+      }
     }
 
-    draw();
-}
+    function newGame() {
+      snake = [
+        { x: 5, y: 10 },
+        { x: 4, y: 10 },
+        { x: 3, y: 10 }
+      ];
+      direction = { x: 1, y: 0 };
+      nextDirection = { x: 1, y: 0 };
+      placeFood();
+      score = 0;
+      scoreEl.textContent = score;
+      gameOver = false;
+      speed = 140;
+      statusEl.textContent = '';
+      statusEl.className = 'status';
 
-function draw() {
-    // фон
-    ctx.fillStyle = "#020617";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Змійка
-    for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "#00f0ff" : "#00c8ff";
-        ctx.fillRect(snake[i].x, snake[i].y, grid - 1, grid - 1);
+      if (loopId) cancelAnimationFrame(loopId);
+      lastMoveTime = performance.now();
+      loop();
     }
 
-    // Їжа — логотип SHAG
-    if (foodImg.complete) {
-        ctx.drawImage(foodImg, food.x, food.y, grid, grid);
-    } else {
-        // якщо ще не завантажилось — малюємо світлу клітинку
-        ctx.fillStyle = "#facc15";
-        ctx.fillRect(food.x, food.y, grid - 1, grid - 1);
+    function changeDirection(newDir) {
+      // заборонити розворот на 180
+      if (
+        (newDir.x === -direction.x && newDir.y === 0) ||
+        (newDir.y === -direction.y && newDir.x === 0)
+      ) {
+        return;
+      }
+      nextDirection = newDir;
     }
-}
-</script>
 
+    function update(dt) {
+      if (gameOver) return;
+
+      if (dt - lastMoveTime < speed) return; // ще рано рухатись
+      lastMoveTime = dt;
+
+      direction = nextDirection;
+      const head = snake[0];
+      const newHead = {
+        x: head.x + direction.x,
+        y: head.y + direction.y
+      };
+
+      // стіни
+      if (
+        newHead.x < 0 || newHead.x >= GRID_SIZE ||
+        newHead.y < 0 || newHead.y >= GRID_SIZE
+      ) {
+        endGame();
+        return;
+      }
+
+      // врізався в себе
+      if (snake.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
+        endGame();
+        return;
+      }
+
+      snake.unshift(newHead);
+
+      // їжа
+      if (newHead.x === food.x && newHead.y === food.y) {
+        score++;
+        scoreEl.textContent = score;
+        saveBest();
+
+        // трохи прискорюємось
+        if (speed > 70) speed -= 3;
+
+        placeFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    function endGame() {
+      gameOver = true;
+      statusEl.textContent = '💀 Гру закінчено. Очки: ' + score + '. Натисни "Нова гра", щоб спробувати ще.';
+      statusEl.className = 'status lose';
+    }
+
+    function drawGrid() {
+      // фон
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, '#0b1020');
+      grad.addColorStop(1, '#020308');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // легка сітка
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= GRID_SIZE; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * TILE, 0);
+        ctx.lineTo(i * TILE, canvas.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * TILE);
+        ctx.lineTo(canvas.width, i * TILE);
+        ctx.stroke();
+      }
+    }
+
+    function drawSnake() {
+      snake.forEach((seg, index) => {
+        const x = seg.x * TILE;
+        const y = seg.y * TILE;
+
+        if (index === 0) {
+          // голова
+          const headGrad = ctx.createLinearGradient(x, y, x, y + TILE);
+          headGrad.addColorStop(0, '#ffe082');
+          headGrad.addColorStop(1, '#ffb300');
+          ctx.fillStyle = headGrad;
+        } else {
+          const bodyGrad = ctx.createLinearGradient(x, y, x, y + TILE);
+          bodyGrad.addColorStop(0, '#ffd54f');
+          bodyGrad.addColorStop(1, '#b37b16');
+          ctx.fillStyle = bodyGrad;
+        }
+
+        ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      });
+    }
+
+    function drawFood() {
+      const x = food.x * TILE + TILE / 2;
+      const y = food.y * TILE + TILE / 2;
+      const r = TILE * 0.35;
+
+      const grd = ctx.createRadialGradient(
+        x - 3, y - 3, 2,
+        x, y, r
+      );
+      grd.addColorStop(0, '#ffffff');
+      grd.addColorStop(0.2, '#fff9c4');
+      grd.addColorStop(0.5, '#ffd54f');
+      grd.addColorStop(1, '#b37b16');
+
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.fillStyle = '#2b1906';
+      ctx.font = 'bold 12px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('S', x, y + 0.5);
+    }
+
+    function loop(timestamp) {
+      drawGrid();
+      update(timestamp);
+      drawSnake();
+      drawFood();
+
+      if (!gameOver) {
+        loopId = requestAnimationFrame(loop);
+      }
+    }
+
+    // клавіатура
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (['arrowup', 'w'].includes(key)) {
+        changeDirection({ x: 0, y: -1 });
+      } else if (['arrowdown', 's'].includes(key)) {
+        changeDirection({ x: 0, y: 1 });
+      } else if (['arrowleft', 'a'].includes(key)) {
+        changeDirection({ x: -1, y: 0 });
+      } else if (['arrowright', 'd'].includes(key)) {
+        changeDirection({ x: 1, y: 0 });
+      }
+    });
+
+    // свайпи
+    canvas.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      const adx = Math.abs(dx);
+      const ady = Math.abs(dy);
+      const threshold = 20;
+      if (Math.max(adx, ady) < threshold) return;
+
+      if (adx > ady) {
+        if (dx > 0) changeDirection({ x: 1, y: 0 });
+        else changeDirection({ x: -1, y: 0 });
+      } else {
+        if (dy > 0) changeDirection({ x: 0, y: 1 });
+        else changeDirection({ x: 0, y: -1 });
+      }
+    }, { passive: true });
+
+    // кнопки керування (миша + тач)
+    function bindMoveButton(btn, dir) {
+      const start = (e) => {
+        e.preventDefault();
+        changeDirection(dir);
+      };
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('touchstart', start, { passive: false });
+    }
+
+    bindMoveButton(btnUp,    { x: 0,  y: -1 });
+    bindMoveButton(btnDown,  { x: 0,  y: 1 });
+    bindMoveButton(btnLeft,  { x: -1, y: 0 });
+    bindMoveButton(btnRight, { x: 1,  y: 0 });
+
+    function goHome() {
+      window.location.href = 'shag-games.html';
+    }
+
+    loadBest();
+    newGame();
+  </script>
 </body>
 </html>
