@@ -154,6 +154,7 @@
         0 10px 22px rgba(0, 0, 0, 0.9);
       width: 100%;
       max-width: 100%;
+      touch-action: none; /* щоб свайп не скролив сторінку */
     }
 
     .info {
@@ -201,9 +202,9 @@
     <canvas id="game" width="320" height="420"></canvas>
 
     <div class="info">
-      Керування: <strong>← →</strong> або <strong>A / D</strong>.  
-      Лови <strong>золоті монети</strong>, уникай <strong>червоних бомб</strong>.  
-      Якщо життя закінчились — гра завершується.
+      Керування на ПК: <strong>← →</strong> або <strong>A / D</strong>.<br>
+      На телефоні: <strongрухай палець по екрану під грою</strong> — платформа буде їхати за пальцем.
+      <br>Лови <strong>золоті монети</strong>, уникай <strong>червоних бомб</strong>.
     </div>
     <div id="status" class="status"></div>
   </div>
@@ -216,7 +217,7 @@
     const bestEl = document.getElementById('best');
     const statusEl = document.getElementById('status');
 
-    const PLAYER_WIDTH = 70;
+    const PLAYER_WIDTH = 80;
     const PLAYER_HEIGHT = 14;
     const PLAYER_SPEED = 5;
 
@@ -233,12 +234,16 @@
     let leftPressed = false;
     let rightPressed = false;
 
+    // для тач-керування
+    let isTouching = false;
+
     let objects = []; // монети та бомби
     let frame = 0;
     let score = 0;
     let best = 0;
     let lives = 3;
     let gameOver = false;
+    let animId = null;
 
     function loadBest() {
       const saved = localStorage.getItem('shag_drop_best');
@@ -263,11 +268,14 @@
       player.x = canvas.width / 2 - PLAYER_WIDTH / 2;
       scoreEl.textContent = score;
       statusEl.textContent = '';
+      statusEl.className = 'status';
+
+      if (animId) cancelAnimationFrame(animId);
       animate();
     }
 
     function spawnObjects() {
-      // монета кожні ~35 кадрів
+      // монета
       if (frame % 35 === 0) {
         objects.push({
           type: 'coin',
@@ -278,7 +286,7 @@
         });
       }
 
-      // бомба кожні ~110 кадрів
+      // бомба
       if (frame % 110 === 0) {
         objects.push({
           type: 'bomb',
@@ -291,17 +299,17 @@
     }
 
     function update() {
-      if (gameOver) {
-        return;
-      }
+      if (gameOver) return;
 
       frame++;
 
-      // рух гравця
-      if (leftPressed) {
-        player.x -= PLAYER_SPEED;
-      } else if (rightPressed) {
-        player.x += PLAYER_SPEED;
+      // рух гравця з клавіатури
+      if (!isTouching) { // якщо не торкаємось екрану, клавіатура працює як раніше
+        if (leftPressed) {
+          player.x -= PLAYER_SPEED;
+        } else if (rightPressed) {
+          player.x += PLAYER_SPEED;
+        }
       }
 
       if (player.x < 4) player.x = 4;
@@ -316,7 +324,7 @@
         const o = objects[i];
         o.y += o.speed;
 
-        // перевірка зіткнення з платформою
+        // зіткнення з платформою
         if (
           o.y + o.radius >= player.y &&
           o.y - o.radius <= player.y + player.height &&
@@ -342,7 +350,7 @@
           continue;
         }
 
-        // видалити, якщо вийшло за межі
+        // за екран
         if (o.y - o.radius > canvas.height + 20) {
           objects.splice(i, 1);
         }
@@ -350,7 +358,6 @@
     }
 
     function drawPlayer() {
-      // платформа
       const grd = ctx.createLinearGradient(player.x, player.y, player.x, player.y + player.height);
       grd.addColorStop(0, '#ffd54f');
       grd.addColorStop(1, '#b37b16');
@@ -365,7 +372,6 @@
     function drawObjects() {
       objects.forEach(o => {
         if (o.type === 'coin') {
-          // золота монета
           const grd = ctx.createRadialGradient(
             o.x - 3, o.y - 3, 2,
             o.x, o.y, o.radius
@@ -380,7 +386,6 @@
           ctx.fill();
           ctx.closePath();
 
-          // контур
           ctx.strokeStyle = 'rgba(0,0,0,0.6)';
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -388,14 +393,12 @@
           ctx.stroke();
           ctx.closePath();
 
-          // літера S
           ctx.fillStyle = '#2b1906';
           ctx.font = 'bold 11px system-ui';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText('S', o.x, o.y + 0.5);
         } else {
-          // бомба
           const grdB = ctx.createRadialGradient(
             o.x - 3, o.y - 3, 2,
             o.x, o.y, o.radius
@@ -416,7 +419,6 @@
           ctx.stroke();
           ctx.closePath();
 
-          // "ґніт"
           ctx.strokeStyle = '#ffeb3b';
           ctx.lineWidth = 1.5;
           ctx.beginPath();
@@ -431,14 +433,12 @@
     function drawBackground() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // легкий градієнт зверху
       const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
       bgGrad.addColorStop(0, '#0b1020');
       bgGrad.addColorStop(1, '#020308');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // "підлога"
       ctx.fillStyle = 'rgba(255,255,255,0.05)';
       ctx.fillRect(0, canvas.height - 18, canvas.width, 18);
     }
@@ -477,7 +477,7 @@
       drawGameOver();
 
       if (!gameOver) {
-        requestAnimationFrame(animate);
+        animId = requestAnimationFrame(animate);
       }
     }
 
@@ -499,6 +499,37 @@
         rightPressed = false;
       }
     });
+
+    // ТАЧ-керування — платформа їде за пальцем
+    function handleTouch(e) {
+      e.preventDefault();
+      if (!e.touches.length) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+
+      // центр платформи = палець
+      player.x = x - player.width / 2;
+
+      if (player.x < 4) player.x = 4;
+      if (player.x + player.width > canvas.width - 4) {
+        player.x = canvas.width - 4 - player.width;
+      }
+    }
+
+    canvas.addEventListener('touchstart', (e) => {
+      isTouching = true;
+      handleTouch(e);
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      isTouching = true;
+      handleTouch(e);
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => {
+      isTouching = false;
+    }, { passive: true });
 
     function goHome() {
       window.location.href = 'shag-games.html';
