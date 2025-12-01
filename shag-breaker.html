@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SHAG Breaker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-main: #050814;
+      --bg-card: #111727;
+      --accent: #f1c40f;
+      --accent2: #3498db;
+      --text-main: #ffffff;
+      --text-soft: #bfc6d8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
+        radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(3, 6, 20, 0.92);
+      border-radius: 24px;
+      padding: 18px 16px 14px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(241, 196, 15, 0.14);
+      backdrop-filter: blur(16px);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .title-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #fff8d6 0, #f1c40f 35%, #b67c00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.9rem;
+      color: #3b2a00;
+      box-shadow: 0 0 16px rgba(241, 196, 15, 0.8);
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .stats {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat-card {
+      background: rgba(9, 12, 30, 0.95);
+      border-radius: 12px;
+      padding: 4px 8px;
+      min-width: 68px;
+      text-align: right;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    .stat-value span {
+      font-size: 0.7rem;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-left: 2px;
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 0.72rem;
+      color: var(--text-soft);
+    }
+
+    .hint {
+      line-height: 1.3;
+    }
+
+    .hint strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #020308;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.08s ease;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+      opacity: 0.9;
+    }
+
+    .game-shell {
+      background: linear-gradient(145deg, #050815, #0c1024);
+      border-radius: 18px;
+      padding: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      background: radial-gradient(circle at top, #181c32 0, #050814 68%);
+    }
+
+    .bottom-controls {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 8px;
+      max-width: 260px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .control-btn {
+      flex: 1;
+      border-radius: 14px;
+      padding: 10px 0;
+      border: none;
+      background: rgba(12, 21, 46, 0.96);
+      color: #fdfdfd;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+      transition: transform 0.08s ease, box-shadow 0.08s ease,
+        background 0.08s ease;
+      user-select: none;
+    }
+
+    .control-btn:active {
+      transform: translateY(1px) scale(0.97);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.65);
+      background: rgba(20, 32, 70, 1);
+    }
+
+    .kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(191, 198, 216, 0.5);
+      font-size: 0.7rem;
+      margin: 0 2px;
+      background: rgba(8, 12, 30, 0.7);
+    }
+
+    @media (max-width: 400px) {
+      .title {
+        font-size: 1.1rem;
+      }
+
+      .subtitle {
+        font-size: 0.72rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="title-block">
+        <div class="title">
+          <div class="title-badge">S</div>
+          SHAG Breaker
+        </div>
+        <div class="subtitle">
+          Відбивай монету SHAG, ламай блоки та збирай очки.
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Рахунок</div>
+          <div class="stat-value" id="score">0 <span>SHAG</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Рекорд</div>
+          <div class="stat-value" id="best">0 <span>SHAG</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Рівень</div>
+          <div class="stat-value" id="level">1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-controls">
+      <div class="hint">
+        <strong>Керування:</strong> стрілки / A, D / кнопки внизу.<br />
+        Пропусти монету — втрачаєш життя.
+      </div>
+      <button class="btn" id="toggleBtn">Старт</button>
+    </div>
+
+    <div class="game-shell">
+      <canvas id="gameCanvas" width="360" height="520"></canvas>
+    </div>
+
+    <div class="bottom-controls">
+      <div>Екранні кнопки для мобільних:</div>
+      <div class="buttons-row">
+        <button class="control-btn" id="btnLeft">◀ Вліво</button>
+        <button class="control-btn" id="btnRight">Вправо ▶</button>
+      </div>
+      <div>
+        На ПК працюють також
+        <span class="kbd">←</span><span class="kbd">→</span>
+        та
+        <span class="kbd">A</span><span class="kbd">D</span>, а
+        <span class="kbd">Пробіл</span> — старт/пауза.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Розміри
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Платформа
+    const paddleHeight = 14;
+    let paddleWidth = 80;
+    let paddleX = (W - paddleWidth) / 2;
+    const paddleSpeed = 6;
+
+    // М'яч (монета)
+    const ballRadius = 9;
+    let ballX;
+    let ballY;
+    let dx;
+    let dy;
+
+    // Блоки
+    let brickRowCount = 5;
+    let brickColumnCount = 7;
+    const brickWidth = 44;
+    const brickHeight = 16;
+    const brickPadding = 8;
+    const brickOffsetTop = 60;
+    const brickOffsetLeft = 14;
+    let bricks = [];
+
+    // Статистика
+    let score = 0;
+    let bestScore = 0;
+    let level = 1;
+    let lives = 3;
+
+    // Стан гри
+    let rightPressed = false;
+    let leftPressed = false;
+    let isRunning = false;
+    let gameLoopId = null;
+
+    // Ефекти +SHAG при ударі
+    const floatTexts = [];
+
+    function initBricks() {
+      bricks = [];
+      for (let c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for (let r = 0; r < brickRowCount; r++) {
+          bricks[c][r] = { x: 0, y: 0, status: 1, value: 10 };
+        }
+      }
+    }
+
+    function resetBallAndPaddle() {
+      paddleWidth = 80;
+      paddleX = (W - paddleWidth) / 2;
+      ballX = W / 2;
+      ballY = H - 80;
+      const speedBase = 3 + level * 0.3;
+      dx = speedBase * (Math.random() > 0.5 ? 1 : -1);
+      dy = -speedBase;
+    }
+
+    function loadBestScore() {
+      const stored = localStorage.getItem("shag_breaker_best");
+      bestScore = stored ? parseInt(stored, 10) : 0;
+      updateStatsUI();
+    }
+
+    function saveBestScore() {
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("shag_breaker_best", bestScore.toString());
+      }
+    }
+
+    function updateStatsUI() {
+      document.getElementById("score").innerHTML =
+        score + ' <span>SHAG</span>';
+      document.getElementById("best").innerHTML =
+        bestScore + ' <span>SHAG</span>';
+      document.getElementById("level").textContent = level;
+    }
+
+    function addFloatText(text, x, y) {
+      floatTexts.push({
+        text,
+        x,
+        y,
+        alpha: 1,
+        dy: -0.6
+      });
+    }
+
+    function drawFloatTexts() {
+      ctx.save();
+      ctx.font = "12px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      for (let i = floatTexts.length - 1; i >= 0; i--) {
+        const t = floatTexts[i];
+        ctx.globalAlpha = t.alpha;
+        ctx.fillStyle = "#f1c40f";
+        ctx.fillText(t.text, t.x, t.y);
+        t.y += t.dy;
+        t.alpha -= 0.02;
+        if (t.alpha <= 0) {
+          floatTexts.splice(i, 1);
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawBackground() {
+      const grd = ctx.createLinearGradient(0, 0, 0, H);
+      grd.addColorStop(0, "#18203a");
+      grd.addColorStop(1, "#050814");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    function drawPaddle() {
+      const grd = ctx.createLinearGradient(
+        paddleX,
+        H - paddleHeight - 20,
+        paddleX,
+        H
+      );
+      grd.addColorStop(0, "#3498db");
+      grd.addColorStop(1, "#9b59b6");
+
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      const radius = 8;
+      const y = H - paddleHeight - 18;
+      const x = paddleX;
+      const w = paddleWidth;
+      const h = paddleHeight;
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + w - radius, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+      ctx.lineTo(x + w, y + h - radius);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      ctx.lineTo(x + radius, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawBall() {
+      // контур монети
+      const grd = ctx.createRadialGradient(
+        ballX - 2,
+        ballY - 2,
+        2,
+        ballX,
+        ballY,
+        ballRadius + 2
+      );
+      grd.addColorStop(0, "#fff8d6");
+      grd.addColorStop(0.4, "#f1c40f");
+      grd.addColorStop(1, "#b67c00");
+
+      ctx.beginPath();
+      ctx.fillStyle = grd;
+      ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+
+      // буква S
+      ctx.fillStyle = "#3b2a00";
+      ctx.font = "bold 11px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("S", ballX, ballY + 1);
+    }
+
+    function drawBricks() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          const b = bricks[c][r];
+          if (b.status === 1) {
+            const brickX =
+              c * (brickWidth + brickPadding) + brickOffsetLeft;
+            const brickY =
+              r * (brickHeight + brickPadding) + brickOffsetTop;
+            b.x = brickX;
+            b.y = brickY;
+
+            let grd = ctx.createLinearGradient(
+              brickX,
+              brickY,
+              brickX,
+              brickY + brickHeight
+            );
+            if (r < 1) {
+              grd.addColorStop(0, "#f1c40f");
+              grd.addColorStop(1, "#e67e22");
+            } else if (r < 3) {
+              grd.addColorStop(0, "#3498db");
+              grd.addColorStop(1, "#2980b9");
+            } else {
+              grd.addColorStop(0, "#9b59b6");
+              grd.addColorStop(1, "#8e44ad");
+            }
+
+            ctx.fillStyle = grd;
+            ctx.beginPath();
+            const radius = 5;
+            ctx.moveTo(brickX + radius, brickY);
+            ctx.lineTo(brickX + brickWidth - radius, brickY);
+            ctx.quadraticCurveTo(
+              brickX + brickWidth,
+              brickY,
+              brickX + brickWidth,
+              brickY + radius
+            );
+            ctx.lineTo(
+              brickX + brickWidth,
+              brickY + brickHeight - radius
+            );
+            ctx.quadraticCurveTo(
+              brickX + brickWidth,
+              brickY + brickHeight,
+              brickX + brickWidth - radius,
+              brickY + brickHeight
+            );
+            ctx.lineTo(brickX + radius, brickY + brickHeight);
+            ctx.quadraticCurveTo(
+              brickX,
+              brickY + brickHeight,
+              brickX,
+              brickY + brickHeight - radius
+            );
+            ctx.lineTo(brickX, brickY + radius);
+            ctx.quadraticCurveTo(
+              brickX,
+              brickY,
+              brickX + radius,
+              brickY
+            );
+            ctx.closePath();
+            ctx.fill();
+
+            // невеликий відблиск
+            ctx.fillStyle = "rgba(255,255,255,0.15)";
+            ctx.beginPath();
+            ctx.moveTo(brickX + 4, brickY + 3);
+            ctx.lineTo(brickX + brickWidth - 6, brickY + 3);
+            ctx.lineTo(brickX + brickWidth - 10, brickY + 6);
+            ctx.lineTo(brickX + 8, brickY + 6);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    function drawHUD() {
+      ctx.save();
+      ctx.font = "11px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(191,198,216,0.85)";
+      ctx.textBaseline = "top";
+      ctx.fillText("Життя: " + lives, 10, 6);
+      ctx.textAlign = "right";
+      ctx.fillText("Рівень " + level, W - 10, 6);
+      ctx.restore();
+    }
+
+    function collisionDetection() {
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          const b = bricks[c][r];
+          if (b.status === 1) {
+            if (
+              ballX > b.x &&
+              ballX < b.x + brickWidth &&
+              ballY > b.y &&
+              ballY < b.y + brickHeight
+            ) {
+              dy = -dy;
+              b.status = 0;
+              score += b.value;
+              addFloatText("+ " + b.value + " SHAG", ballX, ballY);
+              saveBestScore();
+              updateStatsUI();
+              checkWin();
+            }
+          }
+        }
+      }
+    }
+
+    function checkWin() {
+      let allCleared = true;
+      for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+          if (bricks[c][r].status === 1) {
+            allCleared = false;
+            break;
+          }
+        }
+        if (!allCleared) break;
+      }
+      if (allCleared) {
+        level++;
+        lives = Math.min(lives + 1, 5);
+        brickRowCount = Math.min(brickRowCount + 1, 8);
+        initBricks();
+        resetBallAndPaddle();
+        updateStatsUI();
+      }
+    }
+
+    function draw() {
+      drawBackground();
+      drawBricks();
+      drawPaddle();
+      drawBall();
+      drawHUD();
+      drawFloatTexts();
+    }
+
+    function update() {
+      if (rightPressed && paddleX < W - paddleWidth - 6) {
+        paddleX += paddleSpeed;
+      } else if (leftPressed && paddleX > 6) {
+        paddleX -= paddleSpeed;
+      }
+
+      ballX += dx;
+      ballY += dy;
+
+      // стіни
+      if (ballX + ballRadius > W || ballX - ballRadius < 0) {
+        dx = -dx;
+      }
+      if (ballY - ballRadius < 18) {
+        dy = -dy;
+      }
+
+      // платформа
+      const paddleY = H - paddleHeight - 18;
+      if (
+        ballY + ballRadius >= paddleY &&
+        ballY + ballRadius <= paddleY + paddleHeight + 6 &&
+        ballX > paddleX &&
+        ballX < paddleX + paddleWidth
+      ) {
+        // точка удару по платформі
+        const hitPos = (ballX - (paddleX + paddleWidth / 2)) /
+          (paddleWidth / 2);
+        const speed = Math.sqrt(dx * dx + dy * dy);
+        const bounceAngle = hitPos * (Math.PI / 3); // ±60°
+        dx = speed * Math.sin(bounceAngle);
+        dy = -Math.abs(speed * Math.cos(bounceAngle));
+      }
+
+      // низ — втрата життя
+      if (ballY - ballRadius > H) {
+        lives--;
+        if (lives <= 0) {
+          isRunning = false;
+          cancelAnimationFrame(gameLoopId);
+          gameLoopId = null;
+          document.getElementById("toggleBtn").textContent = "Старт";
+          setTimeout(() => {
+            alert("Гру закінчено! Твій результат: " + score + " SHAG");
+          }, 50);
+          // повний рестарт
+          level = 1;
+          lives = 3;
+          score = 0;
+          brickRowCount = 5;
+          initBricks();
+          resetBallAndPaddle();
+          saveBestScore();
+          updateStatsUI();
+        } else {
+          resetBallAndPaddle();
+        }
+      }
+
+      collisionDetection();
+    }
+
+    function loop() {
+      if (!isRunning) return;
+      draw();
+      update();
+      gameLoopId = requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+      if (!isRunning) {
+        isRunning = true;
+        document.getElementById("toggleBtn").textContent = "Пауза";
+        if (!gameLoopId) {
+          loop();
+        }
+      }
+    }
+
+    function pauseGame() {
+      isRunning = false;
+      document.getElementById("toggleBtn").textContent = "Продовжити";
+    }
+
+    function toggleGame() {
+      if (isRunning) {
+        pauseGame();
+      } else {
+        startGame();
+      }
+    }
+
+    // Клавіатура
+    document.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      if (key === "arrowright" || key === "d") {
+        rightPressed = true;
+      } else if (key === "arrowleft" || key === "a") {
+        leftPressed = true;
+      } else if (key === " ") {
+        e.preventDefault();
+        toggleGame();
+      }
+    });
+
+    document.addEventListener("keyup", (e) => {
+      const key = e.key.toLowerCase();
+      if (key === "arrowright" || key === "d") {
+        rightPressed = false;
+      } else if (key === "arrowleft" || key === "a") {
+        leftPressed = false;
+      }
+    });
+
+    // Кнопки Старт/Пауза
+    document.getElementById("toggleBtn").addEventListener("click", () => {
+      toggleGame();
+    });
+
+    // Екранні кнопки (тач + мишка)
+    function bindHoldButton(btnId, direction) {
+      const btn = document.getElementById(btnId);
+
+      function press() {
+        if (direction === "left") {
+          leftPressed = true;
+        } else {
+          rightPressed = true;
+        }
+      }
+
+      function release() {
+        if (direction === "left") {
+          leftPressed = false;
+        } else {
+          rightPressed = false;
+        }
+      }
+
+      btn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        press();
+      });
+      btn.addEventListener("mouseup", (e) => {
+        e.preventDefault();
+        release();
+      });
+      btn.addEventListener("mouseleave", release);
+
+      btn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        press();
+      }, { passive: false });
+
+      btn.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        release();
+      }, { passive: false });
+
+      btn.addEventListener("touchcancel", release);
+    }
+
+    bindHoldButton("btnLeft", "left");
+    bindHoldButton("btnRight", "right");
+
+    // Стартова ініціалізація
+    function init() {
+      loadBestScore();
+      initBricks();
+      resetBallAndPaddle();
+      updateStatsUI();
+      draw(); // один кадр, щоб поле не було чорне перед стартом
+    }
+
+    init();
+  </script>
+</body>
+</html>
