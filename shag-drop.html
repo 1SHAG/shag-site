@@ -157,6 +157,19 @@
       touch-action: none; /* щоб свайп не скролив сторінку */
     }
 
+    .move-buttons {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .move-btn {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 13px;
+    }
+
     .info {
       margin-top: 8px;
       font-size: 11px;
@@ -201,9 +214,15 @@
 
     <canvas id="game" width="320" height="420"></canvas>
 
+    <!-- Кнопки керування для мобільного -->
+    <div class="move-buttons">
+      <button id="btnLeft" class="btn move-btn">◀ Вліво</button>
+      <button id="btnRight" class="btn move-btn">Вправо ▶</button>
+    </div>
+
     <div class="info">
-      Керування на ПК: <strong>← →</strong> або <strong>A / D</strong>.<br>
-      На телефоні: <strongрухай палець по екрану під грою</strong> — платформа буде їхати за пальцем.
+      ПК: <strong>← →</strong> або <strong>A / D</strong>.<br>
+      Телефон: <strong>кнопки Вліво/Вправо</strong> або рухай палець по екрану під грою.
       <br>Лови <strong>золоті монети</strong>, уникай <strong>червоних бомб</strong>.
     </div>
     <div id="status" class="status"></div>
@@ -216,6 +235,9 @@
     const scoreEl = document.getElementById('score');
     const bestEl = document.getElementById('best');
     const statusEl = document.getElementById('status');
+
+    const btnLeft = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
 
     const PLAYER_WIDTH = 80;
     const PLAYER_HEIGHT = 14;
@@ -234,8 +256,8 @@
     let leftPressed = false;
     let rightPressed = false;
 
-    // для тач-керування
-    let isTouching = false;
+    // для тач-керування по канвасу
+    let isTouchingCanvas = false;
 
     let objects = []; // монети та бомби
     let frame = 0;
@@ -303,8 +325,8 @@
 
       frame++;
 
-      // рух гравця з клавіатури
-      if (!isTouching) { // якщо не торкаємось екрану, клавіатура працює як раніше
+      // рух гравця з клавіатури / кнопок
+      if (!isTouchingCanvas) {
         if (leftPressed) {
           player.x -= PLAYER_SPEED;
         } else if (rightPressed) {
@@ -481,7 +503,7 @@
       }
     }
 
-    // керування клавіатурою
+    // клавіатура
     document.addEventListener('keydown', (e) => {
       const key = e.key.toLowerCase();
       if (key === 'arrowleft' || key === 'a') {
@@ -500,15 +522,14 @@
       }
     });
 
-    // ТАЧ-керування — платформа їде за пальцем
-    function handleTouch(e) {
+    // Тач по канвасу — платформа їде за пальцем
+    function handleTouchCanvas(e) {
       e.preventDefault();
       if (!e.touches.length) return;
       const rect = canvas.getBoundingClientRect();
       const touch = e.touches[0];
       const x = touch.clientX - rect.left;
 
-      // центр платформи = палець
       player.x = x - player.width / 2;
 
       if (player.x < 4) player.x = 4;
@@ -518,18 +539,43 @@
     }
 
     canvas.addEventListener('touchstart', (e) => {
-      isTouching = true;
-      handleTouch(e);
+      isTouchingCanvas = true;
+      handleTouchCanvas(e);
     }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
-      isTouching = true;
-      handleTouch(e);
+      isTouchingCanvas = true;
+      handleTouchCanvas(e);
     }, { passive: false });
 
     canvas.addEventListener('touchend', () => {
-      isTouching = false;
+      isTouchingCanvas = false;
     }, { passive: true });
+
+    // Кнопки Вліво / Вправо (миша + тач)
+    function startLeft() {
+      leftPressed = true;
+      rightPressed = false;
+    }
+    function startRight() {
+      rightPressed = true;
+      leftPressed = false;
+    }
+    function stopMove() {
+      leftPressed = false;
+      rightPressed = false;
+    }
+
+    // миша
+    btnLeft.addEventListener('mousedown', startLeft);
+    btnRight.addEventListener('mousedown', startRight);
+    document.addEventListener('mouseup', stopMove);
+
+    // тач
+    btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); startLeft(); }, { passive: false });
+    btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); startRight(); }, { passive: false });
+    btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); stopMove(); }, { passive: false });
+    btnRight.addEventListener('touchend', (e) => { e.preventDefault(); stopMove(); }, { passive: false });
 
     function goHome() {
       window.location.href = 'shag-games.html';
