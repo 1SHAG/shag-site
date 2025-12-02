@@ -322,14 +322,14 @@
     let dx;
     let dy;
 
-    // Блоки (зробив 6 колонок, щоб все влізало)
+    // Блоки – 7 колонок, повністю від стінки до стінки
     let brickRowCount = 5;
-    let brickColumnCount = 6;
-    const brickWidth = 42;
+    let brickColumnCount = 7;
+    const brickWidth = 36;
     const brickHeight = 16;
-    const brickPadding = 8;
+    const brickPadding = 18;
     const brickOffsetTop = 60;
-    const brickOffsetLeft = 16;
+    const brickOffsetLeft = 0; // 7*36 + 6*18 = 360 → без зазору
     let bricks = [];
 
     // Статистика
@@ -342,7 +342,7 @@
     let rightPressed = false;
     let leftPressed = false;
     let isRunning = false;
-    let hasStarted = false; // щоб відрізняти перший старт
+    let hasStarted = false;
 
     // Літаючі "+10 SHAG"
     const floatTexts = [];
@@ -369,7 +369,12 @@
 
     function loadBestScore() {
       const stored = localStorage.getItem("shag_breaker_best");
-      bestScore = stored ? parseInt(stored, 10) : 0;
+      if (stored === null) {
+        bestScore = 0;
+      } else {
+        const parsed = parseInt(stored, 10);
+        bestScore = Number.isFinite(parsed) ? parsed : 0;
+      }
       updateStatsUI();
     }
 
@@ -576,7 +581,7 @@
             ) {
               dy = -dy;
               b.status = 0;
-              score += b.value;
+              score += b.value; // ✅ додаємо SHAG
               addFloatText("+ " + b.value + " SHAG", ballX, ballY);
               saveBestScore();
               updateStatsUI();
@@ -627,7 +632,7 @@
       ballX += dx;
       ballY += dy;
 
-      // стіни
+      // Стіни
       if (ballX + ballRadius > W || ballX - ballRadius < 0) {
         dx = -dx;
       }
@@ -635,7 +640,7 @@
         dy = -dy;
       }
 
-      // платформа
+      // Платформа
       const paddleY = H - paddleHeight - 18;
       if (
         ballY + ballRadius >= paddleY &&
@@ -651,7 +656,7 @@
         dy = -Math.abs(speed * Math.cos(bounceAngle));
       }
 
-      // низ
+      // Низ
       if (ballY - ballRadius > H) {
         lives--;
         if (lives <= 0) {
@@ -677,7 +682,7 @@
       collisionDetection();
     }
 
-    // 🔁 Головний цикл — працює завжди, пауза тільки відключає update()
+    // 🔁 Головний цикл – завжди крутиться, пауза лише відключає update()
     function loop() {
       draw();
       if (isRunning) update();
@@ -686,7 +691,6 @@
 
     function toggleGame() {
       if (!hasStarted) {
-        // перший запуск
         isRunning = true;
         hasStarted = true;
         toggleBtn.textContent = "Пауза";
@@ -775,8 +779,8 @@
       initBricks();
       resetBallAndPaddle();
       updateStatsUI();
-      draw(); // один кадр до старту
-      loop(); // запускаємо нескінченний цикл
+      draw();
+      loop();
     }
 
     init();
