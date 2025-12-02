@@ -7,20 +7,23 @@
   <style>
     :root {
       --bg-main: #050814;
-      --bg-card: #111727;
       --accent: #f1c40f;
       --accent2: #3498db;
       --text-main: #ffffff;
       --text-soft: #bfc6d8;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at 0% 0%, rgba(241, 196, 15, 0.14) 0, transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(52, 152, 219, 0.18) 0, transparent 55%),
+        radial-gradient(circle at 0% 0%, rgba(241,196,15,0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(52,152,219,0.18) 0, transparent 55%),
         radial-gradient(circle at top, #242a3b 0, #0b0e16 45%, #020308 100%);
       color: var(--text-main);
       min-height: 100vh;
@@ -41,7 +44,6 @@
       backdrop-filter: blur(16px);
     }
 
-    /* HEADER */
     .header {
       display: flex;
       justify-content: space-between;
@@ -50,7 +52,11 @@
       margin-bottom: 10px;
     }
 
-    .title-block { display: flex; flex-direction: column; gap: 4px; }
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
     .title {
       display: flex;
@@ -62,7 +68,10 @@
       text-transform: uppercase;
     }
 
-    .subtitle { font-size: 0.78rem; color: var(--text-soft); }
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
 
     .stats {
       display: flex;
@@ -93,9 +102,12 @@
       margin-top: 1px;
     }
 
-    .stat-value span { font-size: 0.7rem; opacity: 0.8; }
+    .stat-value span {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      margin-left: 2px;
+    }
 
-    /* TOP CONTROLS */
     .top-controls {
       display: flex;
       justify-content: space-between;
@@ -106,8 +118,14 @@
       color: var(--text-soft);
     }
 
-    .hint { line-height: 1.3; flex: 1; }
-    .hint strong { color: var(--accent); }
+    .hint {
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .hint strong {
+      color: var(--accent);
+    }
 
     .btn {
       border: none;
@@ -131,7 +149,6 @@
       opacity: 0.9;
     }
 
-    /* GAME AREA */
     .game-shell {
       background: linear-gradient(145deg, #050815, #0c1024);
       border-radius: 18px;
@@ -147,7 +164,6 @@
       background: radial-gradient(circle at top, #181c32 0, #050814 68%);
     }
 
-    /* MOBILE BUTTONS */
     .bottom-controls {
       margin-top: 8px;
       text-align: center;
@@ -198,14 +214,17 @@
 <body>
   <div class="wrapper">
 
-    <!-- HEADER -->
+    <!-- ШАПКА -->
     <div class="header">
       <div class="title-block">
         <div class="title">
-          <img src="images/logo.png" alt="SHAG" style="width:30px;height:30px;border-radius:50%;box-shadow:0 0 12px rgba(241,196,15,0.8);" />
+          <!-- Логотип SHAG (корінь репозиторію: shag-site/logo.png.png) -->
+          <img src="logo.png.png" alt="SHAG" style="width:30px;height:30px;border-radius:50%;box-shadow:0 0 12px rgba(241,196,15,0.8);" />
           SHAG Breaker
         </div>
-        <div class="subtitle">Відбивай монету SHAG, ламай блоки та збирай SHAG.</div>
+        <div class="subtitle">
+          Відбивай монету SHAG, ламай блоки та збирай SHAG.
+        </div>
       </div>
 
       <div class="stats">
@@ -224,10 +243,10 @@
       </div>
     </div>
 
-    <!-- TOP CONTROL PANEL -->
+    <!-- ВЕРХНІ КНОПКИ -->
     <div class="top-controls">
       <div class="hint">
-        <strong>Керування:</strong> стрілки / A, D / кнопки внизу.<br/>
+        <strong>Керування:</strong> стрілки / A, D / кнопки внизу.<br />
         Пропусти монету — втрачаєш життя.
       </div>
 
@@ -235,12 +254,12 @@
       <button class="btn" id="toggleBtn">Старт</button>
     </div>
 
-    <!-- GAME CANVAS -->
+    <!-- ПОЛЕ ГРИ -->
     <div class="game-shell">
       <canvas id="gameCanvas" width="360" height="520"></canvas>
     </div>
 
-    <!-- BOTTOM MOBILE BUTTONS -->
+    <!-- НИЖНІ КНОПКИ ДЛЯ МОБІЛКИ -->
     <div class="bottom-controls">
       <div>Екранні кнопки для мобільних:</div>
       <div class="buttons-row">
@@ -258,50 +277,60 @@
   </div>
 
   <script>
-    /* ==== CANVAS SETUP ==== */
+    // === БАЗОВІ ЗМІННІ ===
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-
     const toggleBtn = document.getElementById("toggleBtn");
 
     const W = canvas.width;
     const H = canvas.height;
 
-    /* ==== GAME OBJECTS ==== */
+    // Платформа
     const paddleHeight = 14;
     let paddleWidth = 80;
     let paddleX = (W - paddleWidth) / 2;
     const paddleSpeed = 6;
 
-    // Enlarged ball
+    // М'яч (монета)
     const ballRadius = 15;
     let ballX, ballY, dx, dy;
 
-    // Bricks
+    // Блоки
     let brickRowCount = 5;
     let brickColumnCount = 7;
     const brickWidth = 36;
     const brickHeight = 16;
-    const brickPadding = 18;
+    const brickPadding = 8;
+
+    // Розрахунок,
+    const brickTotalWidth = brickColumnCount * brickWidth + (brickColumnCount - 1) * brickPadding;
+    const brickOffsetLeft = (W - brickTotalWidth) / 2;
     const brickOffsetTop = 60;
-    const brickOffsetLeft = 0;
+
     let bricks = [];
 
-    // Stats
+    // Статистика
     let score = 0;
     let bestScore = 0;
     let level = 1;
     let lives = 3;
 
-    // State
+    // Стан
     let rightPressed = false;
     let leftPressed = false;
     let isRunning = false;
     let hasStarted = false;
 
+    // Лого для м'яча
+    const logoImg = new Image();
+    let logoLoaded = false;
+    logoImg.onload = () => { logoLoaded = true; };
+    logoImg.src = "logo.png.png"; // якщо файла нема – просто буде буква S
+
+    // Анімаційні "+10 SHAG"
     const floatTexts = [];
 
-    /* ==== INITIALIZATION ==== */
+    // === ІНІЦІАЛІЗАЦІЯ ===
     function initBricks() {
       bricks = [];
       for (let c = 0; c < brickColumnCount; c++) {
@@ -336,14 +365,11 @@
     }
 
     function updateStatsUI() {
-      document.getElementById("score").innerHTML =
-        score + " <span>SHAG</span>";
-      document.getElementById("best").innerHTML =
-        bestScore + " <span>SHAG</span>";
+      document.getElementById("score").innerHTML = score + " <span>SHAG</span>";
+      document.getElementById("best").innerHTML = bestScore + " <span>SHAG</span>";
       document.getElementById("level").textContent = level;
     }
 
-    /* ==== ANIM FLOAT TEXT ==== */
     function addFloatText(text, x, y) {
       floatTexts.push({ text, x, y, alpha: 1, dy: -0.5 });
     }
@@ -352,20 +378,19 @@
       ctx.save();
       ctx.font = "12px system-ui";
       ctx.textAlign = "center";
-      floatTexts.forEach((t, i) => {
+      for (let i = floatTexts.length - 1; i >= 0; i--) {
+        const t = floatTexts[i];
         ctx.globalAlpha = t.alpha;
         ctx.fillStyle = "#f1c40f";
         ctx.fillText(t.text, t.x, t.y);
         t.y += t.dy;
-        t.alpha -= 0.015;
-      });
-      ctx.restore();
-      for (let i = floatTexts.length - 1; i >= 0; i--) {
-        if (floatTexts[i].alpha <= 0) floatTexts.splice(i, 1);
+        t.alpha -= 0.02;
+        if (t.alpha <= 0) floatTexts.splice(i, 1);
       }
+      ctx.restore();
     }
 
-    /* ==== DRAW FUNCTIONS ==== */
+    // === МАЛЮВАННЯ ===
     function drawBackground() {
       const g = ctx.createLinearGradient(0, 0, 0, H);
       g.addColorStop(0, "#18203a");
@@ -378,18 +403,13 @@
       const g = ctx.createLinearGradient(paddleX, 0, paddleX, H);
       g.addColorStop(0, "#3498db");
       g.addColorStop(1, "#9b59b6");
-
       const y = H - 32;
       ctx.fillStyle = g;
       ctx.fillRect(paddleX, y, paddleWidth, paddleHeight);
     }
 
-    /* ==== BALL WITH REAL LOGO ==== */
-    const logoImg = new Image();
-    logoImg.src = "images/logo.png";
-
     function drawBall() {
-      // golden background circle
+      // Золотистий диск
       const g = ctx.createRadialGradient(
         ballX - 3, ballY - 3, 2,
         ballX, ballY, ballRadius + 3
@@ -404,8 +424,8 @@
       ctx.fill();
       ctx.closePath();
 
-      // draw real logo inside circle
-      if (logoImg.complete) {
+      // Лого по колу, якщо файл завантажився
+      if (logoLoaded) {
         ctx.save();
         ctx.beginPath();
         ctx.arc(ballX, ballY, ballRadius - 3, 0, Math.PI * 2);
@@ -418,6 +438,13 @@
           (ballRadius - 3) * 2
         );
         ctx.restore();
+      } else {
+        // запасний варіант — буква S
+        ctx.fillStyle = "#3b2a00";
+        ctx.font = "bold 13px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("S", ballX, ballY + 1);
       }
     }
 
@@ -427,16 +454,22 @@
           const b = bricks[c][r];
           if (!b.status) continue;
 
-          const x = c * (brickWidth + brickPadding) + brickOffsetLeft;
-          const y = r * (brickHeight + brickPadding) + brickOffsetTop;
-
+          const x = brickOffsetLeft + c * (brickWidth + brickPadding);
+          const y = brickOffsetTop + r * (brickHeight + brickPadding);
           b.x = x;
           b.y = y;
 
           const g = ctx.createLinearGradient(x, y, x, y + brickHeight);
-          if (r === 0) { g.addColorStop(0, "#f1c40f"); g.addColorStop(1, "#e67e22"); }
-          else if (r === 1 || r === 2) { g.addColorStop(0, "#3498db"); g.addColorStop(1, "#2980b9"); }
-          else { g.addColorStop(0, "#9b59b6"); g.addColorStop(1, "#8e44ad"); }
+          if (r === 0) {
+            g.addColorStop(0, "#f1c40f");
+            g.addColorStop(1, "#e67e22");
+          } else if (r === 1 || r === 2) {
+            g.addColorStop(0, "#3498db");
+            g.addColorStop(1, "#2980b9");
+          } else {
+            g.addColorStop(0, "#9b59b6");
+            g.addColorStop(1, "#8e44ad");
+          }
 
           ctx.fillStyle = g;
           ctx.fillRect(x, y, brickWidth, brickHeight);
@@ -448,13 +481,14 @@
       ctx.save();
       ctx.font = "12px system-ui";
       ctx.fillStyle = "rgba(200,200,220,0.9)";
+      ctx.textAlign = "left";
       ctx.fillText("Життя: " + lives, 10, 10);
       ctx.textAlign = "right";
       ctx.fillText("Рівень: " + level, W - 10, 10);
       ctx.restore();
     }
 
-    /* ==== COLLISIONS ==== */
+    // === ЛОГІКА ===
     function collisionDetection() {
       for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
@@ -489,14 +523,12 @@
       level++;
       lives = Math.min(5, lives + 1);
       brickRowCount = Math.min(8, brickRowCount + 1);
-
       initBricks();
       resetBallAndPaddle();
       updateStatsUI();
     }
 
-    /* ==== GAME LOOP ==== */
-    function draw() {
+    function drawAll() {
       drawBackground();
       drawBricks();
       drawPaddle();
@@ -506,15 +538,20 @@
     }
 
     function update() {
-      if (rightPressed && paddleX < W - paddleWidth - 4) paddleX += paddleSpeed;
-      else if (leftPressed && paddleX > 4) paddleX -= paddleSpeed;
+      if (rightPressed && paddleX < W - paddleWidth - 4) {
+        paddleX += paddleSpeed;
+      } else if (leftPressed && paddleX > 4) {
+        paddleX -= paddleSpeed;
+      }
 
       ballX += dx;
       ballY += dy;
 
+      // Стіни
       if (ballX + ballRadius > W || ballX - ballRadius < 0) dx = -dx;
       if (ballY - ballRadius < 18) dy = -dy;
 
+      // Платформа
       const py = H - 32;
       if (
         ballY + ballRadius >= py &&
@@ -529,6 +566,7 @@
         dy = -Math.abs(speed * Math.cos(angle));
       }
 
+      // Низ (втрата життя)
       if (ballY - ballRadius > H) {
         lives--;
         const finalScore = score;
@@ -559,12 +597,12 @@
     }
 
     function loop() {
-      draw();
+      drawAll();
       if (isRunning) update();
       requestAnimationFrame(loop);
     }
 
-    /* ==== CONTROLS ==== */
+    // === КЕРУВАННЯ ===
     function toggleGame() {
       if (!hasStarted) {
         isRunning = true;
@@ -580,7 +618,10 @@
       const k = e.key.toLowerCase();
       if (k === "arrowright" || k === "d") rightPressed = true;
       if (k === "arrowleft" || k === "a") leftPressed = true;
-      if (k === " ") { e.preventDefault(); toggleGame(); }
+      if (k === " ") {
+        e.preventDefault();
+        toggleGame();
+      }
     });
 
     document.addEventListener("keyup", (e) => {
@@ -591,31 +632,52 @@
 
     toggleBtn.addEventListener("click", toggleGame);
 
-    /* ==== MOBILE BUTTONS ==== */
-    function hold(btnId, dir) {
+    function bindHoldButton(btnId, direction) {
       const btn = document.getElementById(btnId);
-      const press = () => dir === "l" ? leftPressed = true : rightPressed = true;
-      const release = () => dir === "l" ? leftPressed = false : rightPressed = false;
 
-      btn.addEventListener("mousedown", press);
-      btn.addEventListener("mouseup", release);
+      function press() {
+        if (direction === "left") leftPressed = true;
+        else rightPressed = true;
+      }
+
+      function release() {
+        if (direction === "left") leftPressed = false;
+        else rightPressed = false;
+      }
+
+      btn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        press();
+      });
+      btn.addEventListener("mouseup", (e) => {
+        e.preventDefault();
+        release();
+      });
       btn.addEventListener("mouseleave", release);
 
-      btn.addEventListener("touchstart", (e) => { e.preventDefault(); press(); }, { passive: false });
-      btn.addEventListener("touchend", (e) => { e.preventDefault(); release(); }, { passive: false });
+      btn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        press();
+      }, { passive: false });
+
+      btn.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        release();
+      }, { passive: false });
+
       btn.addEventListener("touchcancel", release);
     }
 
-    hold("btnLeft", "l");
-    hold("btnRight", "r");
+    bindHoldButton("btnLeft", "left");
+    bindHoldButton("btnRight", "right");
 
-    /* ==== START ==== */
+    // === СТАРТ ГРИ ===
     function init() {
       loadBestScore();
       initBricks();
       resetBallAndPaddle();
       updateStatsUI();
-      draw();
+      drawAll();
       loop();
     }
 
