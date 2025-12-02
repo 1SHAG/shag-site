@@ -129,7 +129,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
       margin-bottom: 10px;
       font-size: 0.72rem;
       color: var(--text-soft);
@@ -137,6 +137,7 @@
 
     .hint {
       line-height: 1.3;
+      flex: 1;
     }
 
     .hint strong {
@@ -158,6 +159,7 @@
       box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5);
       transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.08s ease;
       white-space: nowrap;
+      text-decoration: none;
     }
 
     .btn:active {
@@ -233,16 +235,6 @@
       margin: 0 2px;
       background: rgba(8, 12, 30, 0.7);
     }
-
-    @media (max-width: 400px) {
-      .title {
-        font-size: 1.1rem;
-      }
-
-      .subtitle {
-        font-size: 0.72rem;
-      }
-    }
   </style>
 </head>
 <body>
@@ -254,7 +246,7 @@
           SHAG Breaker
         </div>
         <div class="subtitle">
-          Відбивай монету SHAG, ламай блоки та збирай очки.
+          Відбивай монету SHAG, ламай блоки та збирай SHAG.
         </div>
       </div>
       <div class="stats">
@@ -274,11 +266,18 @@
     </div>
 
     <div class="top-controls">
+
       <div class="hint">
         <strong>Керування:</strong> стрілки / A, D / кнопки внизу.<br />
         Пропусти монету — втрачаєш життя.
       </div>
+
+      <!-- НОВА КНОПКА НА СТОРІНКУ ІГОР -->
+      <a href="shag-games.html" class="btn">← До ігор</a>
+
+      <!-- Старт / Пауза -->
       <button class="btn" id="toggleBtn">Старт</button>
+
     </div>
 
     <div class="game-shell">
@@ -295,7 +294,7 @@
         На ПК працюють також
         <span class="kbd">←</span><span class="kbd">→</span>
         та
-        <span class="kbd">A</span><span class="kbd">D</span>, а
+        <span class="kbd">A</span><span class="kbd">D</span>,
         <span class="kbd">Пробіл</span> — старт/пауза.
       </div>
     </div>
@@ -315,21 +314,21 @@
     let paddleX = (W - paddleWidth) / 2;
     const paddleSpeed = 6;
 
-    // М’яч (монета)
-    const ballRadius = 9;
+    // М’яч (монета) — ЗБІЛЬШЕНИЙ
+    const ballRadius = 13;
     let ballX;
     let ballY;
     let dx;
     let dy;
 
-    // Блоки – 7 колонок, повністю від стінки до стінки
+    // Блоки – 7 колонок, без дірки справа
     let brickRowCount = 5;
     let brickColumnCount = 7;
     const brickWidth = 36;
     const brickHeight = 16;
     const brickPadding = 18;
     const brickOffsetTop = 60;
-    const brickOffsetLeft = 0; // 7*36 + 6*18 = 360 → без зазору
+    const brickOffsetLeft = 0; 
     let bricks = [];
 
     // Статистика
@@ -344,7 +343,7 @@
     let isRunning = false;
     let hasStarted = false;
 
-    // Літаючі "+10 SHAG"
+    // "+10 SHAG" анімації
     const floatTexts = [];
 
     function initBricks() {
@@ -358,7 +357,6 @@
     }
 
     function resetBallAndPaddle() {
-      paddleWidth = 80;
       paddleX = (W - paddleWidth) / 2;
       ballX = W / 2;
       ballY = H - 80;
@@ -453,12 +451,12 @@
 
     function drawBall() {
       const grd = ctx.createRadialGradient(
-        ballX - 2,
-        ballY - 2,
+        ballX - 3,
+        ballY - 3,
         2,
         ballX,
         ballY,
-        ballRadius + 2
+        ballRadius + 3
       );
       grd.addColorStop(0, "#fff8d6");
       grd.addColorStop(0.4, "#f1c40f");
@@ -471,7 +469,7 @@
       ctx.closePath();
 
       ctx.fillStyle = "#3b2a00";
-      ctx.font = "bold 11px system-ui, sans-serif";
+      ctx.font = "bold 13px system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText("S", ballX, ballY + 1);
@@ -581,7 +579,7 @@
             ) {
               dy = -dy;
               b.status = 0;
-              score += b.value; // ✅ додаємо SHAG
+              score += b.value;
               addFloatText("+ " + b.value + " SHAG", ballX, ballY);
               saveBestScore();
               updateStatsUI();
@@ -632,7 +630,6 @@
       ballX += dx;
       ballY += dy;
 
-      // Стіни
       if (ballX + ballRadius > W || ballX - ballRadius < 0) {
         dx = -dx;
       }
@@ -640,7 +637,6 @@
         dy = -dy;
       }
 
-      // Платформа
       const paddleY = H - paddleHeight - 18;
       if (
         ballY + ballRadius >= paddleY &&
@@ -651,20 +647,24 @@
         const hitPos =
           (ballX - (paddleX + paddleWidth / 2)) / (paddleWidth / 2);
         const speed = Math.sqrt(dx * dx + dy * dy);
-        const bounceAngle = hitPos * (Math.PI / 3); // ±60°
+        const bounceAngle = hitPos * (Math.PI / 3);
         dx = speed * Math.sin(bounceAngle);
         dy = -Math.abs(speed * Math.cos(bounceAngle));
       }
 
-      // Низ
       if (ballY - ballRadius > H) {
         lives--;
+
+        const finalScore = score;
+
         if (lives <= 0) {
           isRunning = false;
           toggleBtn.textContent = "Старт";
+
           setTimeout(() => {
-            alert("Гру закінчено! Твій результат: " + score + " SHAG");
-          }, 50);
+            alert("Гра закінчена! Ваш результат: " + finalScore + " SHAG");
+          }, 120);
+
           level = 1;
           lives = 3;
           score = 0;
@@ -682,7 +682,6 @@
       collisionDetection();
     }
 
-    // 🔁 Головний цикл – завжди крутиться, пауза лише відключає update()
     function loop() {
       draw();
       if (isRunning) update();
@@ -700,7 +699,6 @@
       }
     }
 
-    // Клавіатура
     document.addEventListener("keydown", (e) => {
       const key = e.key.toLowerCase();
       if (key === "arrowright" || key === "d") {
@@ -722,12 +720,10 @@
       }
     });
 
-    // Кнопка Старт/Пауза
     toggleBtn.addEventListener("click", () => {
       toggleGame();
     });
 
-    // Кнопки для мобілки
     function bindHoldButton(btnId, direction) {
       const btn = document.getElementById(btnId);
 
@@ -773,7 +769,6 @@
     bindHoldButton("btnLeft", "left");
     bindHoldButton("btnRight", "right");
 
-    // Ініціалізація
     function init() {
       loadBestScore();
       initBricks();
