@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ШАГ Шахтар - Web3 Клікер</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #1a1a2e; color: white; text-align: center; margin: 0; padding: 20px; overflow: hidden; user-select: none; }
+        .container { max-width: 400px; margin: 0 auto; background: #16213e; padding: 20px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
+        
+        /* Шапка з балансом */
+        .header-stats { display: flex; justify-content: space-between; font-size: 12px; background: #0f3460; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #4ecca3; }
+        
+        /* Лічильник */
+        .score-container h2 { font-size: 50px; margin: 0; color: #f1c40f; text-shadow: 0 4px 10px rgba(241, 196, 15, 0.4); }
+        .score-container p { margin: 0; font-size: 12px; color: #4ecca3; letter-spacing: 2px; }
+
+        /* Камінь та анімація кліку */
+        .mine-area { position: relative; height: 250px; display: flex; justify-content: center; align-items: center; }
+        #rock { width: 180px; cursor: pointer; transition: transform 0.05s; z-index: 5; -webkit-tap-highlight-color: transparent; }
+        #rock:active { transform: scale(0.9); }
+
+        /* Цифри, що вилітають */
+        .floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 28px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 10; }
+        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-120px); } }
+
+        /* Магазин */
+        .shop { margin-top: 20px; text-align: left; }
+        .upgrade-card { background: #0f3460; border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; border: 1px solid transparent; cursor: pointer; transition: 0.2s; }
+        .upgrade-card:hover { border-color: #4ecca3; background: #1e5128; }
+        .upgrade-icon { width: 45px; height: 45px; margin-right: 15px; background: #16213e; border-radius: 10px; padding: 5px; }
+        .upgrade-info { flex-grow: 1; }
+        .upgrade-info b { font-size: 14px; display: block; }
+        .upgrade-info span { font-size: 11px; color: #888; }
+        .price-tag { font-weight: bold; color: #f1c40f; font-size: 14px; }
+
+        .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 15px; width: 100%; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(106, 5, 114, 0.3); }
+        .btn-connect { background: #4ecca3; color: #1a1a2e; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-stats">
+        <span id="status">🔌 Немає зв'язку</span>
+        <span><b id="shagBalance">0.00</b> ШАГ</span>
+    </div>
+
+    <button id="connectBtn" class="btn-connect" onclick="connect()">Підключити Гаманець</button>
+
+    <div class="score-container">
+        <h2 id="score">0</h2>
+        <p>ВИДОБУТИЙ КАМІНЬ</p>
+    </div>
+
+    <div class="mine-area" id="mineArea">
+        <img src="https://cdn-icons-png.flaticon.com/512/2531/2531114.png" id="rock" onclick="clickRock(event)">
+    </div>
+
+    <div style="display: flex; justify-content: space-between; padding: 0 20px; font-size: 14px; color: #4ecca3; margin-bottom: 15px;">
+        <span>Клік: +<b id="pwr">1</b></span>
+        <span>Авто: +<b id="auto">0</b>/с</span>
+    </div>
+
+    <div class="shop">
+        <div class="upgrade-card" onclick="buy(1, 100)">
+            <img src="https://cdn-icons-png.flaticon.com/512/2382/2382533.png" class="upgrade-icon">
+            <div class="upgrade-info"><b>Залізна Кирка</b><span>Сила кліку +5</span></div>
+            <div class="price-tag">100 ШГ</div>
+        </div>
+
+        <div class="upgrade-card" onclick="buy(2, 500)">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" class="upgrade-icon">
+            <div class="upgrade-info"><b>Алмазна Кирка</b><span>Сила кліку +25</span></div>
+            <div class="price-tag">500 ШГ</div>
+        </div>
+
+        <div class="upgrade-card" onclick="buy(3, 1000)">
+            <img src="https://cdn-icons-png.flaticon.com/512/5024/5024467.png" class="upgrade-icon">
+            <div class="upgrade-info"><b>Бригада</b><span>Авто-видобуток +10/с</span></div>
+            <div class="price-tag">1к ШГ</div>
+        </div>
+    </div>
+
+    <button class="btn-withdraw" onclick="withdraw()">🎁 Обміняти камінь на ШАГ</button>
+</div>
+
+<script>
+    // --- КОНФІГ ---
+    const tokenAddr = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
+    const myWallet = "ВАША_АДРЕСА_ГАМАНЦЯ"; // <-- ВСТАВТЕ СВОЮ
+    const tgNick = "ВАШ_НІК_В_ТГ";          // <-- ВСТАВТЕ СВІЙ НІК БЕЗ @
+
+    const abi = ["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t, uint256 a) returns (bool)"];
+    let score = 0, pwr = 1, auto = 0, provider, signer, contract, user;
+
+    window.onload = () => {
+        const s = localStorage.getItem('shag_v3');
+        if(s) { const d = JSON.parse(atob(s)); score=d.s; pwr=d.p; auto=d.a; }
+        update();
+        setInterval(() => { if(auto>0){ score+=auto; update(); } }, 1000);
+        setInterval(() => { save(); }, 5000);
+    };
+
+    function clickRock(e) {
+        score += pwr;
+        update();
+        showPop(e.clientX, e.clientY, `+${pwr}`);
+    }
+
+    function showPop(x, y, txt) {
+        const el = document.createElement('div');
+        el.className = 'floating-number';
+        el.innerText = txt;
+        el.style.left = `${x - 20}px`;
+        el.style.top = `${y - 40}px`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 700);
+    }
+
+    function update() {
+        document.getElementById("score").innerText = Math.floor(score).toLocaleString();
+        document.getElementById("pwr").innerText = pwr;
+        document.getElementById("auto").innerText = auto;
+    }
+
+    function save() { localStorage.setItem('shag_v3', btoa(JSON.stringify({s:score, p:pwr, a:auto}))); }
+
+    async function connect() {
+        if(!window.ethereum) return alert("MetaMask не знайдено!");
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        user = await signer.getAddress();
+        contract = new ethers.Contract(tokenAddr, abi, signer);
+        document.getElementById("status").innerText = "🟢 " + user.slice(0,6);
+        document.getElementById("connectBtn").style.display = "none";
+        updBal();
+    }
+
+    async function updBal() {
+        const b = await contract.balanceOf(user);
+        const d = await contract.decimals();
+        document.getElementById("shagBalance").innerText = parseFloat(ethers.formatUnits(b, d)).toFixed(2);
+    }
+
+    async function buy(t, pr) {
+        if(!contract) return alert("Підключіть гаманець!");
+        try {
+            const d = await contract.decimals();
+            const tx = await contract.transfer(myWallet, ethers.parseUnits(pr.toString(), d));
+            alert("Транзакція відправлена в мережу...");
+            await tx.wait();
+            if(t===1) pwr+=5; if(t===2) pwr+=25; if(t===3) auto+=10;
+            save(); update(); updBal();
+            alert("✅ Успішно куплено!");
+        } catch(e) { alert("Помилка оплати або скасовано."); }
+    }
+
+    function withdraw() {
+        if(!user) return alert("Спочатку підключіться!");
+        if(score < 1000) return alert("Потрібно мінімум 1000 каменю!");
+        const s = Math.floor(score/100);
+        if(!confirm(`Обміняти ${Math.floor(score)} каменю на ${s} ШАГ?`)) return;
+        const m = `Вивід%20ШАГ%0AСума:%20${s}%0AГаманець:%20${user}`;
+        score=0; save(); update();
+        window.open(`https://t.me/${tgNick}?text=${m}`, '_blank');
+    }
+</script>
+</body>
+</html>
