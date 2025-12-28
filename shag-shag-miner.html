@@ -194,10 +194,10 @@
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 1000) return alert("Мінімальний вивід - 1000 каменю!");
+        if(score < 10) return alert("Мінімальний вивід - 10 каменю!");
         
         oldScore = score; // Зберігаємо на випадок скасування
-        const amount = Math.floor(score / 100);
+        const amount = Math.floor(score / 1);
         const code = Math.floor(10000 + Math.random() * 89999);
         
         pendingMsg = `👋 ЗАЯВКА НА ВИВІД ШАГ\n` +
