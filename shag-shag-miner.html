@@ -148,7 +148,7 @@
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 1000) return alert("Потрібно 1000 каменю!");
+        if(score < 10) return alert("Потрібно 1000 каменю!");
         
         const s = Math.floor(score/100);
         pendingMsg = `👋 ЗАЯВКА НА ВИВІД\n💰 Сума: ${s} ШАГ\n⛏️ Камінь: ${Math.floor(score)}\n💼 Гаманець: ${user}\n🔐 Код: ${Math.floor(Math.random()*99999)}`;
