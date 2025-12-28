@@ -6,6 +6,11 @@
     <title>ШАГ Шахтар - Web3 Клікер</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
+        /* Стиль для вікна підтвердження */
+.modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+.modal-content { background: #16213e; margin: 20% auto; padding: 25px; border-radius: 20px; width: 80%; max-width: 350px; border: 1px solid #4ecca3; }
+#copyText { background: #0f1626; padding: 10px; border-radius: 10px; font-size: 11px; text-align: left; white-space: pre-wrap; margin: 15px 0; border: 1px solid #1f4a6d; color: #8892b0; }
+        
         /* ОСНОВНІ НАЛАШТУВАННЯ */
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0a0e1a; color: white; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; user-select: none; }
         .container { max-width: 420px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); position: relative; border: 1px solid #1f2d45; }
@@ -54,6 +59,16 @@
 </head>
 <body>
 
+    <div id="withdrawModal" class="modal">
+    <div class="modal-content">
+        <h3>📋 Заявка сформована</h3>
+        <p style="font-size: 13px;">Скопіюйте цей текст та надішліть адміну в Телеграм:</p>
+        <div id="copyText"></div>
+        <button class="btn-connect" style="width:100%" onclick="copyAndGo()">Скопіювати та Відкрити ТГ</button>
+        <button class="btn-withdraw" style="background:#e74c3c; margin-top:10px;" onclick="document.getElementById('withdrawModal').style.display='none'">Закрити</button>
+    </div>
+</div>
+    
 <div class="container">
     <div class="header-stats">
         <span id="status" style="display: flex; align-items: center;"><span style="color:#e74c3c; margin-right: 5px;">●</span> Немає зв'язку</span>
@@ -181,48 +196,39 @@
         } catch(e) { alert("Помилка оплати або скасовано користувачем."); }
     }
 
-    function withdraw() {
-    if (!user) {
-        alert("Спочатку підключіть гаманець!");
-        return;
-    }
+  let pendingMessage = "";
+
+function withdraw() {
+    if (!user) return alert("Спочатку підключіть гаманець!");
+    if (score < 10) return alert("Мінімум 10 каменю!");
+
+    const s = Math.floor(score / 100);
+    const code = Math.floor(10000 + Math.random() * 90000);
     
-    if (score < 10) {
-        alert("Потрібно мінімум 1000 каменю для обміну!");
-        return;
-    }
+    pendingMessage = `👋 ЗАЯВКА НА ВИВІД\n` +
+                     `💰 Сума: ${s} ШАГ\n` +
+                     `⛏️ Камінь: ${Math.floor(score)}\n` +
+                     `💼 Гаманець: ${user}\n` +
+                     `🔐 Код: ${code}`;
 
-    const amountToPay = Math.floor(score / 100);
-    const confirmation = confirm(`Ви впевнені? Обміняти ${Math.floor(score)} каменю на ${amountToPay} ШАГ?`);
+    document.getElementById("copyText").innerText = pendingMessage;
+    document.getElementById("withdrawModal").style.display = "block";
     
-    if (confirmation) {
-        // Формуємо текст повідомлення правильно через encodeURIComponent
-        const messageText = `👋 Привіт! Заявка на вивід токенів ШАГ\n` +
-                          `--------------------------\n` +
-                          `💰 До виплати: ${amountToPay} ШАГ\n` +
-                          `⛏️ Списано каменю: ${Math.floor(score)}\n` +
-                          `💼 Гаманець: ${user}\n` +
-                          `🔐 Код: ${Math.floor(Math.random() * 90000) + 10000}`;
+    // Списуємо очки
+    score = 0;
+    save();
+    update();
+}
 
-        // Списуємо очки в грі
-        score = 0;
-        save();
-        update();
-
-        // Спроба №1: Відкрити пряме посилання на чат з текстом
-        const telegramUrl = `https://t.me/${tgNick}?text=${encodeURIComponent(messageText)}`;
-        
-        const newWindow = window.open(telegramUrl, '_blank');
-
-        // Перевірка, чи відкрилося вікно (якщо заблокував браузер)
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-            // Спроба №2: Якщо вікно заблоковано, просто копіюємо дані і просимо перейти вручну
-            navigator.clipboard.writeText(messageText).then(() => {
-                alert("Браузер заблокував відкриття Telegram. \n\nДані для виводу скопійовано в буфер обміну! Будь ласка, перейдіть в чат до адміна і вставте текст (Ctrl+V).");
-                window.location.href = `https://t.me/${tgNick}`;
-            });
-        }
-    }
+function copyAndGo() {
+    navigator.clipboard.writeText(pendingMessage).then(() => {
+        alert("Текст скопійовано! Тепер вставте його в чаті.");
+        window.open(`https://t.me/${tgNick}`, '_blank');
+    }).catch(() => {
+        // Якщо кліпборд не спрацював, просто відкриваємо ТГ
+        window.open(`https://t.me/${tgNick}`, '_blank');
+    });
+}
 }
 </script>
 </body>
