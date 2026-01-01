@@ -194,7 +194,7 @@
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 10000) return alert("Мінімальний вивід - 100000 каменю!");
+        if(score < 100000) return alert("Мінімальний вивід - 100000 каменю!");
         
         oldScore = score; // Зберігаємо на випадок скасування
         const amount = Math.floor(score / 10000);
