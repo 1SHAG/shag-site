@@ -7,36 +7,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: white; text-align: center; margin: 0; padding: 20px; user-select: none; }
-        .container { max-width: 400px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); border: 1px solid #1f2d45; }
+        .container { max-width: 420px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); border: 1px solid #1f2d45; }
         
         /* Модальне вікно */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
         .modal-content { background: #16213e; margin: 15% auto; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid #4ecca3; }
-        #copyText { background: #0a0e1a; padding: 12px; border-radius: 10px; font-size: 12px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; }
+        #copyText { background: #0a0e1a; padding: 12px; border-radius: 10px; font-size: 11px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; line-height: 1.4; }
 
-        /* Шапка */
         .header-stats { display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #0f1626; padding: 12px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #1f4a6d; }
         .balance-box b { color: #f1c40f; }
         
-        /* Лічильник */
-        .score-container h2 { font-size: 50px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
+        .score-container h2 { font-size: 45px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
         
-        /* Головна ігрова зона */
-        .mine-area { position: relative; height: 250px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
-        #rock { 
-            width: 200px; 
-            height: 200px; 
-            cursor: pointer; 
-            transition: transform 0.05s; 
-            z-index: 5; 
-            border-radius: 50%; /* Прибираємо білі кути */
-            object-fit: cover;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.2);
-            -webkit-tap-highlight-color: transparent; 
-        }
+        .mine-area { position: relative; height: 220px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
+        #rock { width: 180px; height: 180px; cursor: pointer; transition: transform 0.05s; z-index: 5; border-radius: 50%; object-fit: cover; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); -webkit-tap-highlight-color: transparent; }
         #rock:active { transform: scale(0.95); }
 
-        /* Цифри кліку */
         .floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 30px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 10; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-130px); } }
 
@@ -45,18 +31,13 @@
 
         /* Магазин */
         .shop { text-align: left; }
-        .upgrade-card { background: #1a233a; border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
-        .upgrade-icon { 
-            width: 50px; 
-            height: 50px; 
-            margin-right: 12px; 
-            border-radius: 50%; /* Круглі іконки без білих кутів */
-            object-fit: cover;
-            border: 1px solid #333;
-        }
-        .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 10px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; min-width: 80px; }
+        .upgrade-card { background: #1a233a; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #252f47; }
+        .upgrade-icon { width: 45px; height: 45px; margin-right: 12px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
         
-        /* Кнопки */
+        .shop-actions { display: flex; flex-direction: column; gap: 6px; min-width: 90px; }
+        .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .buy-btn.stone { background: #f1c40f; }
+        
         .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; }
         .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
     </style>
@@ -65,9 +46,9 @@
 
 <div id="withdrawModal" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0; color:#4ecca3">📋 Заявка готова</h3>
+        <h3 style="margin-top:0; color:#4ecca3">📋 Заявка сформована</h3>
         <div id="copyText"></div>
-        <button class="buy-btn" style="width:100%; padding:16px;" onclick="copyAndGo()">СКОПІЮВАТИ ТА ВІДПРАВИТИ В ТЕЛЕГРАМ</button>
+        <button class="buy-btn" style="width:100%; padding:16px; font-size:14px" onclick="copyAndGo()">СКОПІЮВАТИ ТА В ТЕЛЕГРАМ</button>
         <button style="background:none; border:none; color:#8892b0; margin-top:15px; cursor:pointer;" onclick="closeModal()">Скасувати</button>
     </div>
 </div>
@@ -82,7 +63,7 @@
 
     <div class="score-container">
         <h2 id="score">0</h2>
-        <p style="color:#4ecca3; font-size:11px; letter-spacing:2px; font-weight:bold">ВИДОБУТИЙ КАМІНЬ</p>
+        <p style="color:#4ecca3; font-size:10px; letter-spacing:2px; font-weight:bold; margin-top:5px">ВИДОБУТИЙ КАМІНЬ</p>
     </div>
 
     <div class="mine-area">
@@ -96,35 +77,49 @@
 
     <div class="shop">
         <div class="upgrade-card">
-            <div style="display:flex; align-items:center">
-                <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
-                <div style="text-align:left"><b style="font-size:14px">Залізна Кирка</b><br><span style="font-size:11px; color:#8892b0">+5 до кліку</span></div>
+            <div style="display:flex; align-items:center; justify-content: space-between;">
+                <div style="display:flex; align-items:center">
+                    <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
+                    <div style="text-align:left"><b style="font-size:14px">Залізна Кирка</b><br><span style="font-size:11px; color:#8892b0">+5 до кліку</span></div>
+                </div>
+                <div class="shop-actions">
+                    <button class="buy-btn" onclick="buy(1, 100)">100 ШГ</button>
+                    <button class="buy-btn stone" onclick="buyWithStone(1, 1000000)">1М КМ</button>
+                </div>
             </div>
-            <button class="buy-btn" onclick="buy(1, 100)">100 ШГ</button>
         </div>
         
         <div class="upgrade-card">
-            <div style="display:flex; align-items:center">
-                <img src="assets/1shag/pickaxe_diamond.png" class="upgrade-icon">
-                <div style="text-align:left"><b style="font-size:14px">Алмазна Кирка</b><br><span style="font-size:11px; color:#8892b0">+25 до кліку</span></div>
+            <div style="display:flex; align-items:center; justify-content: space-between;">
+                <div style="display:flex; align-items:center">
+                    <img src="assets/1shag/pickaxe_diamond.png" class="upgrade-icon">
+                    <div style="text-align:left"><b style="font-size:14px">Алмазна Кирка</b><br><span style="font-size:11px; color:#8892b0">+25 до кліку</span></div>
+                </div>
+                <div class="shop-actions">
+                    <button class="buy-btn" onclick="buy(2, 500)">500 ШГ</button>
+                    <button class="buy-btn stone" onclick="buyWithStone(2, 5000000)">5М КМ</button>
+                </div>
             </div>
-            <button class="buy-btn" onclick="buy(2, 500)">500 ШГ</button>
         </div>
 
         <div class="upgrade-card">
-            <div style="display:flex; align-items:center">
-                <img src="assets/1shag/hedgehogs.png" class="upgrade-icon">
-                <div style="text-align:left"><b style="font-size:14px">Бригада Їжачків</b><br><span style="font-size:11px; color:#8892b0">+10/с авто</span></div>
+            <div style="display:flex; align-items:center; justify-content: space-between;">
+                <div style="display:flex; align-items:center">
+                    <img src="assets/1shag/hedgehogs.png" class="upgrade-icon">
+                    <div style="text-align:left"><b style="font-size:14px">Бригада Їжачків</b><br><span style="font-size:11px; color:#8892b0">+10/с авто</span></div>
+                </div>
+                <div class="shop-actions">
+                    <button class="buy-btn" onclick="buy(3, 1000)">1к ШГ</button>
+                    <button class="buy-btn stone" onclick="buyWithStone(3, 10000000)">10М КМ</button>
+                </div>
             </div>
-            <button class="buy-btn" onclick="buy(3, 1000)">1к ШГ</button>
         </div>
     </div>
 
-    <button class="btn-withdraw" onclick="withdraw()">🎁 ОБМІНЯТИ 100000 КАМІНЬ НА 10ШАГ</button>
+    <button class="btn-withdraw" onclick="withdraw()">🎁 ОБМІНЯТИ КАМІНЬ НА ШАГ</button>
 </div>
 
 <script>
-    // НАЛАШТУВАННЯ
     const tokenAddr = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
     const myWallet = "0x988cE6555C015e0761579de477fC9f816203ea2E"; 
     const tgNick = "coins_1SHAG";
@@ -138,7 +133,7 @@
             try {
                 const d = JSON.parse(atob(saved)); 
                 score = d.s || 0; pwr = d.p || 1; auto = d.a || 0; 
-                updateMainImage(); // Оновлюємо картинку при завантаженні
+                updateMainImage();
             } catch(e) {}
         }
         updateUI();
@@ -196,69 +191,51 @@
             const d = await contract.decimals();
             const tx = await contract.transfer(myWallet, ethers.parseUnits(pr.toString(), d));
             await tx.wait();
-            
-            if(t === 1) pwr += 5; 
-            else if(t === 2) pwr += 25; 
-            else if(t === 3) auto += 10;
-            
-            updateMainImage(); // Миттєва зміна картинки після успішної транзакції
-            updateUI(); 
-            updBal();
-            alert("✅ Покращення активовано!");
-        } catch(e) { alert("Помилка транзакції"); }
+            if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
+            updateMainImage(); updateUI(); updBal();
+            alert("✅ Успішно куплено за ШАГ!");
+        } catch(e) { alert("Помилка оплати"); }
+    }
+
+    function buyWithStone(t, price) {
+        if (score < price) return alert("Недостатньо каменю! Треба " + price.toLocaleString());
+        if (confirm("Купити покращення за " + price.toLocaleString() + " каменю?")) {
+            score -= price;
+            if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
+            updateMainImage(); updateUI();
+            alert("✅ Успішно куплено за камінь!");
+        }
     }
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 100000) return alert("Мінімально 100000 каменю!");
+        if(score < 100000) return alert("Мінімально 100 000 каменю!");
         
-        // Зберігаємо поточне каміння на випадок натискання "Скасувати"
         oldScore = score;
-        
-        const amount = Math.floor(score / 10000);
+        const amount = Math.floor(score / 10000); // 100k = 10 SHAG
         const code = Math.floor(10000 + Math.random() * 89999);
+        const now = new Date().toLocaleString('uk-UA');
+
+        pendingMsg = `👋 ЗАЯВКА НА ВИВІД\n📅 Дата: ${now}\n💰 Сума: ${amount} ШАГ\n⛏️ Камінь: ${Math.floor(score)}\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
         
-        // Отримуємо дату та час
-        const now = new Date();
-        const dateTime = now.toLocaleString('uk-UA');
-
-        pendingMsg = `👋 ЗАЯВКА НА ВИВІД\n` +
-                     `📅 Дата: ${dateTime}\n` +
-                     `💰 Сума: ${amount} ШАГ\n` +
-                     `⛏️ Камінь: ${Math.floor(score)}\n` +
-                     `💼 Гаманець: ${user}\n` +
-                     `🔐 Код: ${code}`;
-
         document.getElementById("copyText").innerText = pendingMsg;
         document.getElementById("withdrawModal").style.display = "block";
-        
-        // Візуально обнуляємо рахунок
         score = 0;
         updateUI();
     }
 
     function copyAndGo() {
         navigator.clipboard.writeText(pendingMsg).then(() => {
-            // КЛЮЧОВИЙ МОМЕНТ: обнуляємо oldScore, щоб каміння НЕ ПОВЕРНУЛОСЯ
-            oldScore = 0; 
-            
-            // Оновлюємо збереження в пам'яті браузера (тепер там 0 каменів)
+            oldScore = 0; // Остаточне списання
             localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s: 0, p: pwr, a: auto})));
-            
-            alert("Заявку скопійовано! Відправте її в Telegram.");
+            alert("Скопійовано! Відправте в чат.");
             window.open(`https://t.me/${tgNick}`, '_blank');
-            
-            // Закриваємо модальне вікно
             document.getElementById("withdrawModal").style.display = "none";
         });
     }
 
     function closeModal() {
-        // Повертаємо каміння тільки якщо oldScore не було очищено функцією copyAndGo
-        if (oldScore > 0) {
-            score = oldScore;
-            oldScore = 0; // Очищуємо після повернення
-        }
+        if (oldScore > 0) { score = oldScore; oldScore = 0; }
         updateUI();
         document.getElementById("withdrawModal").style.display = "none";
     }
