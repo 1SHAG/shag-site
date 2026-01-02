@@ -210,7 +210,7 @@
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 100000) return alert("Мінімально 100000 каменю!");
+        if(score < 100000) return alert("Мінімально 100000 каменю! ОБМІН НА 10 ШАГ");
         oldScore = score;
         const amount = Math.floor(score / 10000);
         const code = Math.floor(10000 + Math.random() * 89999);
