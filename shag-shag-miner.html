@@ -9,42 +9,56 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: white; text-align: center; margin: 0; padding: 20px; user-select: none; }
         .container { max-width: 400px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); border: 1px solid #1f2d45; }
         
-        /* Модальне вікно виводу */
+        /* Модальне вікно */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
-        .modal-content { background: #16213e; margin: 15% auto; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid #4ecca3; box-shadow: 0 0 20px rgba(78, 204, 163, 0.2); }
-        #copyText { background: #0a0e1a; padding: 12px; border-radius: 10px; font-size: 12px; text-align: left; white-space: pre-wrap; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; line-height: 1.4; }
+        .modal-content { background: #16213e; margin: 15% auto; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid #4ecca3; }
+        #copyText { background: #0a0e1a; padding: 12px; border-radius: 10px; font-size: 12px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; }
 
-        /* Шапка та Баланс */
+        /* Шапка */
         .header-stats { display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #0f1626; padding: 12px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #1f4a6d; }
         .balance-box b { color: #f1c40f; }
         
         /* Лічильник */
         .score-container h2 { font-size: 50px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
         
-        /* Камінь */
-        .mine-area { position: relative; height: 220px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
-        #rock { width: 180px; cursor: pointer; transition: transform 0.05s; z-index: 5; -webkit-tap-highlight-color: transparent; }
-        #rock:active { transform: scale(0.9); }
+        /* Головна ігрова зона */
+        .mine-area { position: relative; height: 250px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
+        #rock { 
+            width: 200px; 
+            height: 200px; 
+            cursor: pointer; 
+            transition: transform 0.05s; 
+            z-index: 5; 
+            border-radius: 50%; /* Прибираємо білі кути */
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.2);
+            -webkit-tap-highlight-color: transparent; 
+        }
+        #rock:active { transform: scale(0.95); }
 
-        /* Цифри при кліку */
+        /* Цифри кліку */
         .floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 30px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 10; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-130px); } }
 
-        /* Статистика */
         .stats-row { display: flex; justify-content: space-around; font-size: 13px; color: #8892b0; margin-bottom: 20px; background: #0f1626; padding: 10px; border-radius: 12px; }
         .stats-row b { color: #4ecca3; }
 
         /* Магазин */
         .shop { text-align: left; }
-        .upgrade-card { background: #1a233a; border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; transition: 0.2s; }
-        .upgrade-card:hover { border-color: #4ecca3; background: #212c45; }
-        .upgrade-icon { width: 45px; height: 45px; margin-right: 12px; }
-        .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 10px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; min-width: 80px; transition: 0.2s; }
-        .buy-btn:hover { background: #61ffd1; transform: scale(1.05); }
+        .upgrade-card { background: #1a233a; border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
+        .upgrade-icon { 
+            width: 50px; 
+            height: 50px; 
+            margin-right: 12px; 
+            border-radius: 50%; /* Круглі іконки без білих кутів */
+            object-fit: cover;
+            border: 1px solid #333;
+        }
+        .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 10px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; min-width: 80px; }
         
-        /* Кнопки виводу та коннекту */
-        .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 15px rgba(163, 66, 147, 0.3); }
-        .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: 0.2s; }
+        /* Кнопки */
+        .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; }
+        .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -52,10 +66,9 @@
 <div id="withdrawModal" class="modal">
     <div class="modal-content">
         <h3 style="margin-top:0; color:#4ecca3">📋 Заявка готова</h3>
-        <p style="font-size: 12px; color: #8892b0;">Ми скопіюємо цей текст. Просто вставте його в чат адміну.</p>
         <div id="copyText"></div>
-        <button class="buy-btn" style="width:100%; padding:16px; font-size:14px" onclick="copyAndGo()">СКОПІЮВАТИ ТА ВІДКРИТИ ТГ</button>
-        <button style="background:none; border:none; color:#8892b0; margin-top:15px; cursor:pointer; font-size:12px" onclick="closeModal()">Скасувати (камінь повернеться)</button>
+        <button class="buy-btn" style="width:100%; padding:16px;" onclick="copyAndGo()">СКОПІЮВАТИ ТА В ТЕЛЕГРАМ</button>
+        <button style="background:none; border:none; color:#8892b0; margin-top:15px; cursor:pointer;" onclick="closeModal()">Скасувати</button>
     </div>
 </div>
 
@@ -72,9 +85,9 @@
         <p style="color:#4ecca3; font-size:11px; letter-spacing:2px; font-weight:bold">ВИДОБУТИЙ КАМІНЬ</p>
     </div>
 
-   <div class="mine-area">
-    <img src="assets/1shag/rock.png" id="rock" onclick="clickRock(event)" alt="Камінь">
-</div>
+    <div class="mine-area">
+        <img src="assets/1shag/rock.png" id="rock" onclick="clickRock(event)" alt="Видобуток">
+    </div>
 
     <div class="stats-row">
         <span>Клік: <b id="pwr">+1</b></span>
@@ -85,10 +98,7 @@
         <div class="upgrade-card">
             <div style="display:flex; align-items:center">
                 <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
-                <div style="text-align:left">
-                    <b style="font-size:14px">Залізна Кирка</b><br>
-                    <span style="font-size:11px; color:#8892b0">+5 до кліку</span>
-                </div>
+                <div style="text-align:left"><b style="font-size:14px">Залізна Кирка</b><br><span style="font-size:11px; color:#8892b0">+5 до кліку</span></div>
             </div>
             <button class="buy-btn" onclick="buy(1, 100)">100 ШГ</button>
         </div>
@@ -96,10 +106,7 @@
         <div class="upgrade-card">
             <div style="display:flex; align-items:center">
                 <img src="assets/1shag/pickaxe_diamond.png" class="upgrade-icon">
-                <div style="text-align:left">
-                    <b style="font-size:14px">Алмазна Кирка</b><br>
-                    <span style="font-size:11px; color:#8892b0">+25 до кліку</span>
-                </div>
+                <div style="text-align:left"><b style="font-size:14px">Алмазна Кирка</b><br><span style="font-size:11px; color:#8892b0">+25 до кліку</span></div>
             </div>
             <button class="buy-btn" onclick="buy(2, 500)">500 ШГ</button>
         </div>
@@ -107,10 +114,7 @@
         <div class="upgrade-card">
             <div style="display:flex; align-items:center">
                 <img src="assets/1shag/hedgehogs.png" class="upgrade-icon">
-                <div style="text-align:left">
-                    <b style="font-size:14px">Бригада Їжачків</b><br>
-                    <span style="font-size:11px; color:#8892b0">+10/с авто</span>
-                </div>
+                <div style="text-align:left"><b style="font-size:14px">Бригада Їжачків</b><br><span style="font-size:11px; color:#8892b0">+10/с авто</span></div>
             </div>
             <button class="buy-btn" onclick="buy(3, 1000)">1к ШГ</button>
         </div>
@@ -120,26 +124,34 @@
 </div>
 
 <script>
-    // --- НАЛАШТУВАННЯ (ЗМІНІТЬ ЦІ ДАНІ) ---
+    // НАЛАШТУВАННЯ
     const tokenAddr = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
-    const myWallet = "0x988cE6555C015e0761579de477fC9f816203ea2E"; // Куди приходять оплати за кирки
-    const tgNick = "coins_1SHAG";          // Ваш Username без @
+    const myWallet = "0x988cE6555C015e0761579de477fC9f816203ea2E"; 
+    const tgNick = "coins_1SHAG";
 
     const abi = ["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t, uint256 a) returns (bool)"];
     let score = 0, pwr = 1, auto = 0, user, contract, pendingMsg = "", oldScore = 0;
 
-    // Завантаження гри
     window.onload = () => {
         const saved = localStorage.getItem('shag_v_ultra');
         if(saved) { 
             try {
                 const d = JSON.parse(atob(saved)); 
                 score = d.s || 0; pwr = d.p || 1; auto = d.a || 0; 
+                updateMainImage(); // Оновлюємо картинку при завантаженні
             } catch(e) {}
         }
         updateUI();
         setInterval(() => { if(auto > 0){ score += auto; updateUI(); } }, 1000);
     };
+
+    function updateMainImage() {
+        const mainImg = document.getElementById("rock");
+        if(auto > 0) mainImg.src = "assets/1shag/hedgehogs.png";
+        else if(pwr > 25) mainImg.src = "assets/1shag/pickaxe_diamond.png";
+        else if(pwr > 1) mainImg.src = "assets/1shag/pickaxe_iron.png";
+        else mainImg.src = "assets/1shag/rock.png";
+    }
 
     function clickRock(e) {
         score += pwr;
@@ -160,27 +172,22 @@
         localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s:score, p:pwr, a:auto})));
     }
 
-    async function updBal() {
-        if(!contract || !user) return;
-        try {
-            const b = await contract.balanceOf(user);
-            const d = await contract.decimals();
-            document.getElementById("shagBalance").innerText = parseFloat(ethers.formatUnits(b, d)).toFixed(2);
-        } catch(e) { console.error(e); }
-    }
-
     async function connect() {
         if(!window.ethereum) return alert("Встановіть MetaMask!");
-        try {
-            const p = new ethers.BrowserProvider(window.ethereum);
-            await p.send("eth_requestAccounts", []);
-            const s = await p.getSigner();
-            user = await s.getAddress();
-            contract = new ethers.Contract(tokenAddr, abi, s);
-            document.getElementById("status").innerText = "🟢 " + user.slice(0,6) + "...";
-            document.getElementById("connectBtn").style.display = "none";
-            updBal();
-        } catch(e) { alert("Помилка підключення"); }
+        const p = new ethers.BrowserProvider(window.ethereum);
+        const s = await p.getSigner();
+        user = await s.getAddress();
+        contract = new ethers.Contract(tokenAddr, abi, s);
+        document.getElementById("status").innerText = "🟢 " + user.slice(0,6);
+        document.getElementById("connectBtn").style.display = "none";
+        updBal();
+    }
+
+    async function updBal() {
+        if(!contract) return;
+        const b = await contract.balanceOf(user);
+        const d = await contract.decimals();
+        document.getElementById("shagBalance").innerText = parseFloat(ethers.formatUnits(b, d)).toFixed(2);
     }
 
     async function buy(t, pr) {
@@ -188,52 +195,37 @@
         try {
             const d = await contract.decimals();
             const tx = await contract.transfer(myWallet, ethers.parseUnits(pr.toString(), d));
-            alert("Транзакція відправлена...");
             await tx.wait();
             
             if(t === 1) pwr += 5; 
             else if(t === 2) pwr += 25; 
             else if(t === 3) auto += 10;
             
+            updateMainImage(); // Миттєва зміна картинки після успішної транзакції
             updateUI(); 
             updBal();
-            alert("✅ Успішно куплено!");
-        } catch(e) { alert("Оплата скасована або недостатньо коштів"); }
+            alert("✅ Покращення активовано!");
+        } catch(e) { alert("Помилка транзакції"); }
     }
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 100000) return alert("Мінімальний вивід - 100000 каменю!");
-        
-        oldScore = score; // Зберігаємо на випадок скасування
-        const amount = Math.floor(score / 10000);
+        if(score < 1000) return alert("Мінімально 1000 каменю!");
+        oldScore = score;
+        const amount = Math.floor(score / 100);
         const code = Math.floor(10000 + Math.random() * 89999);
-        
-        pendingMsg = `👋 ЗАЯВКА НА ВИВІД ШАГ\n` +
-                     `💰 Сума: ${amount} ШАГ\n` +
-                     `⛏️ Камінь: ${Math.floor(score)}\n` +
-                     `💼 Гаманець: ${user}\n` +
-                     `🔐 Код: ${code}`;
-        
+        pendingMsg = `👋 ЗАЯВКА НА ВИВІД\n💰 Сума: ${amount} ШАГ\n⛏️ Камінь: ${Math.floor(score)}\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
         document.getElementById("copyText").innerText = pendingMsg;
         document.getElementById("withdrawModal").style.display = "block";
-        
-        score = 0; // Списуємо
+        score = 0;
         updateUI();
     }
 
-    function closeModal() {
-        score = oldScore; // Повертаємо камінь, якщо передумав
-        updateUI();
-        document.getElementById("withdrawModal").style.display = "none";
-    }
-
+    function closeModal() { score = oldScore; updateUI(); document.getElementById("withdrawModal").style.display = "none"; }
+    
     function copyAndGo() {
         navigator.clipboard.writeText(pendingMsg).then(() => {
-            alert("✅ Дані скопійовано! Тепер вставте їх у чат (Ctrl+V).");
-            window.open(`https://t.me/${tgNick}`, '_blank');
-            document.getElementById("withdrawModal").style.display = "none";
-        }).catch(() => {
+            alert("Скопійовано!");
             window.open(`https://t.me/${tgNick}`, '_blank');
         });
     }
