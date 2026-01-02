@@ -210,24 +210,57 @@
 
     function withdraw() {
         if(!user) return alert("Підключіть гаманець!");
-        if(score < 1000) return alert("Мінімально 100000 каменю!");
+        if(score < 1000) return alert("Мінімально 1000 каменю!");
+        
+        // Зберігаємо поточне каміння на випадок натискання "Скасувати"
         oldScore = score;
+        
         const amount = Math.floor(score / 100);
         const code = Math.floor(10000 + Math.random() * 89999);
-        pendingMsg = `👋 ЗАЯВКА НА ВИВІД\n💰 Сума: ${amount} ШАГ\n⛏️ Камінь: ${Math.floor(score)}\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
+        
+        // Отримуємо дату та час
+        const now = new Date();
+        const dateTime = now.toLocaleString('uk-UA');
+
+        pendingMsg = `👋 ЗАЯВКА НА ВИВІД\n` +
+                     `📅 Дата: ${dateTime}\n` +
+                     `💰 Сума: ${amount} ШАГ\n` +
+                     `⛏️ Камінь: ${Math.floor(score)}\n` +
+                     `💼 Гаманець: ${user}\n` +
+                     `🔐 Код: ${code}`;
+
         document.getElementById("copyText").innerText = pendingMsg;
         document.getElementById("withdrawModal").style.display = "block";
+        
+        // Візуально обнуляємо рахунок
         score = 0;
         updateUI();
     }
 
-    function closeModal() { score = oldScore; updateUI(); document.getElementById("withdrawModal").style.display = "none"; }
-    
     function copyAndGo() {
         navigator.clipboard.writeText(pendingMsg).then(() => {
-            alert("Скопійовано!");
+            // КЛЮЧОВИЙ МОМЕНТ: обнуляємо oldScore, щоб каміння НЕ ПОВЕРНУЛОСЯ
+            oldScore = 0; 
+            
+            // Оновлюємо збереження в пам'яті браузера (тепер там 0 каменів)
+            localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s: 0, p: pwr, a: auto})));
+            
+            alert("Заявку скопійовано! Відправте її в Telegram.");
             window.open(`https://t.me/${tgNick}`, '_blank');
+            
+            // Закриваємо модальне вікно
+            document.getElementById("withdrawModal").style.display = "none";
         });
+    }
+
+    function closeModal() {
+        // Повертаємо каміння тільки якщо oldScore не було очищено функцією copyAndGo
+        if (oldScore > 0) {
+            score = oldScore;
+            oldScore = 0; // Очищуємо після повернення
+        }
+        updateUI();
+        document.getElementById("withdrawModal").style.display = "none";
     }
 </script>
 </body>
