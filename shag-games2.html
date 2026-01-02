@@ -1,123 +1,152 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>SHAG Games Miner</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>SHAG Games</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-        }
+<style>
+* {
+    box-sizing: border-box;
+}
 
-        header {
-            text-align: center;
-            padding: 30px 15px;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 32px;
-        }
+/* HEADER */
+header {
+    text-align: center;
+    padding: 25px 15px;
+}
 
-        header p {
-            margin-top: 10px;
-            opacity: 0.8;
-        }
+header h1 {
+    margin: 0;
+    font-size: 32px;
+}
 
-        .container {
-            max-width: 1100px;
-            margin: auto;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-        }
+header p {
+    margin-top: 8px;
+    opacity: 0.85;
+}
 
-        .game-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+/* GRID */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
+/* CARD */
+.game-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+    transition: transform 0.2s;
+}
 
-        .game-card h2 {
-            margin-top: 0;
-            font-size: 22px;
-        }
+.game-card:hover {
+    transform: translateY(-5px);
+}
 
-        .game-card p {
-            font-size: 14px;
-            opacity: 0.85;
-        }
+.game-card h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+}
 
-        .game-card a {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 18px;
-            background: #00ffcc;
-            color: #000;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 25px;
-            transition: background 0.2s;
-        }
+.game-card p {
+    font-size: 14px;
+    opacity: 0.85;
+}
 
-        .game-card a:hover {
-            background: #00ccaa;
-        }
+/* BUTTON */
+.game-card a {
+    margin-top: 15px;
+    text-align: center;
+    padding: 14px;
+    background: #00ffcc;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 30px;
+    font-size: 16px;
+}
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 13px;
-            opacity: 0.6;
-        }
-    </style>
+.game-card a:active {
+    transform: scale(0.97);
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 26px;
+    }
+
+    .game-card {
+        padding: 18px;
+    }
+
+    .game-card h2 {
+        font-size: 20px;
+    }
+
+    .game-card a {
+        font-size: 18px;
+        padding: 16px;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <header>
-    <h1>🎮 SHAG Miner Games</h1>
+    <h1>🎮 SHAG Games</h1>
     <p>Ігри-майнери з винагородою у SHAG</p>
 </header>
 
 <div class="container">
 
-    <!-- ГРА 1 -->
     <div class="game-card">
         <h2>⛏️ SHAG Miner</h2>
-        <p>Клікер-гра для майнінгу SHAG. Натискай — заробляй.</p>
-        <a href="https://1shag.github.io/shag-site/shag_miner.html" target="_blank">Грати</a>
-    </div>
-
-    <!-- ГРА 2 -->
-    <div class="game-card">
-        <h2>🐍 SHAG Snake</h2>
-        <p>Класична змійка з токенами SHAG.</p>
+        <p>Клікер-гра для майнінгу SHAG. Натискай та заробляй.</p>
         <a href="https://ТУТ_ПОСИЛАННЯ" target="_blank">Грати</a>
     </div>
 
-    <!-- ГРА 3 -->
+    <div class="game-card">
+        <h2>🐍 SHAG Snake</h2>
+        <p>Класична змійка з нагородою у SHAG.</p>
+        <a href="https://ТУТ_ПОСИЛАННЯ" target="_blank">Грати</a>
+    </div>
+
     <div class="game-card">
         <h2>🪨 SHAG Mine</h2>
-        <p>Шахта: копай каміння — отримуй SHAG.</p>
+        <p>Шахта: копай ресурси та отримуй токени.</p>
         <a href="https://ТУТ_ПОСИЛАННЯ" target="_blank">Грати</a>
     </div>
 
 </div>
 
 <footer>
-    © 2026 SHAG Project • GitHub Pages
+    © 2026 SHAG • GitHub Pages
 </footer>
 
 </body>
