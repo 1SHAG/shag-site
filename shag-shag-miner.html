@@ -19,8 +19,19 @@
         
         .score-container h2 { font-size: 45px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
         
-        .mine-area { position: relative; height: 220px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
-        #rock { width: 180px; height: 180px; cursor: pointer; transition: transform 0.05s; z-index: 5; border-radius: 50%; object-fit: cover; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); -webkit-tap-highlight-color: transparent; }
+        /* ЗБІЛЬШЕНА ЗОНА ТА МАЛЮНОК */
+        .mine-area { position: relative; height: 300px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
+        #rock { 
+            width: 260px; /* Збільшений розмір */
+            height: 260px; 
+            cursor: pointer; 
+            transition: transform 0.05s; 
+            z-index: 5; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            box-shadow: 0 0 30px rgba(241, 196, 15, 0.3); 
+            -webkit-tap-highlight-color: transparent; 
+        }
         #rock:active { transform: scale(0.95); }
 
         .floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 30px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 10; }
@@ -29,16 +40,15 @@
         .stats-row { display: flex; justify-content: space-around; font-size: 13px; color: #8892b0; margin-bottom: 20px; background: #0f1626; padding: 10px; border-radius: 12px; }
         .stats-row b { color: #4ecca3; }
 
-        /* Магазин */
         .shop { text-align: left; }
         .upgrade-card { background: #1a233a; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #252f47; }
-        .upgrade-icon { width: 60px; height: 60px; margin-right: 12px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
+        .upgrade-icon { width: 45px; height: 45px; margin-right: 12px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
         
         .shop-actions { display: flex; flex-direction: column; gap: 6px; min-width: 90px; }
         .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
         .buy-btn.stone { background: #f1c40f; }
         
-        .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; }
+        .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 5px; }
         .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
@@ -80,11 +90,11 @@
             <div style="display:flex; align-items:center; justify-content: space-between;">
                 <div style="display:flex; align-items:center">
                     <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
-                    <div style="text-align:left"><b style="font-size:20px">Залізна Кирка</b><br><span style="font-size:11px; color:#8892b0">+5 до кліку</span></div>
+                    <div style="text-align:left"><b style="font-size:14px">Залізна Кирка</b><br><span style="font-size:11px; color:#8892b0">+5 до кліку</span></div>
                 </div>
                 <div class="shop-actions">
-                    <button class="buy-btn" onclick="buy(1, 100)">100 ШАГ</button>
-                    <button class="buy-btn stone" onclick="buyWithStone(1, 1000000)">1М камінь</button>
+                    <button class="buy-btn" onclick="buy(1, 100)">100 ШГ</button>
+                    <button class="buy-btn stone" onclick="buyWithStone(1, 1000000)">1М КМ</button>
                 </div>
             </div>
         </div>
@@ -93,11 +103,11 @@
             <div style="display:flex; align-items:center; justify-content: space-between;">
                 <div style="display:flex; align-items:center">
                     <img src="assets/1shag/pickaxe_diamond.png" class="upgrade-icon">
-                    <div style="text-align:left"><b style="font-size:20px">Алмазна Кирка</b><br><span style="font-size:11px; color:#8892b0">+25 до кліку</span></div>
+                    <div style="text-align:left"><b style="font-size:14px">Алмазна Кирка</b><br><span style="font-size:11px; color:#8892b0">+25 до кліку</span></div>
                 </div>
                 <div class="shop-actions">
-                    <button class="buy-btn" onclick="buy(2, 500)">500 ШАГ</button>
-                    <button class="buy-btn stone" onclick="buyWithStone(2, 5000000)">5М камінь</button>
+                    <button class="buy-btn" onclick="buy(2, 500)">500 ШГ</button>
+                    <button class="buy-btn stone" onclick="buyWithStone(2, 5000000)">5М КМ</button>
                 </div>
             </div>
         </div>
@@ -106,27 +116,26 @@
             <div style="display:flex; align-items:center; justify-content: space-between;">
                 <div style="display:flex; align-items:center">
                     <img src="assets/1shag/hedgehogs.png" class="upgrade-icon">
-                    <div style="text-align:left"><b style="font-size:20px">Бригада Їжачків</b><br><span style="font-size:11px; color:#8892b0">+10/с авто</span></div>
+                    <div style="text-align:left"><b style="font-size:14px">Бригада Їжачків</b><br><span style="font-size:11px; color:#8892b0">+10/с авто</span></div>
                 </div>
                 <div class="shop-actions">
-                    <button class="buy-btn" onclick="buy(3, 1000)">1к ШАГ</button>
-                    <button class="buy-btn stone" onclick="buyWithStone(3, 10000000)">10М камінь</button>
+                    <button class="buy-btn" onclick="buy(3, 1000)">1к ШГ</button>
+                    <button class="buy-btn stone" onclick="buyWithStone(3, 10000000)">10М КМ</button>
                 </div>
             </div>
         </div>
     </div>
 
-   <p style="color: #8892b0; font-size: 12px; margin-bottom: 8px; font-weight: bold;">
+    <p style="color: #8892b0; font-size: 11px; margin-top: 20px; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">
         Курс обміну: 10 000 камінь = 1 ШАГ
     </p>
-    
     <button class="btn-withdraw" onclick="withdraw()">🎁 ОБМІНЯТИ КАМІНЬ НА ШАГ</button>
 </div>
 
 <script>
     const tokenAddr = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
-    const myWallet = "0x988cE6555C015e0761579de477fC9f816203ea2E"; 
-    const tgNick = "coins_1SHAG";
+    const myWallet = "0x988cE6555C015e0761579de477fC9f816203ea2E"; // ВАША АДРЕСА
+    const tgNick = "coins_1SHAG"; // ВАШ ТГ НІК
 
     const abi = ["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t, uint256 a) returns (bool)"];
     let score = 0, pwr = 1, auto = 0, user, contract, pendingMsg = "", oldScore = 0;
@@ -216,7 +225,7 @@
         if(score < 100000) return alert("Мінімально 100 000 каменю!");
         
         oldScore = score;
-        const amount = Math.floor(score / 10000); // 100k = 10 SHAG
+        const amount = Math.floor(score / 10000); 
         const code = Math.floor(10000 + Math.random() * 89999);
         const now = new Date().toLocaleString('uk-UA');
 
@@ -230,9 +239,9 @@
 
     function copyAndGo() {
         navigator.clipboard.writeText(pendingMsg).then(() => {
-            oldScore = 0; // Остаточне списання
+            oldScore = 0;
             localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s: 0, p: pwr, a: auto})));
-            alert("Скопійовано! Відправте в чат.");
+            alert("Скопійовано!");
             window.open(`https://t.me/${tgNick}`, '_blank');
             document.getElementById("withdrawModal").style.display = "none";
         });
