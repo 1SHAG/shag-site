@@ -53,6 +53,7 @@ header p {
     justify-content: space-between;
     box-shadow: 0 10px 25px rgba(0,0,0,0.35);
     transition: transform 0.2s;
+    min-height: 220px;
 }
 
 .game-card:hover {
@@ -80,10 +81,28 @@ header p {
     font-weight: bold;
     border-radius: 30px;
     font-size: 16px;
+    transition: background 0.2s;
+}
+
+.game-card a:hover {
+    background: #00e6b8;
 }
 
 .game-card a:active {
     transform: scale(0.97);
+}
+
+/* BUTTON: Основне меню */
+.main-menu-btn {
+    display:inline-block;
+    margin: 30px auto;
+    padding: 14px 28px;
+    background:#00ffcc;
+    color:#000;
+    font-weight:bold;
+    text-decoration:none;
+    border-radius:30px;
+    font-size:16px;
 }
 
 /* FOOTER */
@@ -113,6 +132,51 @@ footer {
         padding: 16px;
     }
 }
+
+/* ===== MOBILE BOTTOM MENU ===== */
+.mobile-menu {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 70px; /* місце під меню */
+    }
+
+    .mobile-menu {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 65px;
+        background: rgba(15, 32, 39, 0.95);
+        backdrop-filter: blur(6px);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        z-index: 999;
+    }
+
+    .mobile-menu a {
+        flex: 1;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        font-size: 12px;
+        padding-top: 6px;
+        opacity: 0.8;
+    }
+
+    .mobile-menu a span {
+        display: block;
+        font-size: 22px;
+        margin-bottom: 2px;
+    }
+
+    .mobile-menu a:active {
+        background: rgba(255,255,255,0.1);
+        opacity: 1;
+    }
+}
 </style>
 </head>
 
@@ -131,18 +195,42 @@ footer {
         <a href="https://1shag.github.io/shag-site/shag_miner.html" target="_blank">Грати</a>
     </div>
 
-
     <div class="game-card">
-        <h2> КАМ'ЯНА ШАХТА</h2>
+        <h2>🪨 КАМ'ЯНА ШАХТА</h2>
         <p>Шахта: добувай камінь обмінюй на ШАГ.</p>
         <a href="https://1shag.github.io/shag-site/shag-shag-miner.html" target="_blank">Грати</a>
     </div>
 
 </div>
 
+<!-- КНОПКА ПОВЕРНЕННЯ НА ОСНОВНЕ МЕНЮ -->
+<div style="text-align:center;">
+    <a href="https://1shag.github.io/shag-site/index.html" class="main-menu-btn">⬅️ Основне меню</a>
+</div>
+
 <footer>
     © 2025 SHAG • GitHub Pages
 </footer>
+
+<!-- MOBILE BOTTOM MENU -->
+<nav class="mobile-menu">
+    <a href="https://1shag.github.io/shag-site/index.html">
+        <span>🏠</span>
+        Меню
+    </a>
+    <a href="shag-games2.html">
+        <span>🎮</span>
+        Ігри
+    </a>
+    <a href="shag_miner.html">
+        <span>⛏</span>
+        Майнер
+    </a>
+    <a href="shag-shag-miner.html">
+        <span>🪨</span>
+        Шахта
+    </a>
+</nav>
 
 </body>
 </html>
