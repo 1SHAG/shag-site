@@ -6,9 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -23,15 +21,8 @@ header {
     padding: 25px 15px;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 32px;
-}
-
-header p {
-    margin-top: 8px;
-    opacity: 0.85;
-}
+header h1 { margin: 0; font-size: 32px; }
+header p { margin-top: 8px; opacity: 0.85; }
 
 /* GRID */
 .container {
@@ -48,61 +39,50 @@ header p {
     background: rgba(255,255,255,0.08);
     border-radius: 18px;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-    transition: transform 0.2s;
-    min-height: 220px;
 }
 
-.game-card:hover {
-    transform: translateY(-5px);
-}
-
-.game-card h2 {
-    margin: 0 0 10px;
-    font-size: 22px;
-}
-
-.game-card p {
-    font-size: 14px;
-    opacity: 0.85;
-}
+.game-card h2 { margin: 0 0 10px; }
+.game-card p { font-size: 14px; opacity: 0.85; }
 
 /* BUTTON */
-.game-card a {
+.game-card button {
     margin-top: 15px;
-    text-align: center;
+    width: 100%;
     padding: 14px;
     background: #00ffcc;
     color: #000;
-    text-decoration: none;
     font-weight: bold;
     border-radius: 30px;
     font-size: 16px;
-    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
 }
 
-.game-card a:hover {
-    background: #00e6b8;
+/* WARNING */
+.warning {
+    display: none;
+    background: rgba(255, 165, 0, 0.15);
+    border: 1px solid orange;
+    padding: 12px;
+    border-radius: 12px;
+    margin: 15px;
+    text-align: center;
+    font-size: 14px;
 }
 
-.game-card a:active {
-    transform: scale(0.97);
-}
-
-/* BUTTON: головне меню */
-.main-menu-btn {
-    display:inline-block;
-    margin: 30px auto;
-    padding: 14px 28px;
-    background:#00ffcc;
-    color:#000;
-    font-weight:bold;
-    text-decoration:none;
-    border-radius:30px;
-    font-size:16px;
+/* METAMASK BUTTON */
+.metamask-btn {
+    display: none;
+    margin: 20px auto;
+    padding: 14px 26px;
+    background: #f6851b;
+    color: #000;
+    font-weight: bold;
+    border-radius: 30px;
+    text-decoration: none;
+    text-align: center;
+    width: fit-content;
 }
 
 /* FOOTER */
@@ -113,68 +93,36 @@ footer {
     opacity: 0.6;
 }
 
-/* ===== MOBILE ===== */
-@media (max-width: 600px) {
-    header h1 {
-        font-size: 26px;
-    }
-
-    .game-card {
-        padding: 18px;
-    }
-
-    .game-card h2 {
-        font-size: 20px;
-    }
-
-    .game-card a {
-        font-size: 18px;
-        padding: 16px;
-    }
-}
-
-/* ===== MOBILE BOTTOM MENU ===== */
+/* MOBILE MENU */
 .mobile-menu {
     display: none;
 }
 
 @media (max-width: 768px) {
-    body {
-        padding-bottom: 70px; /* місце під меню */
-    }
+    body { padding-bottom: 70px; }
 
     .mobile-menu {
         display: flex;
         position: fixed;
         bottom: 0;
-        left: 0;
         width: 100%;
         height: 65px;
-        background: rgba(15, 32, 39, 0.95);
-        backdrop-filter: blur(6px);
+        background: rgba(15,32,39,0.95);
         border-top: 1px solid rgba(255,255,255,0.1);
-        z-index: 999;
     }
 
     .mobile-menu a {
         flex: 1;
         text-align: center;
-        text-decoration: none;
         color: #fff;
+        text-decoration: none;
         font-size: 12px;
         padding-top: 6px;
-        opacity: 0.8;
     }
 
-    .mobile-menu a span {
+    .mobile-menu span {
         display: block;
         font-size: 22px;
-        margin-bottom: 2px;
-    }
-
-    .mobile-menu a:active {
-        background: rgba(255,255,255,0.1);
-        opacity: 1;
     }
 }
 </style>
@@ -187,50 +135,51 @@ footer {
     <p>Ігри-майнери з винагородою у ШАГ</p>
 </header>
 
+<div id="walletWarning" class="warning">
+📱 Ви відкрили сайт не через Web3-гаманець.<br>
+Відкрийте його у браузері <b>MetaMask</b> або <b>Trust Wallet</b>.
+</div>
+
+<a id="openMetaMask" class="metamask-btn"
+href="https://metamask.app.link/dapp/1shag.github.io/shag-site/">
+🦊 Відкрити в MetaMask
+</a>
+
 <div class="container">
 
     <div class="game-card">
         <h2>⛏️ SHAG Miner</h2>
-        <p>Клікер-гра для майнінгу ШАГ. Натискай та заробляй.</p>
-        <a href="https://1shag.github.io/shag-site/shag_miner.html" target="_blank">Грати</a>
+        <p>Клікер-гра для майнінгу ШАГ.</p>
+        <button onclick="location.href='shag_miner.html'">Грати</button>
     </div>
 
     <div class="game-card">
-        <h2> КАМ'ЯНА ШАХТА</h2>
-        <p>Шахта: добувай камінь обмінюй на ШАГ.</p>
-        <a href="https://1shag.github.io/shag-site/shag-shag-miner.html" target="_blank">Грати</a>
+        <h2>🪨 Камʼяна шахта</h2>
+        <p>Добувай камінь та обмінюй на ШАГ.</p>
+        <button onclick="location.href='shag-shag-miner.html'">Грати</button>
     </div>
 
 </div>
 
-<!-- КНОПКА ПОВЕРНЕННЯ НА ОСНОВНЕ МЕНЮ -->
-<div style="text-align:center;">
-    <a href="https://1shag.github.io/shag-site/index.html" class="main-menu-btn">⬅️ Основне меню</a>
-</div>
+<footer>© 2025 SHAG • GitHub Pages</footer>
 
-<footer>
-    © 2025 SHAG • GitHub Pages
-</footer>
-
-<!-- MOBILE BOTTOM MENU -->
 <nav class="mobile-menu">
-    <a href="https://1shag.github.io/shag-site/index.html">
-        <span>🏠</span>
-        Меню
-    </a>
-    <a href="shag-games2.html">
-        <span>🎮</span>
-        Ігри
-    </a>
-    <a href="shag_miner.html">
-        <span>⛏</span>
-        Майнер
-    </a>
-    <a href="shag-shag-miner.html">
-        <span>🪨</span>
-        Шахта
-    </a>
+    <a href="index.html"><span>🏠</span>Меню</a>
+    <a href="shag_miner.html"><span>⛏</span>Майнер</a>
+    <a href="shag-shag-miner.html"><span>🪨</span>Шахта</a>
 </nav>
+
+<script>
+(function () {
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const hasEthereum = typeof window.ethereum !== "undefined";
+
+    if (isMobile && !hasEthereum) {
+        document.getElementById("walletWarning").style.display = "block";
+        document.getElementById("openMetaMask").style.display = "block";
+    }
+})();
+</script>
 
 </body>
 </html>
