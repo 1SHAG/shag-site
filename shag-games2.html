@@ -59,10 +59,14 @@ header p { margin-top: 8px; opacity: 0.85; }
     cursor: pointer;
 }
 
+.game-card button:active {
+    transform: scale(0.97);
+}
+
 /* WARNING */
 .warning {
     display: none;
-    background: rgba(255, 165, 0, 0.15);
+    background: rgba(255,165,0,0.15);
     border: 1px solid orange;
     padding: 12px;
     border-radius: 12px;
@@ -83,6 +87,19 @@ header p { margin-top: 8px; opacity: 0.85; }
     text-decoration: none;
     text-align: center;
     width: fit-content;
+}
+
+/* MAIN MENU BUTTON */
+.main-menu-btn {
+    display: inline-block;
+    margin: 30px auto;
+    padding: 14px 28px;
+    background: #00ffcc;
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 16px;
 }
 
 /* FOOTER */
@@ -148,17 +165,22 @@ href="https://metamask.app.link/dapp/1shag.github.io/shag-site/">
 <div class="container">
 
     <div class="game-card">
-        <h2>⛏️ SHAG Miner</h2>
+        <h2> SHAG Miner</h2>
         <p>Клікер-гра для майнінгу ШАГ.</p>
         <button onclick="location.href='shag_miner.html'">Грати</button>
     </div>
 
     <div class="game-card">
-        <h2>🪨 Камʼяна шахта</h2>
+        <h2> Камʼяна шахта</h2>
         <p>Добувай камінь та обмінюй на ШАГ.</p>
         <button onclick="location.href='shag-shag-miner.html'">Грати</button>
     </div>
 
+</div>
+
+<!-- ✅ КНОПКА ПОВЕРНЕННЯ В ОСНОВНЕ МЕНЮ -->
+<div style="text-align:center;">
+    <a href="index.html" class="main-menu-btn">⬅️ Основне меню</a>
 </div>
 
 <footer>© 2025 SHAG • GitHub Pages</footer>
