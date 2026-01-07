@@ -17,12 +17,15 @@
         .header-stats { display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #0f1626; padding: 12px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #1f4a6d; }
         .balance-box b { color: #f1c40f; }
         
+        /* ТАЙМЕР БУСТУ */
+        #boostTimerBox { display: none; background: linear-gradient(90deg, #e74c3c, #c0392b); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+
         .score-container h2 { font-size: 45px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
         
-        /* ЗБІЛЬШЕНА ЗОНА ТА МАЛЮНОК */
         .mine-area { position: relative; height: 300px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
         #rock { 
-            width: 260px; /* Збільшений розмір */
+            width: 260px; 
             height: 260px; 
             cursor: pointer; 
             transition: transform 0.05s; 
@@ -33,8 +36,11 @@
             -webkit-tap-highlight-color: transparent; 
         }
         #rock:active { transform: scale(0.95); }
+        /* Ефект коли буст активний */
+        .boost-active-img { filter: drop-shadow(0 0 15px #e74c3c) !important; border: 2px solid #e74c3c !important; }
 
         .floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 30px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 10; }
+        .floating-number.boosted { color: #e74c3c; font-size: 40px; } 
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-130px); } }
 
         .stats-row { display: flex; justify-content: space-around; font-size: 13px; color: #8892b0; margin-bottom: 20px; background: #0f1626; padding: 10px; border-radius: 12px; }
@@ -42,11 +48,14 @@
 
         .shop { text-align: left; }
         .upgrade-card { background: #1a233a; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #252f47; }
+        /* Стиль для картки бусту */
+        .upgrade-card.gold-vein { border: 1px solid #e74c3c; background: linear-gradient(135deg, #1a233a 0%, #2c1a1a 100%); }
         .upgrade-icon { width: 60px; height: 60px; margin-right: 12px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
         
         .shop-actions { display: flex; flex-direction: column; gap: 6px; min-width: 90px; }
         .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
         .buy-btn.stone { background: #f1c40f; }
+        .buy-btn.boost { background: #e74c3c; color: white; }
         
         .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 5px; }
         .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
@@ -68,6 +77,10 @@
         <span id="status">🔌 Не підключено</span>
         <span class="balance-box">Баланс: <b id="shagBalance">0.00</b> ШАГ</span>
     </div>
+    
+    <div id="boostTimerBox">
+        🔥 ЗОЛОТА ЖИЛА: <span id="boostTimer">00:00</span>
+    </div>
 
     <button id="connectBtn" class="btn-connect" onclick="connect()">⚡ Підключити Гаманець</button>
 
@@ -86,6 +99,22 @@
     </div>
 
     <div class="shop">
+        
+        <div class="upgrade-card gold-vein">
+            <div style="display:flex; align-items:center; justify-content: space-between;">
+                <div style="display:flex; align-items:center">
+                    <div class="upgrade-icon" style="background:#e74c3c; display:flex; align-items:center; justify-content:center; font-size:25px;">🔥</div>
+                    <div style="text-align:left">
+                        <b style="font-size:20px; color:#e74c3c">Золота Жила</b><br>
+                        <span style="font-size:11px; color:#fff">x10 до всього на 10 хв</span>
+                    </div>
+                </div>
+                <div class="shop-actions">
+                    <button class="buy-btn boost" onclick="buyBoost()">10 ШАГ</button>
+                </div>
+            </div>
+        </div>
+
         <div class="upgrade-card">
             <div style="display:flex; align-items:center; justify-content: space-between;">
                 <div style="display:flex; align-items:center">
@@ -139,6 +168,11 @@
 
     const abi = ["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t, uint256 a) returns (bool)"];
     let score = 0, pwr = 1, auto = 0, user, contract, pendingMsg = "", oldScore = 0;
+    
+    // Змінні для бусту
+    let boostMultiplier = 1;
+    let boostEndTime = 0;
+    let boostInterval;
 
     window.onload = () => {
         const saved = localStorage.getItem('shag_v_ultra');
@@ -146,12 +180,53 @@
             try {
                 const d = JSON.parse(atob(saved)); 
                 score = d.s || 0; pwr = d.p || 1; auto = d.a || 0; 
+                boostEndTime = d.be || 0; // Завантажуємо час бусту
+                
+                // Перевірка чи активний буст після перезавантаження
+                if (Date.now() < boostEndTime) {
+                    startBoostTimer();
+                }
+
                 updateMainImage();
             } catch(e) {}
         }
         updateUI();
-        setInterval(() => { if(auto > 0){ score += auto; updateUI(); } }, 1000);
+        
+        // Оновлений цикл автомайнінгу з урахуванням бусту
+        setInterval(() => { 
+            if(auto > 0){ 
+                score += auto * boostMultiplier; // Множимо на 1 або 10
+                updateUI(); 
+            } 
+        }, 1000);
     };
+
+    function startBoostTimer() {
+        boostMultiplier = 10;
+        document.getElementById("boostTimerBox").style.display = "block";
+        document.getElementById("rock").classList.add("boost-active-img"); // Додаємо ефект світіння
+        
+        if (boostInterval) clearInterval(boostInterval);
+        
+        boostInterval = setInterval(() => {
+            let now = Date.now();
+            let distance = boostEndTime - now;
+            
+            if (distance < 0) {
+                clearInterval(boostInterval);
+                boostMultiplier = 1;
+                document.getElementById("boostTimerBox").style.display = "none";
+                document.getElementById("rock").classList.remove("boost-active-img");
+                alert("Час дії Золотої Жили закінчився!");
+                return;
+            }
+            
+            let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            let s = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("boostTimer").innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            
+        }, 1000);
+    }
 
     function updateMainImage() {
         const mainImg = document.getElementById("rock");
@@ -162,11 +237,15 @@
     }
 
     function clickRock(e) {
-        score += pwr;
+        // Множимо клік на буст
+        let earned = pwr * boostMultiplier;
+        score += earned;
+        
         updateUI();
         const num = document.createElement('div');
         num.className = 'floating-number';
-        num.innerText = `+${pwr}`;
+        if(boostMultiplier > 1) num.classList.add('boosted'); // Червоний колір для тексту
+        num.innerText = `+${earned}`;
         num.style.left = `${e.clientX - 20}px`;
         num.style.top = `${e.clientY - 40}px`;
         document.body.appendChild(num);
@@ -175,9 +254,16 @@
 
     function updateUI() {
         document.getElementById("score").innerText = Math.floor(score).toLocaleString('uk-UA');
-        document.getElementById("pwr").innerText = `+${pwr}`;
-        document.getElementById("auto").innerText = auto;
-        localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s:score, p:pwr, a:auto})));
+        
+        // Показуємо актуальну силу з урахуванням бусту
+        let displayPwr = pwr * boostMultiplier;
+        let displayAuto = auto * boostMultiplier;
+        
+        document.getElementById("pwr").innerText = `+${displayPwr}`;
+        document.getElementById("auto").innerText = displayAuto;
+        
+        // Зберігаємо також час закінчення бусту
+        localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s:score, p:pwr, a:auto, be:boostEndTime})));
     }
 
     async function connect() {
@@ -198,6 +284,7 @@
         document.getElementById("shagBalance").innerText = parseFloat(ethers.formatUnits(b, d)).toFixed(2);
     }
 
+    // Функція покупки звичайних покращень
     async function buy(t, pr) {
         if(!contract) return alert("Підключіть гаманець!");
         try {
@@ -208,6 +295,28 @@
             updateMainImage(); updateUI(); updBal();
             alert("✅ Успішно куплено за ШАГ!");
         } catch(e) { alert("Помилка оплати"); }
+    }
+
+    // НОВА ФУНКЦІЯ ПОКУПКИ БУСТУ
+    async function buyBoost() {
+        if(!contract) return alert("Підключіть гаманець!");
+        if(boostMultiplier > 1) return alert("Буст вже активний!");
+        
+        let price = 10; // 10 ШАГ
+        try {
+            const d = await contract.decimals();
+            const tx = await contract.transfer(myWallet, ethers.parseUnits(price.toString(), d));
+            await tx.wait();
+            
+            // Активація
+            boostEndTime = Date.now() + (10 * 60 * 1000); // 10 хвилин
+            startBoostTimer();
+            updateUI(); updBal();
+            alert("🔥 ЗОЛОТА ЖИЛА АКТИВОВАНА! ТИСНИ ШВИДШЕ!");
+        } catch(e) { 
+            console.error(e);
+            alert("Помилка оплати або скасовано"); 
+        }
     }
 
     function buyWithStone(t, price) {
@@ -240,7 +349,7 @@
     function copyAndGo() {
         navigator.clipboard.writeText(pendingMsg).then(() => {
             oldScore = 0;
-            localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s: 0, p: pwr, a: auto})));
+            localStorage.setItem('shag_v_ultra', btoa(JSON.stringify({s: 0, p: pwr, a: auto, be: boostEndTime})));
             alert("Скопійовано!");
             window.open(`https://t.me/${tgNick}`, '_blank');
             document.getElementById("withdrawModal").style.display = "none";
