@@ -9,7 +9,6 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: white; text-align: center; margin: 0; padding: 20px; user-select: none; overflow-x: hidden; }
         .container { max-width: 420px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); border: 1px solid #1f2d45; position: relative; }
         
-        /* МОДАЛЬНЕ ВІКНО */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
         .modal-content { background: #16213e; margin: 15% auto; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid #4ecca3; box-shadow: 0 0 30px rgba(78, 204, 163, 0.2); }
         #copyText { background: #0a0e1a; padding: 15px; border-radius: 10px; font-size: 12px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; line-height: 1.5; }
@@ -20,14 +19,12 @@
         #boostTimerBox { display: none; background: linear-gradient(90deg, #e74c3c, #c0392b); padding: 12px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; font-size: 18px; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
 
-        /* ШКАЛА ПЕРЕГРІВУ */
         .temp-container { width: 280px; height: 18px; background: #0f1626; border-radius: 10px; margin: 15px auto; border: 1px solid #1f4a6d; overflow: hidden; position: relative; }
         .temp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #e74c3c); transition: width 0.3s ease; }
         .temp-label { position: absolute; width: 100%; top: 3px; left: 0; font-size: 9px; font-weight: bold; color: white; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px black; pointer-events: none; }
         .overheat-blink { animation: blink-bg 0.4s infinite; }
         @keyframes blink-bg { 0% { background: #e74c3c; } 50% { background: #330000; } 100% { background: #e74c3c; } }
 
-        /* МОНЕТКА */
         .flying-coin { position: fixed; width: 70px; height: 70px; z-index: 1500; cursor: pointer; filter: drop-shadow(0 0 10px gold); animation: bounceCoin 3s linear infinite; display: none; }
         @keyframes bounceCoin { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-20px) rotate(10deg); } 50% { transform: translateY(0) rotate(0deg); } 75% { transform: translateY(20px) rotate(-10deg); } }
 
@@ -51,12 +48,20 @@
         .buy-btn.stone { background: #f1c40f; }
         .buy-btn.boost { background: #e74c3c; color: white; padding: 10px; }
 
-        .btn-withdraw { background: linear-gradient(45deg, #6a0572, #a34293); color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(163, 66, 147, 0.3); transition: 0.3s; }
-        .btn-withdraw:disabled { background: #252f47; color: #8892b0; box-shadow: none; cursor: not-allowed; }
-        
+        /* КНОПКА ОБМІНУ ТА ЕФЕКТ СЯЙВА */
+        .btn-withdraw { background: #252f47; color: #8892b0; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: not-allowed; margin-top: 10px; transition: 0.3s; }
+        .btn-withdraw.active { 
+            background: linear-gradient(45deg, #f1c40f, #e67e22, #f1c40f); 
+            background-size: 200% auto;
+            color: white; 
+            cursor: pointer; 
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
+            animation: shine 2s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
         .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
         .btn-games { display: block; background: #1f2d45; color: #4ecca3; text-decoration: none; padding: 12px; border-radius: 15px; margin-top: 20px; font-size: 14px; font-weight: bold; border: 1px solid #4ecca3; transition: 0.3s; }
-        .btn-games:hover { background: #4ecca3; color: #0a0e1a; }
     </style>
 </head>
 <body>
@@ -118,7 +123,7 @@
             </div>
             <div class="shop-actions">
                 <button class="buy-btn" onclick="buy(1, 100)">100 ШАГ</button>
-                <button class="buy-btn stone" onclick="buyWithStone(1, 1000000)">1М 🪨</button>
+                <button class="buy-btn stone" onclick="buyWithStone(1, 1000000)">1М кам.</button>
             </div>
         </div>
 
@@ -129,7 +134,7 @@
             </div>
             <div class="shop-actions">
                 <button class="buy-btn" onclick="buy(2, 500)">500 ШАГ</button>
-                <button class="buy-btn stone" onclick="buyWithStone(2, 5000000)">5М 🪨</button>
+                <button class="buy-btn stone" onclick="buyWithStone(2, 5000000)">5М кам.</button>
             </div>
         </div>
 
@@ -140,7 +145,7 @@
             </div>
             <div class="shop-actions">
                 <button class="buy-btn" onclick="buy(3, 1000)">1к ШАГ</button>
-                <button class="buy-btn stone" onclick="buyWithStone(3, 10000000)">10М 🪨</button>
+                <button class="buy-btn stone" onclick="buyWithStone(3, 10000000)">10М кам.</button>
             </div>
         </div>
     </div>
@@ -161,14 +166,14 @@
     let isOverheated = false, coinTimeout;
 
     window.onload = () => {
-        const saved = localStorage.getItem('shag_miner_v2_ultra');
+        const saved = localStorage.getItem('shag_miner_pro_v3');
         if(saved) { 
             try { 
                 const d = JSON.parse(atob(saved)); 
                 score = d.s||0; pwr = d.p||1; auto = d.a||0; boostEndTime = d.be||0;
                 if (Date.now() < boostEndTime) startBoostTimer();
                 updateMainImage();
-            } catch(e) { console.error("Помилка"); }
+            } catch(e) {}
         }
         updateUI();
         setInterval(() => { if(auto > 0){ score += (auto * boostMultiplier); updateUI(); } }, 1000);
@@ -182,65 +187,51 @@
         if (temperature >= maxTemp) { triggerOverheat(); return; }
 
         let earned = pwr * boostMultiplier;
-        score += earned;
-        updateUI();
+        score += earned; updateUI();
         spawnFloatingText(e.clientX, e.clientY, `+${earned}`, boostMultiplier > 1);
         if (Math.random() < 0.015) spawnShagCoin();
-    }
-
-    function spawnShagCoin() {
-        const coin = document.getElementById('flyingShagCoin');
-        if (coin.style.display === 'block') return;
-        coin.style.left = Math.random() * (window.innerWidth - 80) + 'px';
-        coin.style.top = Math.random() * (window.innerHeight - 80) + 'px';
-        coin.style.display = 'block';
-        clearTimeout(coinTimeout);
-        coinTimeout = setTimeout(() => { coin.style.display = 'none'; }, 3000);
-    }
-
-    function collectShagCoin(e) {
-        e.stopPropagation();
-        document.getElementById('flyingShagCoin').style.display = 'none';
-        clearTimeout(coinTimeout);
-        let r = Math.random() * 100, reward = 5000;
-        if (r <= 50) reward = 10000; else if (r <= 80) reward = 30000; else if (r <= 90) reward = 50000;
-        score += reward; updateUI();
-        spawnFloatingText(e.clientX, e.clientY, `🎁 +${reward.toLocaleString()}`, true);
     }
 
     function triggerOverheat() {
         isOverheated = true; temperature = maxTemp; updateTempUI();
         const bar = document.getElementById("temp-bar"), label = document.getElementById("temp-label");
-        bar.classList.add("overheat-blink"); label.innerText = "🚨 ПЕРЕГРІВ! (10с)";
+        bar.classList.add("overheat-blink"); label.innerText = "🚨 ПЕРЕГРІВ!";
         setTimeout(() => { isOverheated = false; temperature = 0; bar.classList.remove("overheat-blink"); label.innerText = "Температура шахти"; updateTempUI(); }, 10000);
     }
 
     function updateTempUI() { document.getElementById("temp-bar").style.width = temperature + "%"; }
-
-    function spawnFloatingText(x, y, text, isBoosted) {
-        const n = document.createElement('div');
-        n.className = 'floating-number' + (isBoosted ? ' boosted' : '');
-        n.innerText = text; n.style.left = (x - 20) + 'px'; n.style.top = (y - 40) + 'px';
-        document.body.appendChild(n); setTimeout(() => n.remove(), 700);
-    }
 
     function updateUI() {
         document.getElementById("score").innerText = Math.floor(score).toLocaleString('uk-UA');
         document.getElementById("pwrDisplay").innerText = `+${pwr * boostMultiplier}`;
         document.getElementById("autoDisplay").innerText = auto * boostMultiplier;
         
-        // ОНОВЛЕННЯ КНОПКИ ОБМІНУ
         const btn = document.getElementById("withdrawBtn");
         const availableShag = Math.floor(score / 10000);
         if (availableShag >= 10) {
             btn.disabled = false;
+            btn.classList.add("active");
             btn.innerText = `🎁 ОБМІНЯТИ НА ${availableShag} ШАГ`;
         } else {
             btn.disabled = true;
-            btn.innerText = `🎁 МІНІМУМ 100к 🪨`;
+            btn.classList.remove("active");
+            btn.innerText = `🎁 МІНІМУМ 100к КАМ.`;
         }
+        localStorage.setItem('shag_miner_pro_v3', btoa(JSON.stringify({s:score, p:pwr, a:auto, be:boostEndTime})));
+    }
 
-        localStorage.setItem('shag_miner_v2_ultra', btoa(JSON.stringify({s:score, p:pwr, a:auto, be:boostEndTime})));
+    function withdraw() {
+        if(!user) return alert("Підключіть гаманець!");
+        oldScore = score;
+        const shagAmount = Math.floor(score / 10000);
+        const stoneToCharge = shagAmount * 10000;
+        const remainder = score - stoneToCharge;
+        const code = Math.floor(10000 + Math.random() * 89999);
+        
+        pendingMsg = `👋 ЗАЯВКА НА ОБМІН\n💰 Сума: ${shagAmount} ШАГ\n⚒️ Списано: ${stoneToCharge.toLocaleString()} кам.\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
+        document.getElementById("copyText").innerText = pendingMsg;
+        document.getElementById("withdrawModal").style.display = "block";
+        score = remainder; updateUI();
     }
 
     async function connect() {
@@ -256,6 +247,29 @@
         } catch(e) { alert("Помилка"); }
     }
 
+    function spawnShagCoin() {
+        const coin = document.getElementById('flyingShagCoin');
+        coin.style.left = Math.random() * (window.innerWidth - 80) + 'px';
+        coin.style.top = Math.random() * (window.innerHeight - 80) + 'px';
+        coin.style.display = 'block';
+        clearTimeout(coinTimeout);
+        coinTimeout = setTimeout(() => { coin.style.display = 'none'; }, 3000);
+    }
+
+    function collectShagCoin(e) {
+        e.stopPropagation();
+        document.getElementById('flyingShagCoin').style.display = 'none';
+        score += 10000; updateUI();
+        spawnFloatingText(e.clientX, e.clientY, `🎁 +10,000`, true);
+    }
+
+    function spawnFloatingText(x, y, text, isBoosted) {
+        const n = document.createElement('div');
+        n.className = 'floating-number' + (isBoosted ? ' boosted' : '');
+        n.innerText = text; n.style.left = (x - 20) + 'px'; n.style.top = (y - 40) + 'px';
+        document.body.appendChild(n); setTimeout(() => n.remove(), 700);
+    }
+
     async function updBal() {
         if(!contract || !user) return;
         const b = await contract.balanceOf(user), d = await contract.decimals();
@@ -264,8 +278,7 @@
 
     function buyWithStone(t, price) {
         if (score < price) return alert("Мало каменю!");
-        score -= price;
-        if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
+        score -= price; if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
         updateMainImage(); updateUI();
     }
 
@@ -274,21 +287,17 @@
         try {
             const d = await contract.decimals();
             const tx = await contract.transfer(myWallet, ethers.parseUnits(pr.toString(), d));
-            await tx.wait();
-            if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
+            await tx.wait(); if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
             updateMainImage(); updateUI(); updBal();
         } catch(e) { alert("Скасовано"); }
     }
 
     async function buyBoost() {
         if(!contract) return alert("Гаманець!");
-        if(boostMultiplier > 1) return;
         try {
             const d = await contract.decimals();
             const tx = await contract.transfer(myWallet, ethers.parseUnits("10", d));
-            await tx.wait();
-            boostEndTime = Date.now() + 100000;
-            startBoostTimer(); updBal();
+            await tx.wait(); boostEndTime = Date.now() + 100000; startBoostTimer(); updBal();
         } catch(e) { alert("Скасовано"); }
     }
 
@@ -296,51 +305,15 @@
         boostMultiplier = 10;
         document.getElementById("boostTimerBox").style.display = "block";
         document.getElementById("rock").style.filter = "drop-shadow(0 0 20px #e74c3c)";
-        if (boostInterval) clearInterval(boostInterval);
         boostInterval = setInterval(() => {
             let r = boostEndTime - Date.now();
-            if (r <= 0) {
-                clearInterval(boostInterval); boostMultiplier = 1;
-                document.getElementById("boostTimerBox").style.display = "none";
-                document.getElementById("rock").style.filter = "none";
-                updateUI(); return;
-            }
+            if (r <= 0) { clearInterval(boostInterval); boostMultiplier = 1; document.getElementById("boostTimerBox").style.display = "none"; document.getElementById("rock").style.filter = "none"; updateUI(); return; }
             document.getElementById("boostTimer").innerText = Math.ceil(r / 1000);
         }, 100);
     }
 
-    function withdraw() {
-        if(!user) return alert("Підключіть гаманець!");
-        if(score < 100000) return alert("Мінімум 100,000!");
-        
-        oldScore = score;
-        const shagAmount = Math.floor(score / 10000);
-        const stoneToCharge = shagAmount * 10000;
-        const remainder = score - stoneToCharge;
-        const code = Math.floor(10000 + Math.random() * 89999);
-        
-        pendingMsg = `👋 ЗАЯВКА НА ОБМІН\n💰 Сума: ${shagAmount} ШАГ\n🪨 Списано: ${stoneToCharge.toLocaleString()}\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
-        
-        document.getElementById("copyText").innerText = pendingMsg;
-        document.getElementById("withdrawModal").style.display = "block";
-        
-        score = remainder; // Залишаємо решту на балансі
-        updateUI();
-    }
-
-    function copyAndGo() {
-        navigator.clipboard.writeText(pendingMsg).then(() => {
-            oldScore = 0;
-            window.open(`https://t.me/${tgNick}`, '_blank');
-            document.getElementById("withdrawModal").style.display = "none";
-        });
-    }
-
-    function closeModal() {
-        score = oldScore; // Повертаємо баланс при скасуванні
-        updateUI();
-        document.getElementById("withdrawModal").style.display = "none";
-    }
+    function copyAndGo() { navigator.clipboard.writeText(pendingMsg).then(() => { oldScore = 0; window.open(`https://t.me/${tgNick}`, '_blank'); document.getElementById("withdrawModal").style.display = "none"; }); }
+    function closeModal() { score = oldScore; updateUI(); document.getElementById("withdrawModal").style.display = "none"; }
 
     function updateMainImage() {
         const m = document.getElementById("rock");
