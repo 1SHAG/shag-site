@@ -39,6 +39,7 @@
             font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background: radial-gradient(circle at top, #1b2940 0, #050816 45%, #000000 100%);
             color: var(--text);
+            scroll-behavior: smooth;
         }
 
         a {
@@ -340,6 +341,7 @@
             border-top: 1px dashed rgba(255, 255, 255, 0.14);
             padding-top: 8px;
             margin-top: 8px;
+            cursor: pointer;
         }
 
         .card-contract code {
@@ -348,6 +350,10 @@
             background: rgba(0, 0, 0, 0.5);
             padding: 3px 6px;
             border-radius: 999px;
+            transition: color 0.2s;
+        }
+        .card-contract:hover code {
+            color: var(--accent);
         }
 
         .section {
@@ -408,6 +414,8 @@
             background: rgba(7, 11, 26, 0.96);
             border: 1px solid rgba(255, 255, 255, 0.06);
             font-size: 11px;
+            display: flex;
+            flex-direction: column;
         }
 
         .step-num {
@@ -432,6 +440,7 @@
 
         .step p {
             font-size: 11px;
+            flex-grow: 1;
         }
 
         .token-info {
@@ -474,59 +483,18 @@
             border-radius: 999px;
         }
 
-        .footer-note {
-            max-width: 480px;
-        }
-
         @media (max-width: 768px) {
-            .hero {
-                grid-template-columns: minmax(0, 1fr);
-                padding-top: 26px;
-            }
-
-            .hero-card {
-                order: -1;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .nav-cta .btn-outline {
-                display: none;
-            }
-
-            .section {
-                padding-bottom: 28px;
-            }
-
-            .grid-2 {
-                grid-template-columns: minmax(0, 1fr);
-            }
-
-            .steps {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
+            .hero { grid-template-columns: minmax(0, 1fr); padding-top: 26px; }
+            .hero-card { order: -1; }
+            .nav-links { display: none; }
+            .grid-2 { grid-template-columns: minmax(0, 1fr); }
+            .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         @media (max-width: 480px) {
-            .steps {
-                grid-template-columns: minmax(0, 1fr);
-            }
-
-            .hero {
-                padding-bottom: 36px;
-            }
-
-            .hero-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
+            .steps { grid-template-columns: minmax(0, 1fr); }
+            .hero-actions { flex-direction: column; align-items: stretch; }
+            .btn { width: 100%; }
         }
     </style>
 </head>
@@ -547,8 +515,8 @@
                 <a href="#token">Контракт</a>
             </nav>
             <div class="nav-cta">
-                <a href="shag-games2.html" class="btn btn-primary">ігри-майнери ШАГ</a>
-                <a href="#token" class="btn btn-outline">Додати токен</a>
+                <a href="shag-games2.html" class="btn btn-primary">Майнери ШАГ</a>
+                <button onclick="addTokenToMetaMask()" class="btn btn-outline" style="padding: 10px 15px;">+ Додати SHAG</button>
             </div>
         </div>
     </header>
@@ -565,24 +533,15 @@
                 </h1>
                 <p class="hero-subtitle">
                     SHAG — це дружня криптовалюта, створена для людей. Спочатку — промо-токен
-                    <strong>1SHAG</strong> у мережі Binance Smart Chain, далі — справжня майнінгова монета,
-                    яку можна видобувати процесором.
+                    <strong>1SHAG</strong> у мережі BSC, далі — власна монета з CPU-майнінгом.
                 </p>
                 <div class="hero-actions">
-                    <a href="shag-games2.html" class="btn btn-primary">
-                        Ігри-майнери ШАГ
-                    </a>
-                    <a href="#start" class="btn btn-outline">
-                        📘 Інструкція: як почати
-                    </a>
-                    <!-- НОВА КНОПКА ІГОР SHAG -->
-                    <a href="shag-games.html" class="btn btn-primary">
-                        🎮 Ігри SHAG
-                    </a>
+                    <a href="shag-games2.html" class="btn btn-primary">Ігри-майнери ШАГ</a>
+                    <a href="#start" class="btn btn-outline">📘 Як почати</a>
+                    <a href="shag-games.html" class="btn btn-primary">🎮 Ігри SHAG</a>
                 </div>
                 <div class="hero-footnote">
-                    Офіційний токен: <code>1SHAG (BEP-20)</code> в мережі BSC.
-                    <br>Старі тестові токени SHAG без логотипа — ігноруємо.
+                    Офіційний токен: <code>1SHAG (BEP-20)</code> на BSC.
                 </div>
             </div>
 
@@ -590,7 +549,7 @@
                 <div class="hero-card-inner">
                     <div class="card-label">
                         <span>Демо-майнер 1SHAG</span>
-                        <span style="font-size:10px;color:var(--muted);">100 SHAG / доба (умовно)</span>
+                        <span style="font-size:10px;color:var(--muted);">LIVE STATUS</span>
                     </div>
                     <div class="card-balance">
                         99.9999 <span>SHAG</span>
@@ -600,19 +559,16 @@
                             <span>Шанс закохатись у ШАГ</span>
                             <span>100%</span>
                         </div>
-                        <div class="meter-bar">
-                            <div class="meter-fill"></div>
-                        </div>
+                        <div class="meter-bar"><div class="meter-fill"></div></div>
                     </div>
                     <div class="card-tags">
-                        <div class="tag">CPU-майнінг у майбутньому</div>
-                        <div class="tag">Промо-токен 1SHAG на BSC</div>
-                        <div class="tag">Український криптопроєкт</div>
+                        <div class="tag">CPU-майнінг</div>
+                        <div class="tag">BEP-20</div>
+                        <div class="tag">UA Project</div>
                     </div>
-                    <div class="card-contract">
-                        Офіційний контракт токена 1SHAG (BEP-20):
-                        <br>
-                        <code id="contractCopy">0xd4c35feccf968f4a73be4717524c087d7d0ed229</code>
+                    <div class="card-contract" id="contractCopy" title="Натисніть, щоб скопіювати">
+                        Контракт 1SHAG (натисніть):<br>
+                        <code>0xd4c35feccf968f4a73be4717524c087d7d0ed229</code>
                     </div>
                 </div>
             </div>
@@ -621,64 +577,51 @@
         <section class="section" id="about">
             <div class="section-header">
                 <h2 class="section-title">Що таке SHAG?</h2>
-                <p class="section-subtitle">
-                    SHAG — це крок за кроком побудована екосистема: від промо-токена до повноцінної майнінгової монети.
-                </p>
             </div>
             <div class="grid-2">
                 <div class="card">
-                    <h3>1SHAG (BEP-20) — токен першого кроку</h3>
-                    <p>
-                        1SHAG — це токен у мережі Binance Smart Chain, створений для аірдропів, майнінгу,
-                        ігор та експериментів. Він допомагає легко підключитись до екосистеми SHAG через
-                        MetaMask або Trust Wallet.
-                    </p>
+                    <h3>1SHAG (BEP-20) — промо-токен</h3>
+                    <p>Створений для аірдропів, ігор та легкого входу в екосистему через популярні гаманці.</p>
                 </div>
                 <div class="card">
-                    <h3>SHAG (native coin) — майбутня майнінгова монета</h3>
-                    <p>
-                        У планах — запустити повноцінну монету SHAG на власному блокчейні з CPU-майнінгом.
-                        Блокчейн SHAG стане ядром екосистеми: майнери, вузли, ігри та утиліті.
-                    </p>
+                    <h3>SHAG (Native) — майбутнє</h3>
+                    <p>Повноцінний блокчейн з можливістю майнінгу прямо на вашому процесорі.</p>
                 </div>
             </div>
         </section>
 
         <section class="section" id="start">
             <div class="section-header">
-                <h2 class="section-title">Як почати зі SHAG за 5 хвилин</h2>
-                <p class="section-subtitle">
-                    Мінімум технічних слів, максимум конкретики. Все просто, як зробити один крок.
-                </p>
+                <h2 class="section-title">Як почати за 5 хвилин</h2>
             </div>
-
             <div class="card">
                 <div class="steps">
                     <div class="step">
                         <div class="step-num">1</div>
                         <div class="step-title">Встанови гаманець</div>
-                        <p>Завантаж <strong>MetaMask</strong> (браузер/мобільний) або <strong>Trust Wallet</strong>.</p>
+                        <p>
+                            <a href="https://link.metamask.io/rewards?referral=PWEPD8" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 600;">
+                                Завантаж MetaMask
+                            </a> або Trust Wallet.
+                        </p>
                     </div>
                     <div class="step">
                         <div class="step-num">2</div>
-                        <div class="step-title">Додай мережу BSC</div>
-                        <p>Обери мережу <strong>Binance Smart Chain</strong> (BSC). У більшості гаманців вона є одразу.</p>
+                        <div class="step-title">Мережа BSC</div>
+                        <p>Переконайся, що обрано <strong>Binance Smart Chain</strong>. Кнопка нижче зробить це за тебе.</p>
                     </div>
                     <div class="step">
                         <div class="step-num">3</div>
-                        <div class="step-title">Додай токен 1SHAG</div>
-                        <p>
-                            Натисни «Додати токен» → «Custom / Власний» → встав
-                            <strong>адресу контракту</strong> SHAG знизу.
-                        </p>
+                        <div class="step-title">Додай токен</div>
+                        <p style="margin-bottom: 8px;">Авто-налаштування:</p>
+                        <button onclick="addTokenToMetaMask()" class="btn btn-primary" style="padding: 8px; font-size: 10px; width: 100%;">
+                            🦊 Додати у MetaMask
+                        </button>
                     </div>
                     <div class="step">
                         <div class="step-num">4</div>
-                        <div class="step-title">перейди на сторінку з іграми- майнерами</div>
-                        <p>
-                            Перейди до <strong>майнера SHAG</strong>, натисни Старт і отримуй монету ШАГ.
-                            Реальні фаусет-виплати .
-                        </p>
+                        <div class="step-title">Починай майнінг</div>
+                        <p>Відкрий ігри-майнери та отримуй перші SHAG на свій баланс.</p>
                     </div>
                 </div>
             </div>
@@ -686,65 +629,106 @@
 
         <section class="section" id="token">
             <div class="section-header">
-                <h2 class="section-title">Офіційні дані токена 1SHAG</h2>
-                <p class="section-subtitle">
-                    Перевір, що ти додав саме цей токен. Усі старі або тестові SHAG без логотипа — ігноруємо.
-                </p>
+                <h2 class="section-title">Дані токена 1SHAG</h2>
             </div>
-
             <div class="card">
                 <div class="token-info">
                     <div><strong>Назва:</strong> <span>1SHAG</span></div>
                     <div><strong>Символ:</strong> <span>SHAG</span></div>
                     <div><strong>Мережа:</strong> <span>BSC (BEP-20)</span></div>
                     <div><strong>Десяткові:</strong> <span>18</span></div>
-                    <div style="grid-column: 1 / -1;">
-                        <strong>Адреса контракту:</strong><br>
-                        <span id="contractCopy2">0xd4c35feccf968f4a73be4717524c087d7d0ed229</span>
+                    <div style="grid-column: 1 / -1; cursor: pointer;" id="contractCopy2">
+                        <strong>Контракт:</strong><br>
+                        <span>0xd4c35feccf968f4a73be4717524c087d7d0ed229</span>
                     </div>
                 </div>
-                <p style="margin-top:12px;font-size:11px;color:var(--muted);">
-                    Порада: натисни на адресу контракту, щоб скопіювати її, і встав у MetaMask / Trust Wallet,
-                    коли додаєш токен вручну.
-                </p>
             </div>
         </section>
     </main>
 
     <footer>
         <div class="footer-inner">
-            <div class="footer-note">
-                © <span id="year"></span> SHAG. Це не фінансова порада. Не інвестуй останні гроші. 
-                Спочатку розберися, потім роби свій перший крок.
+            <div style="max-width: 400px;">
+                © <span id="year"></span> SHAG. Не фінансова порада. Роби свій перший крок свідомо.
             </div>
             <div>
-                Офіційний контракт: <code>0xd4c35feccf968f4a73be4717524c087d7d0ed229</code>
+                BSC: <code>0xd4c35feccf968f4a73be4717524c087d7d0ed229</code>
             </div>
         </div>
     </footer>
 </div>
 
+
+
 <script>
-    // Поточний рік у футері
+    // Поточний рік
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    function copyContract(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const text = el.textContent.trim();
+    // Функція копіювання контракту
+    function copyText(text) {
         navigator.clipboard?.writeText(text).then(() => {
             alert('Адресу контракту скопійовано: ' + text);
         }).catch(() => {
-            alert('Скопіюй адресу вручну: ' + text);
+            alert('Будь ласка, скопіюйте вручну: ' + text);
         });
     }
 
-    document.getElementById('contractCopy').onclick = function () {
-        copyContract('contractCopy');
-    };
-    document.getElementById('contractCopy2').onclick = function () {
-        copyContract('contractCopy2');
-    };
+    document.getElementById('contractCopy').onclick = () => copyText('0xd4c35feccf968f4a73be4717524c087d7d0ed229');
+    document.getElementById('contractCopy2').onclick = () => copyText('0xd4c35feccf968f4a73be4717524c087d7d0ed229');
+
+    // Розумне додавання токена в MetaMask
+    async function addTokenToMetaMask() {
+        const BSC_CHAIN_ID = '0x38'; 
+        const tokenAddress = '0xd4c35feccf968f4a73be4717524c087d7d0ed229';
+        const tokenSymbol = 'SHAG';
+        const tokenDecimals = 18;
+        const tokenImage = 'https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png';
+
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                // 1. Перевірка та зміна мережі
+                const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (currentChainId !== BSC_CHAIN_ID) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: BSC_CHAIN_ID }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: BSC_CHAIN_ID,
+                                    chainName: 'Binance Smart Chain Mainnet',
+                                    nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                    blockExplorerUrls: ['https://bscscan.com/']
+                                }]
+                            });
+                        } else { throw switchError; }
+                    }
+                }
+                // 2. Додавання токена
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: tokenAddress,
+                            symbol: tokenSymbol,
+                            decimals: tokenDecimals,
+                            image: tokenImage,
+                        },
+                    },
+                });
+            } catch (error) {
+                console.error('Помилка користувача або мережі');
+            }
+        } else {
+            alert('MetaMask не знайдено. Будь ласка, встановіть розширення MetaMask.');
+        }
+    }
 </script>
 </body>
 </html>
