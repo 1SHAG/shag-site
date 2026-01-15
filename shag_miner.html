@@ -428,7 +428,20 @@
       color: #9f9fc0;
     }
 
-    /* Стилі для нових кнопок */
+    .info {
+      margin-top: 10px;
+      font-size: 11px;
+      text-align: center;
+      color: #7f8094;
+      line-height: 1.4;
+    }
+
+    .small {
+      font-size: 10px;
+      color: #666885;
+    }
+
+    /* СТИЛІ ДЛЯ НОВИХ КНОПОК */
     .action-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -436,7 +449,6 @@
       margin-top: 15px;
       width: 100%;
     }
-
     .btn-sec {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid #343454;
@@ -450,24 +462,9 @@
       text-decoration: none;
       transition: 0.2s;
     }
-
     .btn-sec:hover {
       border-color: #f1c550;
       color: #fff;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .info {
-      margin-top: 10px;
-      font-size: 11px;
-      text-align: center;
-      color: #7f8094;
-      line-height: 1.4;
-    }
-
-    .small {
-      font-size: 10px;
-      color: #666885;
     }
 
     @media (max-width: 480px) {
@@ -521,9 +518,21 @@
               </div>
             </div>
             <div class="rig-body">
-              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
-              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
-              <div class="rig-temp">Темп:<br><span>100 SHAG/24h</span></div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="rig-temp">
+                Темп:<br><span>100 SHAG/24h</span>
+              </div>
             </div>
           </div>
           <div class="rig">
@@ -536,9 +545,21 @@
               </div>
             </div>
             <div class="rig-body">
-              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
-              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
-              <div class="rig-temp">Статус:<br><span>Online</span></div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="rig-temp">
+                Статус:<br><span>Online</span>
+              </div>
             </div>
           </div>
         </div>
@@ -553,9 +574,21 @@
               </div>
             </div>
             <div class="rig-body">
-              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
-              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
-              <div class="rig-temp">Мережа:<br><span>BSC</span></div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="fan">
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+                <div class="fan-blade"></div>
+              </div>
+              <div class="rig-temp">
+                Мережа:<br><span>BSC</span>
+              </div>
             </div>
           </div>
         </div>
@@ -649,7 +682,7 @@
   const timerTextEl = document.getElementById("timerText");
   const faucetInfoEl = document.getElementById("faucetInfo");
 
-  // ФУНКЦІЯ ДОДАВАННЯ ТОКЕНА
+  // ФУНКЦІЯ ДОДАВАННЯ ТОКЕНА В МЕТАМАСК
   async function addSHAGToken() {
     if (!window.ethereum) return;
     try {
@@ -708,11 +741,12 @@
   async function checkNetwork() {
     const network = await provider.getNetwork();
     if (network.chainId !== 56 && network.chainId !== 97) {
-      setStatus("Неправильна мережа. Перемкніть гаманець на BNB Smart Chain.", "error");
+      setStatus("Неправильна мережа. Перемкніть гаманець на BNB Smart Chain (mainnet або testnet).", "error");
       setWalletIndicator("warn", "Неправильна мережа");
       return false;
     }
-    const netName = network.chainId === 56 ? "BSC Mainnet" : "BSC Testnet";
+    const netName =
+      network.chainId === 56 ? "BNB Smart Chain (mainnet)" : "BNB Smart Chain Testnet";
     setWalletIndicator("ok", `Підключено: ${netName}`);
     return true;
   }
@@ -731,84 +765,155 @@
 
       const rewardHuman = ethers.utils.formatUnits(rewardAmountBN, TOKEN_DECIMALS);
       faucetInfoEl.textContent =
-        `Винагорода: ${trimTo8Decimals(rewardHuman)} SHAG. ` +
-        `Інтервал: ${Math.floor(claimIntervalSec / 3600)} год. `;
+        `Розмір винагороди: ${trimTo8Decimals(rewardHuman)} SHAG. ` +
+        `Інтервал між отриманнями: ${Math.floor(claimIntervalSec / 3600)} год. `;
 
       if (faucetBalanceBN && !faucetBalanceBN.isZero()) {
         const fb = ethers.utils.formatUnits(faucetBalanceBN, TOKEN_DECIMALS);
-        faucetInfoEl.textContent += `Баланс: ${trimTo8Decimals(fb)} SHAG.`;
+        faucetInfoEl.textContent += `Баланс Faucet: ${trimTo8Decimals(fb)} SHAG.`;
+      } else {
+        faucetInfoEl.textContent += "Faucet порожній або ще не поповнений.";
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      setStatus("Не вдалося прочитати параметри Faucet. Перевірте адресу контракту.", "error");
+    }
   }
 
   async function refreshUserState() {
     if (!userAddress || !faucetContract) return;
+
     try {
       const last = await faucetContract.lastClaimTime(userAddress);
       lastClaimTimeSec = last.toNumber();
-    } catch (e) { lastClaimTimeSec = 0; }
+    } catch (e) {
+      lastClaimTimeSec = 0;
+    }
 
-    updateUI();
-  }
-
-  function updateUI() {
     const nowSec = Math.floor(Date.now() / 1000);
     let elapsed = lastClaimTimeSec === 0 ? claimIntervalSec : nowSec - lastClaimTimeSec;
     if (elapsed < 0) elapsed = 0;
 
     const progress = Math.min(1, elapsed / claimIntervalSec);
     const scale = ethers.BigNumber.from(Math.floor(progress * 1e8));
-    const earned = rewardAmountBN ? rewardAmountBN.mul(scale).div(ethers.BigNumber.from(1e8)) : ethers.BigNumber.from(0);
+    const earned = rewardAmountBN
+      ? rewardAmountBN.mul(scale).div(ethers.BigNumber.from(1e8))
+      : ethers.BigNumber.from(0);
 
-    let earnedHuman = rewardAmountBN ? ethers.utils.formatUnits(earned, TOKEN_DECIMALS) : "0";
-    counterValueEl.textContent = trimTo8Decimals(earnedHuman);
+    let earnedHuman = rewardAmountBN
+      ? ethers.utils.formatUnits(earned, TOKEN_DECIMALS)
+      : "0";
+    earnedHuman = trimTo8Decimals(earnedHuman);
+
+    counterValueEl.textContent = earnedHuman;
     progressFillEl.style.width = (progress * 100).toFixed(1) + "%";
 
+    let canClaimFlag = false;
+    try {
+      canClaimFlag = await faucetContract.canClaim(userAddress);
+    } catch (e) {
+      canClaimFlag = false;
+    }
+
     const remainingSec = Math.max(0, claimIntervalSec - elapsed);
-    timerTextEl.textContent = "До наступного отримання: " + formatTimeLeft(remainingSec);
 
     if (isPaused) {
       claimBtn.disabled = true;
-      setStatus("Faucet на паузі.", "warn");
-    } else if (remainingSec === 0) {
+      setStatus("Faucet тимчасово на паузі. Спробуйте пізніше.", "warn");
+    } else if (faucetBalanceBN && faucetBalanceBN.isZero()) {
+      claimBtn.disabled = true;
+      setStatus("Faucet порожній. Очікується поповнення токенами SHAG.", "warn");
+    } else if (canClaimFlag) {
       claimBtn.disabled = false;
-      setStatus("Готово до отримання 100 SHAG!", "ok");
+      setStatus("Доступно до отримання: натисніть кнопку, щоб отримати 100 SHAG.", "ok");
     } else {
       claimBtn.disabled = true;
-      setStatus("Майнінг триває...", "warn");
+      setStatus("Ще не минув інтервал 24 години з минулого отримання.", "warn");
     }
+
+    timerTextEl.textContent =
+      "До наступного отримання: " + formatTimeLeft(remainingSec);
   }
 
   function startMiningLoop() {
     if (miningTimer) clearInterval(miningTimer);
-    miningTimer = setInterval(updateUI, 1000);
+    miningTimer = setInterval(async () => {
+      if (!userAddress || !faucetContract || !rewardAmountBN) return;
+      const nowSec = Math.floor(Date.now() / 1000);
+      let elapsed = lastClaimTimeSec === 0 ? claimIntervalSec : nowSec - lastClaimTimeSec;
+      if (elapsed < 0) elapsed = 0;
+      const progress = Math.min(1, elapsed / claimIntervalSec);
+
+      const scale = ethers.BigNumber.from(Math.floor(progress * 1e8));
+      const earned = rewardAmountBN
+        ? rewardAmountBN.mul(scale).div(ethers.BigNumber.from(1e8))
+        : ethers.BigNumber.from(0);
+
+      let earnedHuman = rewardAmountBN
+        ? ethers.utils.formatUnits(earned, TOKEN_DECIMALS)
+        : "0";
+      earnedHuman = trimTo8Decimals(earnedHuman);
+
+      counterValueEl.textContent = earnedHuman;
+      progressFillEl.style.width = (progress * 100).toFixed(1) + "%";
+
+      const remainingSec = Math.max(0, claimIntervalSec - elapsed);
+      timerTextEl.textContent =
+        "До наступного отримання: " + formatTimeLeft(remainingSec);
+    }, 1000);
   }
 
   connectBtn.addEventListener("click", async () => {
     try {
-      if (!await initProvider()) return;
-      if (!await checkNetwork()) return;
+      const ok = await initProvider();
+      if (!ok) return;
+
+      const networkOk = await checkNetwork();
+      if (!networkOk) return;
+
       const accounts = await provider.send("eth_requestAccounts", []);
+      if (!accounts || accounts.length === 0) {
+        setStatus("Адреса гаманця не отримана.", "error");
+        return;
+      }
+
       userAddress = accounts[0];
       signer = provider.getSigner();
       setWalletIndicator("ok", userAddress.slice(0, 6) + "..." + userAddress.slice(-4));
+
       await initContracts();
       await loadFaucetParams();
       await refreshUserState();
       startMiningLoop();
-    } catch (e) { setStatus("Помилка підключення.", "error"); }
+    } catch (e) {
+      console.error(e);
+      setStatus("Помилка підключення гаманця або контрактів.", "error");
+    }
   });
 
   claimBtn.addEventListener("click", async () => {
     if (!userAddress || !faucetContract) return;
     try {
       claimBtn.disabled = true;
-      setStatus("Підтвердіть транзакцію...", "warn");
-      const tx = await faucetContract.connect(signer).claim();
+      setStatus("Підтвердіть транзакцію отримання у вашому гаманці…", "warn");
+
+      const faucetWithSigner = faucetContract.connect(signer);
+      const tx = await faucetWithSigner.claim();
+      setStatus("Транзакція відправлена, очікуємо підтвердження…", "warn");
+
       await tx.wait();
-      setStatus("Успіх! SHAG відправлено.", "ok");
+      setStatus("Успіх! 100 SHAG відправлено на ваш гаманець.", "ok");
+
+      await loadFaucetParams();
       await refreshUserState();
-    } catch (e) { setStatus("Помилка або відмова.", "error"); claimBtn.disabled = false; }
+    } catch (e) {
+      console.error(e);
+      setStatus(
+        "Отримання скасовано або сталася помилка. Переконайтеся, що ви в правильній мережі та маєте газ.",
+        "error"
+      );
+      await refreshUserState();
+    }
   });
 </script>
 </body>
