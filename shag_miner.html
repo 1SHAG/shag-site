@@ -2,29 +2,25 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>SHAG Miner</title>
+<title>SHAG Faucet</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
 <style>
 body {
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#0b0b0b;
+    background:#0f0f0f;
     color:#fff;
+    font-family:Arial, sans-serif;
     text-align:center;
+    padding:20px;
 }
-.container {
-    max-width:420px;
+.box {
+    max-width:400px;
     margin:auto;
+    background:#1a1a1a;
     padding:20px;
-}
-.card {
-    background:#161616;
-    padding:20px;
-    border-radius:14px;
-    margin-bottom:15px;
+    border-radius:12px;
 }
 button {
     width:100%;
@@ -42,57 +38,37 @@ button:disabled {
 .small {
     font-size:14px;
     opacity:0.8;
+    margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
+    <h2>💧 SHAG Faucet</h2>
 
-    <div class="card">
-        <h2>⛏ SHAG Miner</h2>
-        <p id="wallet">Гаманець: не підключено</p>
-        <button onclick="connect()">🦊 Підключити MetaMask</button>
-    </div>
+    <p id="wallet">Гаманець: не підключено</p>
+    <button onclick="connect()">🦊 Підключити MetaMask</button>
 
-    <div class="card">
-        <h3>Намайнено</h3>
-        <h1 id="shag">0</h1>
-        <button onclick="mine()">Копати SHAG</button>
-        <p class="small">Майнінг локальний (гра)</p>
-    </div>
+    <h3>Отримати 100 SHAG</h3>
+    <button id="claimBtn" onclick="claim()">Claim</button>
 
-    <div class="card">
-        <h3>💧 Faucet</h3>
-        <button onclick="claim()" id="faucetBtn">Отримати 1 SHAG</button>
-        <p id="status" class="small"></p>
-        <p class="small">Доступно раз на 24 години</p>
-    </div>
-
+    <p id="status" class="small"></p>
+    <p class="small">Доступно 1 раз на 24 години</p>
 </div>
 
 <script>
 let provider, signer, address;
 
-// ====== НАЛАШТУВАННЯ ======
-const FAUCET_ADDRESS = "0xВАШ_КОНТРАКТ";
+// 🔧 НАЛАШТУВАННЯ
+const FAUCET_ADDRESS = "0xВАШ_ФАУСЕТ";
 const ABI = [
   "function claim() public"
 ];
-const COOLDOWN = 24 * 60 * 60 * 1000; // 24 години
+const COOLDOWN = 24 * 60 * 60 * 1000;
 
-// ====== МАЙНЕР ======
-let mined = Number(localStorage.getItem("shag_mined")) || 0;
-document.getElementById("shag").innerText = mined;
-
-function mine() {
-    mined++;
-    localStorage.setItem("shag_mined", mined);
-    document.getElementById("shag").innerText = mined;
-}
-
-// ====== META MASK ======
+// 🦊 Підключення
 async function connect() {
     if (!window.ethereum) {
         alert("Встанови MetaMask");
@@ -106,16 +82,16 @@ async function connect() {
         "Гаманець: " + address.slice(0,6) + "..." + address.slice(-4);
 }
 
-// ====== FAUCET ======
+// 💧 Faucet
 async function claim() {
     if (!signer) {
-        alert("Підключи гаманець");
+        alert("Спочатку підключи гаманець");
         return;
     }
 
     const last = localStorage.getItem("last_claim");
     if (last && Date.now() - last < COOLDOWN) {
-        alert("Faucet ще не доступний");
+        alert("⏳ Faucet доступний раз на 24 години");
         return;
     }
 
@@ -129,7 +105,7 @@ async function claim() {
         const tx = await contract.claim();
         await tx.wait();
         localStorage.setItem("last_claim", Date.now());
-        document.getElementById("status").innerText = "✅ 1 SHAG нараховано";
+        document.getElementById("status").innerText = "✅ 100 SHAG отримано";
     } catch (e) {
         document.getElementById("status").innerText = "❌ Помилка";
         console.error(e);
