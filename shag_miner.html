@@ -10,126 +10,155 @@
 
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    
-    body { 
-      margin: 0; 
-      min-height: 100vh; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      background: radial-gradient(circle at top, #26263a 0, #050509 45%, #000000 100%); 
-      color: #f5f5f5; 
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #26263a 0, #050509 45%, #000000 100%);
+      color: #f5f5f5;
     }
 
     .wrapper { width: 100%; max-width: 520px; padding: 16px; }
 
-    .card { 
-      width: 100%; 
-      background: radial-gradient(circle at top, #181825 0, #070710 55%, #030307 100%); 
-      border-radius: 22px; 
-      padding: 20px 18px 18px; 
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9); 
-      border: 1px solid rgba(255, 215, 0, 0.22); 
-      position: relative; 
-      overflow: hidden; 
+    .card {
+      width: 100%;
+      background: radial-gradient(circle at top, #181825 0, #070710 55%, #030307 100%);
+      border-radius: 22px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 215, 0, 0.22);
+      position: relative;
+      overflow: hidden;
     }
 
-    .bg-rack { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px), linear-gradient(180deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 46px 46px; }
+    .bg-rack {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.06;
+      background-image:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 46px 46px;
+    }
 
-    .header { 
-      display: flex; 
-      align-items: flex-start; 
-      justify-content: space-between; 
-      position: relative; 
-      z-index: 1; 
-      margin-bottom: 12px; 
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 12px;
     }
 
     .title-block { display: flex; flex-direction: column; gap: 2px; }
     .title { font-size: 18px; font-weight: 700; }
-    .subtitle { font-size: 11px; color: #c6c6d8; }
+    .subtitle { font-size: 12px; color: #c6c6d8; }
 
-    /* Блок кнопок гаманця */
     .wallet-section { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
-    .wallet-btn { 
-      border-radius: 999px; 
-      padding: 6px 12px; 
-      font-size: 12px; 
-      border: 1px solid #3b3b5a; 
-      background: #12121c; 
-      color: #f5f5f5; 
-      display: inline-flex; 
-      align-items: center; 
-      gap: 6px; 
-      cursor: pointer; 
-      transition: all 0.2s;
+    .wallet-btn {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border: 1px solid #3b3b5a;
+      background: #12121c;
+      color: #f5f5f5;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
     }
-    .wallet-btn:hover { border-color: #f1c550; box-shadow: 0 0 8px rgba(241, 197, 80, 0.3); }
 
     .referral-link {
       text-decoration: none;
       font-size: 10px;
       color: #f1c550;
-      border: 1px solid rgba(241, 197, 80, 0.2);
+      border: 1px solid rgba(241, 197, 80, 0.3);
       padding: 4px 8px;
       border-radius: 6px;
       background: rgba(241, 197, 80, 0.05);
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: 0.2s;
     }
-    .referral-link:hover { background: rgba(241, 197, 80, 0.15); border-color: #f1c550; }
+    .referral-link:hover { background: rgba(241, 197, 80, 0.15); }
 
     .wallet-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff8080; }
     .wallet-dot.ok { background: #9be38b; }
 
     .center { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    
-    /* Монета */
-    .coin-image-wrapper { 
-      width: 100px; height: 100px; border-radius: 50%; padding: 4px; 
-      background: radial-gradient(circle at 30% 20%, #e4f6ff 0%, #bfe3ff 30%, #7dc2ff 65%, #2468b2 100%); 
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); 
-      display: flex; align-items: center; justify-content: center; 
-      animation: coin-sway 8s ease-in-out infinite; 
+
+    .coin-image-wrapper {
+      width: 110px; height: 110px; border-radius: 50%; padding: 4px;
+      background: radial-gradient(circle at 30% 20%, #e4f6ff 0%, #bfe3ff 30%, #7dc2ff 65%, #2468b2 100%);
+      box-shadow: 0 0 26px rgba(255, 215, 0, 0.8);
+      display: flex; align-items: center; justify-content: center;
+      animation: coin-sway 8s ease-in-out infinite;
     }
     .coin-image { width: 100%; height: 100%; border-radius: 50%; }
+
     @keyframes coin-sway { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(10deg); } }
 
-    /* Ферма */
     .farm { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 6px; }
-    .rig { flex: 1; background: #0a0a14; border-radius: 12px; border: 1px solid #2d2d44; padding: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .rig-name { font-size: 10px; color: #a6a9d0; }
-    .fan { width: 18px; height: 18px; border: 1px solid #444; border-radius: 50%; animation: spin 1s linear infinite; position: relative; }
-    .fan::after { content: ''; position: absolute; width: 100%; height: 2px; background: #666; top: 50%; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .rig-row { display: flex; gap: 6px; justify-content: center; }
+    .rig {
+      flex: 1; background: linear-gradient(145deg, #101020, #05050b);
+      border-radius: 11px; border: 1px solid rgba(120, 130, 180, 0.6);
+      padding: 4px 6px 5px; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.75);
+    }
 
-    /* Контент майнінгу */
-    .counter { width: 100%; background: #0d0d18; border-radius: 12px; border: 1px solid #343454; padding: 12px; text-align: center; margin-top: 5px; }
-    .counter-value { font-size: 24px; font-weight: 700; color: #ffe9a3; font-family: monospace; }
-    
-    .progress-bar { width: 100%; height: 8px; background: #181826; border-radius: 10px; margin: 10px 0; overflow: hidden; border: 1px solid #343454; }
-    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f1c550, #b8741a); transition: width 0.5s; }
+    .rig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .rig-name { font-size: 9px; text-transform: uppercase; color: #a6a9d0; }
+    .rig-leds { display: flex; gap: 3px; }
+    .rig-led { width: 7px; height: 7px; border-radius: 50%; background: #333548; }
+    .rig-led--green { background: #68ff9a; box-shadow: 0 0 6px #68ff9a; animation: ledPulse 2s infinite; }
 
-    .status { font-size: 12px; text-align: center; margin: 8px 0; min-height: 1.2em; }
+    @keyframes ledPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .rig-body { display: flex; justify-content: space-between; align-items: center; }
+    .fan {
+      width: 20px; height: 20px; border-radius: 50%; border: 2px solid #3e435f;
+      position: relative; overflow: hidden; animation: fanSpin 1.8s linear infinite;
+    }
+    .fan-blade { position: absolute; width: 55%; height: 6%; background: #a9b4ff; top: 47%; left: 22%; transform-origin: 50% 50%; }
+    .fan-blade:nth-child(2) { transform: rotate(90deg); }
+    .fan-blade:nth-child(3) { transform: rotate(180deg); }
+    .fan-blade:nth-child(4) { transform: rotate(270deg); }
+
+    @keyframes fanSpin { 100% { transform: rotate(360deg); } }
+
+    .rig-temp { font-size: 9px; color: #a6a9d0; text-align: right; }
+    .rig-temp span { color: #ffb26a; font-weight: 600; }
+
+    .counter {
+      width: 100%; background: #0d0d18; border-radius: 12px; border: 1px solid #343454;
+      padding: 8px 10px; text-align: center; box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.85);
+    }
+    .counter-value { font-size: 22px; font-weight: 700; color: #ffe9a3; font-family: "Courier New", monospace; }
+
+    .progress-bar { width: 100%; height: 8px; background: #181826; border-radius: 999px; margin: 10px 0; border: 1px solid #343454; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f1c550, #b8741a); box-shadow: 0 0 10px #f1c550; transition: width 0.3s; }
+
+    .status { font-size: 12px; text-align: center; margin-top: 6px; }
     .status-ok { color: #9be38b; }
     .status-warn { color: #f5d26c; }
     .status-error { color: #ff8989; }
 
-    .claim-btn { 
-      width: 100%; padding: 14px; border-radius: 999px; border: none; 
-      font-size: 16px; font-weight: 700; cursor: pointer; 
-      background: linear-gradient(135deg, #f1c550, #b8741a); color: #231407; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: 0.2s;
+    .claim-btn {
+      margin-top: 14px; width: 100%; padding: 12px; border-radius: 999px; border: none;
+      font-size: 15px; font-weight: 700; text-transform: uppercase; cursor: pointer;
+      background: linear-gradient(135deg, #f1c550, #b8741a); color: #231407;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
     }
-    .claim-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); }
+    .claim-btn:disabled { opacity: 0.6; cursor: default; box-shadow: none; }
 
-    .add-token-btn { background: none; border: none; color: #f1c550; font-size: 11px; cursor: pointer; text-decoration: underline; margin-top: 8px; opacity: 0.7; }
-    .add-token-btn:hover { opacity: 1; }
-
-    .timer { font-size: 12px; color: #9f9fc0; margin-top: 10px; }
+    .add-token-btn { background: none; border: none; color: #f1c550; font-size: 11px; cursor: pointer; text-decoration: underline; margin-top: 5px; opacity: 0.8; }
+    .timer { margin-top: 8px; font-size: 11px; text-align: center; color: #9f9fc0; }
   </style>
 </head>
 
@@ -140,18 +169,16 @@
 
     <div class="header">
       <div class="title-block">
-        <div class="title">1SHAG Майнер</div>
-        <div class="subtitle">Faucet 1SHAG (BSC Mainnet)</div>
+        <div class="title">1SHAG еко майнер</div>
+        <div class="subtitle">Офіційний Faucet 1SHAG / 24 год.</div>
       </div>
-      
       <div class="wallet-section">
         <button id="connectBtn" class="wallet-btn">
           <span class="wallet-dot" id="walletDot"></span>
-          <span id="walletLabel">Підключити</span>
+          <span id="walletLabel">Підключити гаманець</span>
         </button>
-        
         <a href="https://link.metamask.io/rewards?referral=PWEPD8" target="_blank" class="referral-link">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Mirror_Logo.svg" width="10" alt="MM">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Mirror_Logo.svg" width="12" alt="MM">
           MetaMask Rewards
         </a>
       </div>
@@ -159,30 +186,45 @@
 
     <div class="center">
       <div class="coin-image-wrapper">
-        <img src="assets/1shag/1SHAG_logo_512.png" alt="SHAG" class="coin-image" />
+        <img src="assets/1shag/1SHAG_logo_512.png" alt="1SHAG" class="coin-image" />
       </div>
 
       <div class="farm">
-        <div class="rig">
-          <span class="rig-name">RIG-01: ONLINE</span>
-          <div class="fan"></div>
-          <span style="font-size: 9px; color: #f1c550;">100 SHAG / 24h</span>
+        <div class="rig-row">
+          <div class="rig">
+            <div class="rig-header">
+              <div class="rig-name">RIG-01</div>
+              <div class="rig-leds"><div class="rig-led rig-led--green"></div></div>
+            </div>
+            <div class="rig-body">
+              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
+              <div class="rig-temp">Швидкість:<br><span>100/24h</span></div>
+            </div>
+          </div>
+          <div class="rig">
+            <div class="rig-header">
+              <div class="rig-name">RIG-02</div>
+              <div class="rig-leds"><div class="rig-led rig-led--green"></div></div>
+            </div>
+            <div class="rig-body">
+              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
+              <div class="rig-temp">Статус:<br><span>ONLINE</span></div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div style="width: 100%; max-width: 380px; text-align: center;">
         <div class="counter">
-          <div id="counterValue" class="counter-value">0.00000000</div>
-          <div style="font-size: 10px; color: #d7cfa9;">Накопичено токенів SHAG</div>
+          <span id="counterValue" class="counter-value">0.00000000</span>
+          <span style="font-size: 12px; color: #d7cfa9;"> SHAG</span>
         </div>
 
-        <button onclick="addTokenToWallet()" class="add-token-btn">+ Додати SHAG у гаманець</button>
+        <button onclick="addTokenToWallet()" class="add-token-btn">+ Додати SHAG у MetaMask</button>
 
-        <div class="progress-bar">
-          <div id="progressFill" class="progress-fill"></div>
-        </div>
+        <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
 
-        <div id="statusText" class="status status-warn">Будь ласка, підключіть гаманець.</div>
+        <div id="statusText" class="status status-warn">Підключіть гаманець у мережі BSC.</div>
 
         <button id="claimBtn" class="claim-btn" disabled>ОТРИМАТИ 100 SHAG</button>
 
@@ -193,10 +235,9 @@
 </div>
 
 <script>
-  const TOKEN_ADDRESS = "0xd4c35feccf968f4a73be4717524c087d7d0ed229"; 
-  const FAUCET_ADDRESS = "0xea4b64d8eecbe54ba18444c6522a7f19f7ca152e"; 
-  const CHAIN_ID_HEX = "0x38"; // BSC Mainnet
-  const CHAIN_ID_DEC = 56;
+  const TOKEN_ADDRESS = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
+  const FAUCET_ADDRESS = "0xea4b64d8eecbe54ba18444c6522a7f19f7ca152e";
+  const CHAIN_ID_HEX = "0x38";
 
   const FAUCET_ABI = [
     "function rewardAmount() view returns (uint256)",
@@ -207,27 +248,20 @@
     "function claim()"
   ];
 
-  let provider, signer, userAddress, faucetContract;
-  let rewardAmountBN, claimIntervalSec = 86400;
-
-  const statusText = document.getElementById("statusText");
-  const claimBtn = document.getElementById("claimBtn");
+  let provider, signer, userAddress, faucetContract, rewardAmountBN;
+  let claimIntervalSec = 86400;
 
   function setStatus(msg, type) {
-    statusText.textContent = msg;
-    statusText.className = `status status-${type}`;
+    const el = document.getElementById("statusText");
+    el.textContent = msg;
+    el.className = `status status-${type}`;
   }
 
-  // 1. АВТОМАТИЧНЕ ПЕРЕМИКАННЯ МЕРЕЖІ
   async function checkNetwork() {
     const { chainId } = await provider.getNetwork();
-    if (chainId === CHAIN_ID_DEC) return true;
-
+    if (chainId === 56) return true;
     try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: CHAIN_ID_HEX }],
-      });
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] });
       return true;
     } catch (e) {
       if (e.code === 4902) {
@@ -247,9 +281,7 @@
     }
   }
 
-  // 2. ДОДАВАННЯ ТОКЕНА
   async function addTokenToWallet() {
-    if (!window.ethereum) return;
     try {
       await window.ethereum.request({
         method: 'wallet_watchAsset',
@@ -259,59 +291,54 @@
             address: TOKEN_ADDRESS,
             symbol: 'SHAG',
             decimals: 18,
-            image: 'https://1shag.pro/logo.png', // Вкажіть пряме посилання на логотип
+            image: 'https://vash-site.com/assets/1shag/1SHAG_logo_512.png',
           },
         },
       });
-    } catch (e) { console.error(e); }
+    } catch (e) {}
   }
 
-  // 3. ОНОВЛЕННЯ СТАНУ (З ПЕРЕВІРКОЮ BNB)
   async function refreshState() {
-    if (!userAddress) return;
+    if (!userAddress || !faucetContract) return;
 
-    try {
-      const bnbBalance = await provider.getBalance(userAddress);
-      const minBnb = ethers.utils.parseEther("0.0006"); // ~ $0.20 на газ
+    const bnbBal = await provider.getBalance(userAddress);
+    const minBnb = ethers.utils.parseEther("0.0006");
 
-      const lastClaim = await faucetContract.lastClaimTime(userAddress);
-      const now = Math.floor(Date.now() / 1000);
-      const elapsed = now - lastClaim.toNumber();
-      
-      const progress = Math.min(1, elapsed / claimIntervalSec);
-      document.getElementById("progressFill").style.width = (progress * 100) + "%";
-      
-      const earned = rewardAmountBN.mul(Math.floor(progress * 10000)).div(10000);
-      document.getElementById("counterValue").textContent = ethers.utils.formatUnits(earned, 18);
+    const lastClaim = await faucetContract.lastClaimTime(userAddress);
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - lastClaim.toNumber();
+    const progress = Math.min(1, elapsed / claimIntervalSec);
 
-      const canClaim = await faucetContract.canClaim(userAddress);
-      const faucetBal = await faucetContract.faucetBalance();
+    document.getElementById("progressFill").style.width = (progress * 100) + "%";
+    
+    const earned = rewardAmountBN.mul(Math.floor(progress * 10000)).div(10000);
+    const earnedStr = ethers.utils.formatUnits(earned, 18);
+    document.getElementById("counterValue").textContent = parseFloat(earnedStr).toFixed(8);
 
-      if (faucetBal.isZero()) {
-        setStatus("Кран порожній. Очікуйте поповнення.", "error");
-        claimBtn.disabled = true;
-      } else if (bnbBalance.lt(minBnb)) {
-        setStatus("Недостатньо BNB для оплати газу!", "error");
-        claimBtn.disabled = true;
-      } else if (!canClaim) {
-        setStatus("Майнінг триває... Зачекайте 24 години.", "warn");
-        claimBtn.disabled = true;
-      } else {
-        setStatus("Готово до виплати!", "ok");
-        claimBtn.disabled = false;
-      }
+    const canClaim = await faucetContract.canClaim(userAddress);
+    const faucetBal = await faucetContract.faucetBalance();
 
-      const remaining = Math.max(0, claimIntervalSec - elapsed);
-      const h = Math.floor(remaining/3600), m = Math.floor((remaining%3600)/60), s = remaining%60;
-      document.getElementById("timerText").textContent = `Доступно через: ${h}:${m}:${s}`;
+    if (faucetBal.isZero()) {
+      setStatus("Кран порожній.", "error");
+      document.getElementById("claimBtn").disabled = true;
+    } else if (bnbBal.lt(minBnb)) {
+      setStatus("Недостатньо BNB на газ (~0.0006).", "error");
+      document.getElementById("claimBtn").disabled = true;
+    } else if (!canClaim) {
+      setStatus("Майнінг у процесі...", "warn");
+      document.getElementById("claimBtn").disabled = true;
+    } else {
+      setStatus("Готово до отримання!", "ok");
+      document.getElementById("claimBtn").disabled = false;
+    }
 
-    } catch (e) { console.error(e); }
+    const rem = Math.max(0, claimIntervalSec - elapsed);
+    const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60), s = rem%60;
+    document.getElementById("timerText").textContent = `Доступно через: ${h}:${m}:${s}`;
   }
 
-  // ПІДКЛЮЧЕННЯ
   document.getElementById("connectBtn").onclick = async () => {
-    if (!window.ethereum) return alert("Встановіть MetaMask!");
-    
+    if (!window.ethereum) return setStatus("Встановіть MetaMask", "error");
     provider = new ethers.providers.Web3Provider(window.ethereum);
     if (!await checkNetwork()) return;
 
@@ -328,20 +355,16 @@
     refreshState();
   };
 
-  // КЛЕЙМ
-  claimBtn.onclick = async () => {
+  document.getElementById("claimBtn").onclick = async () => {
     try {
-      setStatus("Підтвердіть транзакцію...", "warn");
       const tx = await faucetContract.claim();
+      setStatus("Транзакція обробляється...", "warn");
       await tx.wait();
       setStatus("Успішно отримано!", "ok");
       refreshState();
-    } catch (e) {
-      setStatus("Помилка або відмова.", "error");
-    }
+    } catch (e) { setStatus("Помилка транзакції", "error"); }
   };
 
-  // Авто-оновлення при зміні аккаунта
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', () => window.location.reload());
     window.ethereum.on('chainChanged', () => window.location.reload());
