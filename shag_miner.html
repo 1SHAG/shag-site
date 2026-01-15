@@ -2,114 +2,143 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>SHAG Faucet</title>
+<title>SHAG Miner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+<!-- Ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+<!-- WalletConnect -->
+<script src="https://unpkg.com/@walletconnect/web3-provider/dist/umd/index.min.js"></script>
 
 <style>
 body {
-    background:#0f0f0f;
-    color:#fff;
+    background:#0f172a;
+    color:white;
     font-family:Arial, sans-serif;
     text-align:center;
-    padding:20px;
+    padding:10px;
 }
-.box {
-    max-width:400px;
-    margin:auto;
-    background:#1a1a1a;
-    padding:20px;
-    border-radius:12px;
+h1 {
+    color:#22c55e;
 }
 button {
-    width:100%;
-    padding:14px;
+    padding:15px 25px;
+    margin:10px;
     font-size:18px;
     border:none;
     border-radius:10px;
-    background:#ffd700;
+    background:#22c55e;
+    color:black;
     cursor:pointer;
-    margin-top:10px;
 }
 button:disabled {
     background:#555;
+    cursor:not-allowed;
 }
-.small {
-    font-size:14px;
-    opacity:0.8;
+#miner {
+    margin-top:20px;
+    font-size:20px;
+}
+#wallet {
+    margin-top:15px;
+    font-weight:bold;
+}
+#balance {
     margin-top:10px;
+    font-size:18px;
+    color:#facc15;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-    <h2>💧 SHAG Faucet</h2>
+<h1>⛏ SHAG Псевдомайнер</h1>
 
-    <p id="wallet">Гаманець: не підключено</p>
-    <button onclick="connect()">🦊 Підключити MetaMask</button>
+<button onclick="connectMetaMask()">🦊 MetaMask</button>
+<button onclick="connectWC()">📱 Trust / WalletConnect</button>
 
-    <h3>Отримати 100 SHAG</h3>
-    <button id="claimBtn" onclick="claim()">Claim</button>
+<div id="wallet">Гаманець не підключено</div>
+<div id="balance">Баланс: 0 SHAG</div>
 
-    <p id="status" class="small"></p>
-    <p class="small">Доступно 1 раз на 24 години</p>
+<div id="miner">
+    <button id="mineBtn" onclick="startMining()">Почати майнінг</button>
 </div>
 
 <script>
-let provider, signer, address;
+const faucetAddress = "0x45762Ae9f8bdF258ca816B40D527E2B69Ba700aC";
+const tokenAddress = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
+const faucetABI = ["function claim() external"];
+const tokenABI = ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"];
 
-// 🔧 НАЛАШТУВАННЯ
-const FAUCET_ADDRESS = "0xВАШ_ФАУСЕТ";
-const ABI = [
-  "function claim() public"
-];
-const COOLDOWN = 24 * 60 * 60 * 1000;
+let provider, signer, faucet, token;
+let mining = false;
 
-// 🦊 Підключення
-async function connect() {
-    if (!window.ethereum) {
-        alert("Встанови MetaMask");
-        return;
-    }
-    provider = new ethers.providers.Web3Provider(window.ethereum);
+async function connectMetaMask() {
+    provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    address = await signer.getAddress();
-    document.getElementById("wallet").innerText =
-        "Гаманець: " + address.slice(0,6) + "..." + address.slice(-4);
+    signer = await provider.getSigner();
+    init();
 }
 
-// 💧 Faucet
+async function connectWC() {
+    const wcProvider = new WalletConnectProvider.default({
+        rpc: { 56: "https://bsc-dataseed.binance.org/" } // BSC mainnet
+    });
+    await wcProvider.enable();
+    provider = new ethers.BrowserProvider(wcProvider);
+    signer = await provider.getSigner();
+    init();
+}
+
+async function init() {
+    const addr = await signer.getAddress();
+    document.getElementById("wallet").innerText = "Гаманець: " + addr.slice(0,6) + "..." + addr.slice(-4);
+
+    faucet = new ethers.Contract(faucetAddress, faucetABI, signer);
+    token = new ethers.Contract(tokenAddress, tokenABI, signer);
+
+    updateBalance();
+}
+
+async function updateBalance() {
+    if(!signer) return;
+    const addr = await signer.getAddress();
+    const bal = await token.balanceOf(addr);
+    const decimals = await token.decimals();
+    document.getElementById("balance").innerText = "Баланс: " + (bal / (10**decimals)) + " SHAG";
+}
+
 async function claim() {
-    if (!signer) {
-        alert("Спочатку підключи гаманець");
-        return;
-    }
-
-    const last = localStorage.getItem("last_claim");
-    if (last && Date.now() - last < COOLDOWN) {
-        alert("⏳ Faucet доступний раз на 24 години");
-        return;
-    }
-
     try {
-        document.getElementById("status").innerText = "⏳ Очікування транзакції...";
-        const contract = new ethers.Contract(
-            FAUCET_ADDRESS,
-            ABI,
-            signer
-        );
-        const tx = await contract.claim();
+        const tx = await faucet.claim();
         await tx.wait();
-        localStorage.setItem("last_claim", Date.now());
-        document.getElementById("status").innerText = "✅ 100 SHAG отримано";
-    } catch (e) {
-        document.getElementById("status").innerText = "❌ Помилка";
+        alert("✅ Токени отримано!");
+        updateBalance();
+    } catch(e) {
         console.error(e);
+        alert("⏳ Ще рано або помилка");
     }
+}
+
+function startMining() {
+    if(mining) return;
+    mining = true;
+    let time = 30;
+    const btn = document.getElementById("mineBtn");
+    btn.disabled = true;
+
+    const timer = setInterval(() => {
+        btn.innerText = "Майню... " + time + "с";
+        time--;
+        if(time < 0){
+            clearInterval(timer);
+            btn.innerText = "Забрати токени";
+            btn.disabled = false;
+            mining = false;
+            claim();
+        }
+    }, 1000);
 }
 </script>
 
