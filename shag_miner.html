@@ -9,451 +9,69 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+    /* ПОВНИЙ ОРИГІНАЛЬНИЙ СТИЛЬ БЕЗ СКОРОЧЕНЬ */
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, #26263a 0, #050509 45%, #000000 100%); color: #f5f5f5; }
+    .wrapper { width: 100%; max-width: 520px; padding: 16px; }
+    .card { width: 100%; background: radial-gradient(circle at top, #181825 0, #070710 55%, #030307 100%); border-radius: 22px; padding: 20px 18px 18px; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 215, 0, 0.22); position: relative; overflow: hidden; }
+    .bg-rack { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px), linear-gradient(180deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 46px 46px; }
+    
+    .header { display: flex; align-items: flex-start; justify-content: space-between; position: relative; z-index: 1; margin-bottom: 12px; }
+    .title-block { display: flex; flex-direction: column; gap: 2px; }
+    .title { font-size: 18px; font-weight: 700; }
+    .subtitle { font-size: 12px; color: #c6c6d8; }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #26263a 0, #050509 45%, #000000 100%);
-      color: #f5f5f5;
-    }
+    /* Блок кнопок зверху */
+    .wallet-section { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .wallet-btn { border-radius: 999px; padding: 6px 10px; font-size: 12px; border: 1px solid #3b3b5a; background: #12121c; color: #f5f5f5; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .wallet-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff8080; }
+    .wallet-dot.ok { background: #9be38b; }
 
-    .wrapper {
-      width: 100%;
-      max-width: 520px;
-      padding: 16px;
-    }
+    /* Реферальне посилання */
+    .ref-btn { text-decoration: none; font-size: 10px; color: #f1c550; border: 1px solid rgba(241, 197, 80, 0.3); padding: 4px 8px; border-radius: 6px; background: rgba(241, 197, 80, 0.05); display: flex; align-items: center; gap: 4px; }
 
-    .card {
-      width: 100%;
-      background: radial-gradient(circle at top, #181825 0, #070710 55%, #030307 100%);
-      border-radius: 22px;
-      padding: 20px 18px 18px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9);
-      border: 1px solid rgba(255, 215, 0, 0.22);
-      position: relative;
-      overflow: hidden;
-    }
+    .center { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 4px; }
+    .coin-image-wrapper { width: 110px; height: 110px; border-radius: 50%; padding: 4px; background: radial-gradient(circle at 30% 20%, #e4f6ff 0%, #bfe3ff 30%, #7dc2ff 65%, #2468b2 100%); box-shadow: 0 0 26px rgba(255, 215, 0, 0.8); display: flex; align-items: center; justify-content: center; animation: coin-sway 8s ease-in-out infinite; }
+    .coin-image { width: 100%; height: 100%; border-radius: 50%; }
+    @keyframes coin-sway { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(8deg); } }
 
-    /* Фонова сітка */
-    .bg-rack {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.06;
-      background-image:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-      background-size: 46px 46px;
-    }
+    /* ДЕТАЛЬНА ФЕРМА */
+    .farm { width: 100%; max-width: 380px; margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
+    .rig-row { display: flex; gap: 6px; justify-content: center; }
+    .rig { flex: 1; background: linear-gradient(145deg, #101020, #05050b); border-radius: 11px; border: 1px solid rgba(120, 130, 180, 0.6); padding: 4px 6px 5px; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.75); }
+    .rig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .rig-name { font-size: 9px; text-transform: uppercase; color: #a6a9d0; }
+    .rig-leds { display: flex; gap: 3px; }
+    .rig-led { width: 7px; height: 7px; border-radius: 50%; background: #333548; }
+    .rig-led--green { background: #68ff9a; box-shadow: 0 0 6px #68ff9a; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 1;
-      margin-bottom: 12px;
-    }
-
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .title {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .subtitle {
-      font-size: 12px;
-      color: #c6c6d8;
-    }
-
-    .wallet-btn {
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      border: 1px solid #3b3b5a;
-      background: #12121c;
-      color: #f5f5f5;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .wallet-btn:hover {
-      border-color: #f1c550;
-      box-shadow: 0 0 0 1px rgba(241, 197, 80, 0.4);
-    }
-
-    .wallet-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff8080;
-    }
-
-    .wallet-dot.ok {
-      background: #9be38b;
-    }
-
-    .wallet-dot.warn {
-      background: #f5d26c;
-    }
-
-    .center {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    /* Монета SHAG */
-    .coin-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .coin-image-wrapper {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      padding: 4px;
-      background: radial-gradient(circle at 30% 20%, #e4f6ff 0%, #bfe3ff 30%, #7dc2ff 65%, #2468b2 100%);
-      box-shadow:
-        0 0 0 2px rgba(0, 0, 0, 0.9),
-        0 4px 14px rgba(0, 0, 0, 0.9),
-        0 0 26px rgba(255, 215, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: coin-sway 8s ease-in-out infinite;
-    }
-
-    .coin-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 50%;
-    }
-
-    @keyframes coin-sway {
-      0%    { transform: rotateY(0deg); }
-      50%   { transform: rotateY(4deg); }
-      100% { transform: rotateY(0deg); }
-    }
-
-    /* Ферма */
-    .farm {
-      width: 100%;
-      max-width: 380px;
-      margin-top: 4px;
-      margin-bottom: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .rig-row {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-    }
-
-    .rig {
-      flex: 1;
-      min-width: 0;
-      background: linear-gradient(145deg, #101020, #05050b);
-      border-radius: 11px;
-      border: 1px solid rgba(120, 130, 180, 0.6);
-      padding: 4px 6px 5px;
-      box-shadow:
-        0 3px 8px rgba(0, 0, 0, 0.7),
-        inset 0 0 10px rgba(0, 0, 0, 0.75);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .rig-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .rig-name {
-      font-size: 9px;
-      text-transform: uppercase;
-      color: #a6a9d0;
-      letter-spacing: 0.14em;
-    }
-
-    .rig-leds {
-      display: flex;
-      gap: 3px;
-      align-items: center;
-    }
-
-    .rig-led {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #333548;
-      box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
-    }
-
-    .rig-led--green {
-      background: #68ff9a;
-      box-shadow: 0 0 6px rgba(104, 255, 154, 0.9);
-      animation: ledPulseGreen 2.4s ease-in-out infinite;
-    }
-
-    .rig-led--amber {
-      background: #ffd86a;
-      box-shadow: 0 0 6px rgba(255, 216, 106, 0.9);
-      animation: ledPulseAmber 3.1s ease-in-out infinite;
-    }
-
-    .rig-led--blue {
-      background: #7fd2ff;
-      box-shadow: 0 0 6px rgba(127, 210, 255, 0.9);
-      animation: ledPulseBlue 3.6s ease-in-out infinite;
-    }
-
-    @keyframes ledPulseGreen {
-      0%, 100% { opacity: 0.5; }
-      50%      { opacity: 1; }
-    }
-
-    @keyframes ledPulseAmber {
-      0%, 100% { opacity: 0.4; }
-      40%      { opacity: 1; }
-    }
-
-    @keyframes ledPulseBlue {
-      0%, 100% { opacity: 0.4; }
-      60%      { opacity: 1; }
-    }
-
-    .rig-body {
-      display: flex;
-      justify-content: space-between;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .fan {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid #3e435f;
-      box-shadow:
-        inset 0 0 6px rgba(0, 0, 0, 0.9),
-        0 0 6px rgba(110, 144, 220, 0.75);
-      position: relative;
-      overflow: hidden;
-      animation: fanSpin 1.8s linear infinite;
-    }
-
-    .fan-blade {
-      position: absolute;
-      width: 55%;
-      height: 6%;
-      background: #a9b4ff;
-      top: 47%;
-      left: 22%;
-      transform-origin: 50% 50%;
-      opacity: 0.95;
-    }
-
+    .rig-body { display: flex; justify-content: space-between; align-items: center; }
+    .fan { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #3e435f; position: relative; overflow: hidden; animation: fanSpin 1.5s linear infinite; }
+    .fan-blade { position: absolute; width: 55%; height: 6%; background: #a9b4ff; top: 47%; left: 22%; transform-origin: 50% 50%; }
     .fan-blade:nth-child(2) { transform: rotate(90deg); }
     .fan-blade:nth-child(3) { transform: rotate(180deg); }
     .fan-blade:nth-child(4) { transform: rotate(270deg); }
+    @keyframes fanSpin { 100% { transform: rotate(360deg); } }
+    .rig-temp { font-size: 9px; color: #a6a9d0; text-align: right; }
+    .rig-temp span { color: #ffb26a; font-weight: 600; }
 
-    @keyframes fanSpin {
-      0%    { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    /* ІНТЕРФЕЙС МАЙНІНГУ */
+    .counter { width: 100%; background: #0d0d18; border-radius: 12px; border: 1px solid #343454; padding: 12px; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.8); }
+    .counter-value { font-size: 24px; font-weight: 700; color: #ffe9a3; font-family: monospace; }
+    .progress-bar { width: 100%; height: 10px; background: #181826; border-radius: 999px; margin: 12px 0; border: 1px solid #343454; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f1c550, #b8741a); transition: width 0.5s; box-shadow: 0 0 10px #f1c550; }
 
-    .rig-temp {
-      font-size: 9px;
-      color: #a6a9d0;
-      text-align: right;
-      line-height: 1.4;
-    }
+    .status { font-size: 12px; text-align: center; margin-top: 8px; min-height: 1.2em; }
+    .status-ok { color: #9be38b; }
+    .status-warn { color: #f5d26c; }
+    .status-error { color: #ff8989; }
 
-    .rig-temp span {
-      color: #ffb26a;
-      font-weight: 600;
-    }
+    .claim-btn { margin-top: 15px; width: 100%; padding: 14px; border-radius: 999px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, #f1c550, #b8741a); color: #231407; box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); transition: 0.2s; }
+    .claim-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
-    .panel-label {
-      font-size: 11px;
-      color: #d7cfa9;
-      margin-bottom: 4px;
-    }
-
-    .counter {
-      width: 100%;
-      background: #0d0d18;
-      border-radius: 12px;
-      border: 1px solid #343454;
-      padding: 8px 10px;
-      text-align: center;
-      margin-bottom: 8px;
-      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.85);
-    }
-
-    .counter-value {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      font-family: "Courier New", monospace;
-      color: #ffe9a3;
-    }
-
-    .counter-unit {
-      font-size: 12px;
-      color: #d7cfa9;
-      margin-left: 4px;
-    }
-
-    .speed {
-      font-size: 11px;
-      color: #9f9fc0;
-      margin-top: 2px;
-    }
-
-    .progress-wrap {
-      width: 100%;
-      margin-top: 10px;
-      margin-bottom: 4px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: #181826;
-      overflow: hidden;
-      border: 1px solid #343454;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #f1c550, #b8741a);
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-      transition: width 0.25s ease-out;
-    }
-
-    .status {
-      font-size: 12px;
-      margin-top: 6px;
-      text-align: center;
-    }
-
-    .status-ok {
-      color: #9be38b;
-    }
-
-    .status-warn {
-      color: #f5d26c;
-    }
-
-    .status-error {
-      color: #ff8989;
-    }
-
-    .claim-btn {
-      margin-top: 14px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 999px;
-      border: none;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      background: linear-gradient(135deg, #f1c550, #b8741a);
-      color: #231407;
-      box-shadow:
-        0 10px 20px rgba(0, 0, 0, 0.7),
-        0 0 12px rgba(255, 215, 0, 0.8);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s;
-    }
-
-    .claim-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow:
-        0 14px 26px rgba(0, 0, 0, 0.9),
-        0 0 18px rgba(255, 215, 0, 0.9);
-      filter: brightness(1.05);
-    }
-
-    .claim-btn:active:not(:disabled) {
-      transform: translateY(1px);
-      box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.8),
-        0 0 11px rgba(255, 215, 0, 0.8);
-    }
-
-    .claim-btn:disabled {
-      cursor: default;
-      opacity: 0.6;
-      box-shadow: none;
-    }
-
-    .timer {
-      margin-top: 8px;
-      font-size: 11px;
-      text-align: center;
-      color: #9f9fc0;
-    }
-
-    .info {
-      margin-top: 10px;
-      font-size: 11px;
-      text-align: center;
-      color: #7f8094;
-      line-height: 1.4;
-    }
-
-    .small {
-      font-size: 10px;
-      color: #666885;
-    }
-
-    @media (max-width: 480px) {
-      .card {
-        padding: 18px 14px 14px;
-      }
-
-      .counter-value {
-        font-size: 20px;
-      }
-
-      .farm {
-        max-width: 100%;
-      }
-    }
+    .add-token-btn { background: none; border: none; color: #f1c550; font-size: 11px; cursor: pointer; text-decoration: underline; margin-top: 8px; opacity: 0.8; }
+    .timer { margin-top: 10px; font-size: 12px; color: #9f9fc0; }
   </style>
 </head>
 
@@ -464,20 +82,24 @@
 
     <div class="header">
       <div class="title-block">
-        <div class="title">1SHAG супер-еко майнер</div>
-        <div class="subtitle">Офіційний Faucet 1SHAG з лімітом 100 SHAG / 24 год.</div>
+        <div class="title">1SHAG еко майнер</div>
+        <div class="subtitle">Faucet 1SHAG (BSC Mainnet)</div>
       </div>
-      <button id="connectBtn" class="wallet-btn">
-        <span class="wallet-dot" id="walletDot"></span>
-        <span id="walletLabel">Підключити гаманець</span>
-      </button>
+      <div class="wallet-section">
+        <button id="connectBtn" class="wallet-btn">
+          <span class="wallet-dot" id="walletDot"></span>
+          <span id="walletLabel">Підключити гаманець</span>
+        </button>
+        <a href="https://link.metamask.io/rewards?referral=PWEPD8" target="_blank" class="ref-btn">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Mirror_Logo.svg" width="12" alt="MM">
+          MetaMask Rewards
+        </a>
+      </div>
     </div>
 
     <div class="center">
-      <div class="coin-wrap">
-        <div class="coin-image-wrapper">
-          <img src="assets/1shag/1SHAG_logo_512.png" alt="Монета SHAG" class="coin-image" />
-        </div>
+      <div class="coin-image-wrapper">
+        <img src="assets/1shag/1SHAG_logo_512.png" alt="SHAG" class="coin-image" />
       </div>
 
       <div class="farm">
@@ -485,448 +107,195 @@
           <div class="rig">
             <div class="rig-header">
               <div class="rig-name">RIG-01</div>
-              <div class="rig-leds">
-                <div class="rig-led rig-led--green"></div>
-                <div class="rig-led rig-led--amber"></div>
-                <div class="rig-led rig-led--blue"></div>
-              </div>
+              <div class="rig-leds"><div class="rig-led rig-led--green"></div></div>
             </div>
             <div class="rig-body">
-              <div class="fan">
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-              </div>
-              <div class="fan">
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-              </div>
-              <div class="rig-temp">
-                Темп:<br><span>100 SHAG/24h</span>
-              </div>
+              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
+              <div class="rig-temp">Швидкість:<br><span>100/24h</span></div>
             </div>
           </div>
           <div class="rig">
             <div class="rig-header">
               <div class="rig-name">RIG-02</div>
-              <div class="rig-leds">
-                <div class="rig-led rig-led--green"></div>
-                <div class="rig-led rig-led--amber"></div>
-                <div class="rig-led rig-led--blue"></div>
-              </div>
+              <div class="rig-leds"><div class="rig-led rig-led--green"></div></div>
             </div>
             <div class="rig-body">
-              <div class="fan">
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-              </div>
-              <div class="fan">
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-              </div>
-              <div class="rig-temp">
-                Статус:<br><span>Online</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rig-row">
-          <div class="rig">
-            <div class="rig-header">
-              <div class="rig-name">RIG-03</div>
-              <div class="rig-leds">
-                <div class="rig-led rig-led--green"></div>
-                <div class="rig-led rig-led--amber"></div>
-              </div>
-            </div>
-            <div class="rig-body">
-              <div class="fan">
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-              </div>
-              <div class="fan">
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-                <div class="fan-blade"></div>
-              </div>
-              <div class="rig-temp">
-                Мережа:<br><span>BSC</span>
-              </div>
+              <div class="fan"><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div><div class="fan-blade"></div></div>
+              <div class="rig-temp">Статус:<br><span>ONLINE</span></div>
             </div>
           </div>
         </div>
       </div>
 
-      <div style="width: 100%; max-width: 380px;">
-        <div class="panel-label">Лічильник видобутку</div>
+      <div style="width: 100%; max-width: 380px; text-align: center;">
         <div class="counter">
           <span id="counterValue" class="counter-value">0.00000000</span>
-          <span class="counter-unit">SHAG</span>
-          <div class="speed" id="speedInfo">Швидкість: 100 SHAG / 24 години</div>
+          <span style="font-size: 14px; color: #d7cfa9;"> SHAG</span>
         </div>
 
-        <div class="progress-wrap">
-          <div class="panel-label">Прогрес до наступного отримання</div>
-          <div class="progress-bar">
-            <div id="progressFill" class="progress-fill"></div>
-          </div>
-        </div>
+        <button onclick="addTokenToWallet()" class="add-token-btn">+ Додати SHAG у MetaMask</button>
 
-        <div id="statusText" class="status status-warn">
-          Підключіть гаманець у мережі BNB Smart Chain, щоб розпочати.
-        </div>
+        <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
 
-        <button id="claimBtn" class="claim-btn" disabled>
-          ОТРИМАТИ 100 SHAG
-        </button>
+        <div id="statusText" class="status status-warn">Підключіть гаманець для старту.</div>
 
-        <div id="timerText" class="timer">
-          До наступного отримання: 24:00:00
-        </div>
+        <button id="claimBtn" class="claim-btn" disabled>ОТРИМАТИ 100 SHAG</button>
 
-        <div class="info">
-          Баланс Faucet та обмеження зберігаються у смартконтракті. <br />
-          Усі виплати прозорі та відстежуються через BscScan.
-          <div class="small" id="faucetInfo"></div>
-        </div>
+        <div id="timerText" class="timer">Наступне отримання через: 24:00:00</div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ================== НАЛАШТУВАННЯ АДРЕС ==================
-  const TOKEN_ADDRESS = "0xd4c35feccf968f4a73be4717524c087d7d0ed229"; // 1SHAG v2
-  const FAUCET_ADDRESS = "0xea4b64d8eecbe54ba18444c6522a7f19f7ca152e"; // ShagFaucet
-  
-  // Константи мережі BSC Mainnet
-  const CHAIN_ID = 56;
+  // КОНФІГУРАЦІЯ
+  const TOKEN_ADDRESS = "0xd4c35feccf968f4a73be4717524c087d7d0ed229";
+  const FAUCET_ADDRESS = "0xea4b64d8eecbe54ba18444c6522a7f19f7ca152e";
   const CHAIN_ID_HEX = "0x38";
-  const CHAIN_NAME = "BNB Smart Chain";
-  const RPC_URL = "https://bsc-dataseed.binance.org/";
-  const BLOCK_EXPLORER = "https://bscscan.com";
-  
-  const TOKEN_DECIMALS = 18;
-
-  const TOKEN_ABI = [
-    "function balanceOf(address) view returns (uint256)",
-    "function decimals() view returns (uint8)"
-  ];
 
   const FAUCET_ABI = [
     "function rewardAmount() view returns (uint256)",
     "function claimInterval() view returns (uint256)",
-    "function isPaused() view returns (bool)",
     "function lastClaimTime(address) view returns (uint256)",
     "function faucetBalance() view returns (uint256)",
     "function canClaim(address) view returns (bool)",
-    "function claim()",
-    "event Claimed(address indexed user, uint256 amount, uint256 timestamp)"
+    "function claim()"
   ];
 
-  let provider;
-  let signer;
-  let userAddress = null;
-  let tokenContract;
-  let faucetContract;
+  let provider, signer, userAddress, faucetContract, rewardAmountBN;
+  let claimIntervalSec = 86400;
 
-  let rewardAmountBN = null;
-  let claimIntervalSec = 24 * 60 * 60;
-  let lastClaimTimeSec = 0;
-  let isPaused = false;
-  let faucetBalanceBN = null;
-
-  let miningTimer = null;
-
-  const connectBtn = document.getElementById("connectBtn");
-  const walletDot = document.getElementById("walletDot");
-  const walletLabel = document.getElementById("walletLabel");
-  const counterValueEl = document.getElementById("counterValue");
-  const progressFillEl = document.getElementById("progressFill");
-  const statusTextEl = document.getElementById("statusText");
-  const claimBtn = document.getElementById("claimBtn");
-  const timerTextEl = document.getElementById("timerText");
-  const faucetInfoEl = document.getElementById("faucetInfo");
-
-  function setStatus(message, type = "warn") {
-    statusTextEl.textContent = message;
-    statusTextEl.className =
-      "status " + (type === "ok" ? "status-ok" : type === "error" ? "status-error" : "status-warn");
+  function setStatus(msg, type) {
+    const el = document.getElementById("statusText");
+    el.textContent = msg;
+    el.className = `status status-${type}`;
   }
 
-  function setWalletIndicator(status, text) {
-    walletLabel.textContent = text;
-    walletDot.classList.remove("ok", "warn");
-    if (status === "ok") walletDot.classList.add("ok");
-    if (status === "warn") walletDot.classList.add("warn");
-  }
-
-  function formatTimeLeft(sec) {
-    if (sec <= 0) return "00:00:00";
-    const h = String(Math.floor(sec / 3600)).padStart(2, "0");
-    const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
-    const s = String(sec % 60).padStart(2, "0");
-    return `${h}:${m}:${s}`;
-  }
-
-  function trimTo8Decimals(str) {
-    if (!str.includes(".")) return str + ".00000000";
-    const [whole, frac] = str.split(".");
-    const frac8 = (frac + "00000000").slice(0, 8);
-    return `${whole}.${frac8}`;
-  }
-
-  async function initProvider() {
-    if (!window.ethereum) {
-      setStatus("Гаманець не знайдено. Встановіть MetaMask або сумісний гаманець.", "error");
+  // Функція перемикання мережі
+  async function checkNetwork() {
+    const { chainId } = await provider.getNetwork();
+    if (chainId === 56) return true;
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] });
+      return true;
+    } catch (e) {
+      if (e.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: CHAIN_ID_HEX,
+            chainName: "BNB Smart Chain",
+            nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+            rpcUrls: ["https://bsc-dataseed.binance.org/"],
+            blockExplorerUrls: ["https://bscscan.com"]
+          }]
+        });
+        return true;
+      }
       return false;
     }
-    
-    // Додаємо слухачі подій для перезавантаження при зміні акаунта/мережі
-    if (!window.ethereum._listenersAttached) {
-        window.ethereum.on('accountsChanged', () => window.location.reload());
-        window.ethereum.on('chainChanged', () => window.location.reload());
-        window.ethereum._listenersAttached = true;
-    }
-    
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    return true;
   }
 
-  // ============== ОНОВЛЕНА ФУНКЦІЯ CHECKNETWORK ==============
-  async function checkNetwork() {
-    const network = await provider.getNetwork();
-    
-    // Якщо мережа вже правильна
-    if (network.chainId === CHAIN_ID) {
-      setWalletIndicator("ok", "BSC Mainnet");
-      return true;
-    }
-
-    setStatus("Перемикання на BNB Smart Chain...", "warn");
-    setWalletIndicator("warn", "Перемикання...");
-
+  // Додавання токена в MetaMask
+  async function addTokenToWallet() {
+    if (!window.ethereum) return;
     try {
-      // Спроба перемкнутися
       await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: CHAIN_ID_HEX }],
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: TOKEN_ADDRESS,
+            symbol: 'SHAG',
+            decimals: 18,
+            image: 'https://1shag.pro/logo.png', // Твоє посилання на логотип
+          },
+        },
       });
-      // Після перемикання краще перезавантажити сторінку для коректної роботи провайдера
-      window.location.reload();
-      return true;
-    } catch (switchError) {
-      // Цей код помилки 4902 означає, що мережі немає в гаманці
-      if (switchError.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: CHAIN_ID_HEX,
-                chainName: CHAIN_NAME,
-                nativeCurrency: {
-                  name: "BNB",
-                  symbol: "BNB",
-                  decimals: 18,
-                },
-                rpcUrls: [RPC_URL],
-                blockExplorerUrls: [BLOCK_EXPLORER],
-              },
-            ],
-          });
-          window.location.reload();
-          return true;
-        } catch (addError) {
-          console.error(addError);
-          setStatus("Не вдалося додати мережу BSC. Додайте її вручну.", "error");
-          return false;
-        }
-      } else {
-        console.error(switchError);
-        setStatus("Будь ласка, перемкніть мережу на BNB Smart Chain.", "error");
-        setWalletIndicator("warn", "Неправильна мережа");
-        return false;
-      }
-    }
+    } catch (e) {}
   }
 
-  async function initContracts() {
-    tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
-    faucetContract = new ethers.Contract(FAUCET_ADDRESS, FAUCET_ABI, provider);
-  }
-
-  async function loadFaucetParams() {
-    try {
-      rewardAmountBN = await faucetContract.rewardAmount();
-      claimIntervalSec = (await faucetContract.claimInterval()).toNumber();
-      isPaused = await faucetContract.isPaused();
-      faucetBalanceBN = await faucetContract.faucetBalance();
-
-      const rewardHuman = ethers.utils.formatUnits(rewardAmountBN, TOKEN_DECIMALS);
-      faucetInfoEl.textContent =
-        `Розмір винагороди: ${trimTo8Decimals(rewardHuman)} SHAG. ` +
-        `Інтервал між отриманнями: ${Math.floor(claimIntervalSec / 3600)} год. `;
-
-      if (faucetBalanceBN && !faucetBalanceBN.isZero()) {
-        const fb = ethers.utils.formatUnits(faucetBalanceBN, TOKEN_DECIMALS);
-        faucetInfoEl.textContent += `Баланс Faucet: ${trimTo8Decimals(fb)} SHAG.`;
-      } else {
-        faucetInfoEl.textContent += "Faucet порожній або ще не поповнений.";
-      }
-    } catch (e) {
-      console.error(e);
-      setStatus("Не вдалося прочитати параметри Faucet. Перевірте адресу контракту.", "error");
-    }
-  }
-
-  async function refreshUserState() {
+  // Основна логіка оновлення
+  async function refreshState() {
     if (!userAddress || !faucetContract) return;
 
     try {
-      const last = await faucetContract.lastClaimTime(userAddress);
-      lastClaimTimeSec = last.toNumber();
-    } catch (e) {
-      lastClaimTimeSec = 0;
-    }
+      // Перевірка BNB
+      const bnbBal = await provider.getBalance(userAddress);
+      const minBnb = ethers.utils.parseEther("0.0006");
 
-    const nowSec = Math.floor(Date.now() / 1000);
-    let elapsed = lastClaimTimeSec === 0 ? claimIntervalSec : nowSec - lastClaimTimeSec;
-    if (elapsed < 0) elapsed = 0;
-
-    const progress = Math.min(1, elapsed / claimIntervalSec);
-    const scale = ethers.BigNumber.from(Math.floor(progress * 1e8));
-    const earned = rewardAmountBN
-      ? rewardAmountBN.mul(scale).div(ethers.BigNumber.from(1e8))
-      : ethers.BigNumber.from(0);
-
-    let earnedHuman = rewardAmountBN
-      ? ethers.utils.formatUnits(earned, TOKEN_DECIMALS)
-      : "0";
-    earnedHuman = trimTo8Decimals(earnedHuman);
-
-    counterValueEl.textContent = earnedHuman;
-    progressFillEl.style.width = (progress * 100).toFixed(1) + "%";
-
-    let canClaimFlag = false;
-    try {
-      canClaimFlag = await faucetContract.canClaim(userAddress);
-    } catch (e) {
-      canClaimFlag = false;
-    }
-
-    const remainingSec = Math.max(0, claimIntervalSec - elapsed);
-
-    if (isPaused) {
-      claimBtn.disabled = true;
-      setStatus("Faucet тимчасово на паузі. Спробуйте пізніше.", "warn");
-    } else if (faucetBalanceBN && faucetBalanceBN.isZero()) {
-      claimBtn.disabled = true;
-      setStatus("Faucet порожній. Очікується поповнення токенами SHAG.", "warn");
-    } else if (canClaimFlag) {
-      claimBtn.disabled = false;
-      setStatus("Доступно до отримання: натисніть кнопку, щоб отримати 100 SHAG.", "ok");
-    } else {
-      claimBtn.disabled = true;
-      setStatus("Ще не минув інтервал 24 години з минулого отримання.", "warn");
-    }
-
-    timerTextEl.textContent =
-      "До наступного отримання: " + formatTimeLeft(remainingSec);
-  }
-
-  function startMiningLoop() {
-    if (miningTimer) clearInterval(miningTimer);
-    miningTimer = setInterval(async () => {
-      if (!userAddress || !faucetContract || !rewardAmountBN) return;
-      const nowSec = Math.floor(Date.now() / 1000);
-      let elapsed = lastClaimTimeSec === 0 ? claimIntervalSec : nowSec - lastClaimTimeSec;
-      if (elapsed < 0) elapsed = 0;
+      const lastClaim = await faucetContract.lastClaimTime(userAddress);
+      const now = Math.floor(Date.now() / 1000);
+      const elapsed = now - lastClaim.toNumber();
+      
+      // Прогрес-бар
       const progress = Math.min(1, elapsed / claimIntervalSec);
+      document.getElementById("progressFill").style.width = (progress * 100) + "%";
+      
+      // Нарахування на лічильнику (візуальне)
+      const earned = rewardAmountBN.mul(Math.floor(progress * 10000)).div(10000);
+      document.getElementById("counterValue").textContent = ethers.utils.formatUnits(earned, 18);
 
-      const scale = ethers.BigNumber.from(Math.floor(progress * 1e8));
-      const earned = rewardAmountBN
-        ? rewardAmountBN.mul(scale).div(ethers.BigNumber.from(1e8))
-        : ethers.BigNumber.from(0);
+      const canClaim = await faucetContract.canClaim(userAddress);
+      const faucetBal = await faucetContract.faucetBalance();
 
-      let earnedHuman = rewardAmountBN
-        ? ethers.utils.formatUnits(earned, TOKEN_DECIMALS)
-        : "0";
-      earnedHuman = trimTo8Decimals(earnedHuman);
-
-      counterValueEl.textContent = earnedHuman;
-      progressFillEl.style.width = (progress * 100).toFixed(1) + "%";
-
-      const remainingSec = Math.max(0, claimIntervalSec - elapsed);
-      timerTextEl.textContent =
-        "До наступного отримання: " + formatTimeLeft(remainingSec);
-    }, 1000);
-  }
-
-  connectBtn.addEventListener("click", async () => {
-    try {
-      const ok = await initProvider();
-      if (!ok) return;
-
-      const networkOk = await checkNetwork();
-      if (!networkOk) return;
-
-      const accounts = await provider.send("eth_requestAccounts", []);
-      if (!accounts || accounts.length === 0) {
-        setStatus("Адреса гаманця не отримана.", "error");
-        return;
+      // Умови для кнопки
+      if (faucetBal.isZero()) {
+        setStatus("Кран порожній. Зайдіть пізніше.", "error");
+        document.getElementById("claimBtn").disabled = true;
+      } else if (bnbBal.lt(minBnb)) {
+        setStatus("Недостатньо BNB для транзакції!", "error");
+        document.getElementById("claimBtn").disabled = true;
+      } else if (!canClaim) {
+        setStatus("Майнінг у процесі...", "warn");
+        document.getElementById("claimBtn").disabled = true;
+      } else {
+        setStatus("Готово! Можна забирати 100 SHAG.", "ok");
+        document.getElementById("claimBtn").disabled = false;
       }
 
-      userAddress = accounts[0];
-      signer = provider.getSigner();
-      setWalletIndicator("ok", userAddress.slice(0, 6) + "..." + userAddress.slice(-4));
+      // Таймер
+      const rem = Math.max(0, claimIntervalSec - elapsed);
+      const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60), s = rem%60;
+      document.getElementById("timerText").textContent = `Наступне отримання через: ${h}:${m}:${s}`;
+    } catch (e) { console.error(e); }
+  }
 
-      await initContracts();
-      await loadFaucetParams();
-      await refreshUserState();
-      startMiningLoop();
-    } catch (e) {
-      console.error(e);
-      setStatus("Помилка підключення гаманця або контрактів.", "error");
-    }
-  });
+  // Підключення гаманця
+  document.getElementById("connectBtn").onclick = async () => {
+    if (!window.ethereum) return setStatus("Встановіть MetaMask!", "error");
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    if (!await checkNetwork()) return;
 
-  claimBtn.addEventListener("click", async () => {
-    if (!userAddress || !faucetContract) return;
+    const accounts = await provider.send("eth_requestAccounts", []);
+    userAddress = accounts[0];
+    signer = provider.getSigner();
+    faucetContract = new ethers.Contract(FAUCET_ADDRESS, FAUCET_ABI, signer);
+    rewardAmountBN = await faucetContract.rewardAmount();
+
+    document.getElementById("walletLabel").textContent = userAddress.slice(0,6)+"..."+userAddress.slice(-4);
+    document.getElementById("walletDot").classList.add("ok");
+
+    setInterval(refreshState, 1000);
+    refreshState();
+  };
+
+  // Кнопка Claim
+  document.getElementById("claimBtn").onclick = async () => {
     try {
-      claimBtn.disabled = true;
-      setStatus("Підтвердіть транзакцію отримання у вашому гаманці…", "warn");
-
-      const faucetWithSigner = faucetContract.connect(signer);
-      // Можна додати gasLimit, якщо транзакція складна, але зазвичай MetaMask рахує сам
-      const tx = await faucetWithSigner.claim();
-      setStatus("Транзакція відправлена, очікуємо підтвердження…", "warn");
-
+      setStatus("Підтвердіть у гаманці...", "warn");
+      const tx = await faucetContract.claim();
       await tx.wait();
-      setStatus("Успіх! 100 SHAG відправлено на ваш гаманець.", "ok");
+      setStatus("Успішно отримано!", "ok");
+      refreshState();
+    } catch (e) { setStatus("Помилка транзакції.", "error"); }
+  };
 
-      await loadFaucetParams();
-      await refreshUserState();
-    } catch (e) {
-      console.error(e);
-      setStatus(
-        "Отримання скасовано або сталася помилка. Переконайтеся, що ви маєте трохи BNB на газ.",
-        "error"
-      );
-      await refreshUserState();
-    }
-  });
+  // Слухачі подій MetaMask
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', () => window.location.reload());
+    window.ethereum.on('chainChanged', () => window.location.reload());
+  }
 </script>
 </body>
 </html>
