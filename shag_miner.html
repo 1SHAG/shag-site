@@ -95,47 +95,38 @@
     .status { font-size: 12px; text-align: center; margin-top: 10px; min-height: 18px; }
     .status-ok { color: #4caf50; } .status-warn { color: #ffd54a; } .status-error { color: #ff5252; }
 
-    /* НОВІ СТИЛІ ДЛЯ КНОПОК */
-    .button-group {
-      display: flex;
-      flex-direction: column;
+    /* Нові стилі для додаткових кнопок */
+    .extra-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-top: 20px;
     }
-    
     .secondary-btn {
-      width: 100%;
+      background: #12121c;
+      border: 1px solid #343454;
+      color: #a9b0c2;
       padding: 10px;
       border-radius: 10px;
-      border: 1px solid #343454;
-      background: rgba(255, 255, 255, 0.03);
-      color: #a9b0c2;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 600;
-      cursor: pointer;
       text-decoration: none;
+      text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
       transition: 0.2s;
+      cursor: pointer;
     }
-    
     .secondary-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
       border-color: #ffd54a;
+      color: #fff;
+      background: #161625;
     }
-
     .rewards-btn {
-      border: 1px dashed #ffd54a;
-      background: rgba(255, 213, 74, 0.05);
-      color: #ffd54a;
-    }
-    
-    .rewards-btn:hover {
-      background: rgba(255, 213, 74, 0.15);
-      transform: translateY(-1px);
+      background: linear-gradient(135deg, #424261, #24243e);
+      border-color: #5d5d81;
+      color: #e0e0e0;
     }
   </style>
 </head>
@@ -186,18 +177,19 @@
 
     <button id="claimBtn" class="claim-btn" disabled>ОТРИМАТИ 100 SHAG</button>
     
-    <div id="timerText" style="text-align:center; font-size:11px; color:#a9b0c2; margin-top:10px; margin-bottom: 5px;">
+    <div id="timerText" style="text-align:center; font-size:11px; color:#a9b0c2; margin-top:10px;">
         Таймер: 24:00:00
     </div>
 
-    <div class="button-group">
-        <button class="secondary-btn" onclick="addToken()">
-            🦊 Додати SHAG у MetaMask
-        </button>
+    <div class="extra-btns">
+        <div class="secondary-btn" onclick="addToken()">
+            + ДОДАТИ SHAG В METAMASK
+        </div>
         <a href="https://link.metamask.io/rewards?referral=PWEPD8" target="_blank" class="secondary-btn rewards-btn">
-            🎁 Отримати MetaMask Rewards
+            METAMASK REWARDS 🎁
         </a>
     </div>
+
   </div>
 </div>
 
@@ -269,7 +261,6 @@
     const elapsed = now - lastClaimTimeSec;
     const progress = Math.min(1, elapsed / claimIntervalSec);
     
-    // Візуальний лічильник
     const currentEarned = ethers.utils.formatUnits(rewardAmountBN.mul(Math.floor(progress * 1000000)).div(1000000), 18);
     document.getElementById("counterValue").innerText = parseFloat(currentEarned).toFixed(8);
     document.getElementById("progressFill").style.width = (progress * 100) + "%";
@@ -292,19 +283,21 @@
   }
 
   async function addToken() {
-    if (!window.ethereum) return alert("Встановіть MetaMask");
-    await window.ethereum.request({
-      method: 'wallet_watchAsset',
-      params: {
-        type: 'ERC20',
-        options: {
-          address: TOKEN_ADDRESS,
-          symbol: 'SHAG',
-          decimals: 18,
-          image: 'https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png',
-        },
-      },
-    });
+    if (!window.ethereum) return alert("Гаманець не підключено");
+    try {
+        await window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: TOKEN_ADDRESS,
+              symbol: 'SHAG',
+              decimals: 18,
+              image: 'https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png',
+            },
+          },
+        });
+    } catch (e) { console.error(e); }
   }
 
   document.getElementById("connectBtn").addEventListener("click", connect);
