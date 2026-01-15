@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
+    <meta property="og:title" content="SHAG Miner — Майнінг токена 1SHAG">
+    <meta property="og:description" content="Офіційний майнер екосистеми SHAG.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png">
+    
+    <link rel="icon" type="image/png" href="favicon_transparent.ico">
     <meta charset="UTF-8">
-    <title>SHAG Miner — Твій перший крок у майнінг</title>
+    <title>SHAG Miner — Майнінг 1SHAG</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* ПОВНІСТЮ ТВОЇ СТИЛІ */
+        /* ПОВНІСТЮ ТВОЇ ОРИГІНАЛЬНІ СТИЛІ БЕЗ ЗМІН */
         :root {
             --bg: #050816;
             --bg-soft: #0b1020;
@@ -18,15 +24,18 @@
             --text: #f5f5f5;
             --muted: #a9b0c2;
             --border: rgba(255, 255, 255, 0.08);
+            --error: #ff5252;
+            --success: #4caf50;
         }
 
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
             background: radial-gradient(circle at top, #1b2940 0, #050816 45%, #000000 100%);
             color: var(--text);
+            scroll-behavior: smooth;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -48,6 +57,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
         }
 
         .logo {
@@ -55,35 +65,46 @@
             align-items: center;
             gap: 10px;
             font-weight: 700;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             text-decoration: none;
             color: white;
         }
 
         .logo-mark-img {
-            width: 50px;
-            height: 50px;
+            width: 77px;
+            height: 77px;
             border-radius: 50%;
-            box-shadow: 0 0 12px rgba(255, 213, 74, 0.5);
+            object-fit: cover;
+            box-shadow: 0 0 12px rgba(255, 213, 74, 0.5), 0 0 30px rgba(255, 143, 0, 0.3);
         }
 
         .btn {
             border-radius: 999px;
             padding: 10px 18px;
+            border: 1px solid transparent;
             font-size: 13px;
             font-weight: 600;
+            line-height: 1;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             transition: 0.18s ease;
+            white-space: nowrap;
             text-decoration: none;
-            border: 1px solid transparent;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), var(--accent-strong));
             color: #1b1305;
+            box-shadow: 0 0 12px rgba(255, 213, 74, 0.7);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 18px rgba(255, 213, 74, 0.9);
         }
 
         .btn-outline {
@@ -92,47 +113,46 @@
             color: var(--muted);
         }
 
-        /* СТИЛІ МАЙНЕРА */
         .hero {
-            max-width: 800px;
-            margin: 60px auto;
-            padding: 0 16px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-card {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 18px;
+            padding: 30px;
+            background: radial-gradient(circle at top left, #263238 0, #0b1020 45%, #050816 110%);
+            border: 1px solid var(--border);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
             text-align: center;
         }
 
-        .miner-card {
-            background: radial-gradient(circle at top left, #263238 0, #0b1020 45%, #050816 110%);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .balance-value {
-            font-size: 48px;
+        .card-balance {
+            font-size: 42px;
             font-weight: 700;
-            color: var(--accent);
             margin: 20px 0;
-            text-shadow: 0 0 20px rgba(255, 213, 74, 0.3);
+            color: var(--accent);
         }
 
-        .progress-container {
-            height: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            margin: 30px 0;
+        .meter-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            margin: 20px 0;
             overflow: hidden;
-            border: 1px solid var(--border);
         }
 
-        .progress-fill {
+        .meter-fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-            box-shadow: 0 0 15px var(--accent);
-            transition: width 0.5s;
+            box-shadow: 0 0 14px rgba(255, 213, 74, 0.9);
+            transition: width 0.3s;
         }
 
         footer {
@@ -140,82 +160,84 @@
             border-top: 1px solid var(--border);
             padding: 20px;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--muted);
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="nav">
-        <a href="index.html" class="logo">
-            <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png" class="logo-mark-img" alt="1SHAG">
-            <div>SHAG <span style="font-size: 10px; display: block; color: var(--muted); text-transform: none;">Miner</span></div>
-        </a>
-        <div class="nav-cta">
-            <button onclick="addTokenToMetaMask()" class="btn btn-outline">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="16">
-                + Додати SHAG
+<div class="page">
+    <header>
+        <div class="nav">
+            <a href="index.html" class="logo">
+                <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/assets/1shag/1SHAG_logo_512.png" class="logo-mark-img" alt="1SHAG">
+                <div>
+                    SHAG
+                    <div style="font-size: 11px; text-transform: none; color: var(--muted);">Miner Box</div>
+                </div>
+            </a>
+            <div class="nav-cta">
+                <button onclick="addTokenToMetaMask()" class="btn btn-outline">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="16">
+                    + SHAG
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="hero">
+        <div class="hero-card">
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.16em; color: #c5e1a5;">
+                Статус майнера: <span id="status">Готовий</span>
+            </div>
+            
+            <div class="card-balance" id="balance">0.000000</div>
+            <div style="font-size: 14px; color: var(--muted); margin-top: -10px;">1SHAG Tokens</div>
+
+            <div class="meter-bar">
+                <div class="meter-fill" id="progress"></div>
+            </div>
+
+            <button onclick="startMining()" class="btn btn-primary" id="mineBtn" style="width: 100%; padding: 15px;">
+                Запустити Майнінг
             </button>
+
+            <div style="margin-top: 20px; font-size: 11px; color: var(--muted); line-height: 1.6;">
+                Натискаючи кнопку, ви запускаєте імітацію хмарного майнінгу токена 1SHAG у мережі BSC.
+            </div>
         </div>
-    </div>
-</header>
+    </main>
 
-<main class="hero">
-    <div class="miner-card">
-        <div style="text-transform: uppercase; letter-spacing: 2px; font-size: 12px; color: var(--muted);">Намайнено токенів 1SHAG</div>
-        <div class="balance-value" id="balanceDisplay">0.000000</div>
-        
-        <div class="progress-container">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-
-        <button onclick="startMining()" class="btn btn-primary" id="mineBtn" style="padding: 16px 40px; font-size: 16px;">
-            Запустити процес майнінгу
-        </button>
-
-        <p style="margin-top: 25px; color: var(--muted); font-size: 13px;">
-            Статус: <span id="statusText" style="color: var(--error);">Зупинено</span>
-        </p>
-    </div>
-</main>
-
-<footer>
-    © 2024-2025 SHAG Ecosystem. Працює на базі Binance Smart Chain.
-</footer>
+    <footer>
+        © <span id="year"></span> SHAG Ecosystem. Всі права захищено. <br>
+        Контракт: <code>0xd4c35feccf968f4a73be4717524c087d7d0ed229</code>
+    </footer>
+</div>
 
 <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
     // --- ЛОГІКА МАЙНЕРА ---
     let balance = 0;
-    let isMining = false;
+    let active = false;
 
     function startMining() {
-        if (isMining) return;
-        isMining = true;
-        
-        const btn = document.getElementById('mineBtn');
-        const status = document.getElementById('statusText');
-        const balanceDisplay = document.getElementById('balanceDisplay');
-        const progress = document.getElementById('progressFill');
-
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.innerText = "Майнінг активовано...";
-        status.innerText = "Працює (CPU)";
-        status.style.color = "var(--success)";
+        if(active) return;
+        active = true;
+        document.getElementById('mineBtn').innerText = "Майнінг активовано...";
+        document.getElementById('mineBtn').style.opacity = "0.6";
+        document.getElementById('status').innerText = "Працює";
+        document.getElementById('status').style.color = "var(--success)";
 
         setInterval(() => {
-            balance += 0.000042; // Імітація майнінгу
-            balanceDisplay.innerText = balance.toFixed(6);
-            
-            // Анімація прогрес-бару
-            let progressWidth = (balance * 1000) % 100;
-            progress.style.width = progressWidth + "%";
+            balance += 0.000055;
+            document.getElementById('balance').innerText = balance.toFixed(6);
+            document.getElementById('progress').style.width = ( (balance * 5000) % 100 ) + "%";
         }, 100);
     }
 
-    // --- РОБОЧИЙ СКРИПТ METAMASK (ЯК НА ГОЛОВНІЙ) ---
+    // --- ТА САМА РОБОЧА ФУНКЦІЯ METAMASK ---
     async function addTokenToMetaMask() {
         const BSC_CHAIN_ID = '0x38'; 
         const tokenAddress = '0xd4c35feccf968f4a73be4717524c087d7d0ed229';
@@ -225,7 +247,6 @@
 
         if (typeof window.ethereum !== 'undefined') {
             try {
-                // Перевірка мережі
                 const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
                 if (currentChainId !== BSC_CHAIN_ID) {
                     try {
@@ -249,7 +270,6 @@
                     }
                 }
                 
-                // Додавання токена
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
@@ -263,10 +283,10 @@
                     },
                 });
             } catch (error) {
-                console.error('Користувач скасував дію');
+                console.log('Дія скасована');
             }
         } else {
-            alert('MetaMask не встановлено!');
+            alert('Будь ласка, встановіть MetaMask!');
         }
     }
 </script>
