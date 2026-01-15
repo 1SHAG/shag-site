@@ -95,9 +95,47 @@
     .status { font-size: 12px; text-align: center; margin-top: 10px; min-height: 18px; }
     .status-ok { color: #4caf50; } .status-warn { color: #ffd54a; } .status-error { color: #ff5252; }
 
-    .add-token-link {
-        display: block; text-align: center; font-size: 11px; color: #a9b0c2; 
-        margin-top: 15px; cursor: pointer; text-decoration: underline;
+    /* НОВІ СТИЛІ ДЛЯ КНОПОК */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .secondary-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #343454;
+      background: rgba(255, 255, 255, 0.03);
+      color: #a9b0c2;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+    
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: #ffd54a;
+    }
+
+    .rewards-btn {
+      border: 1px dashed #ffd54a;
+      background: rgba(255, 213, 74, 0.05);
+      color: #ffd54a;
+    }
+    
+    .rewards-btn:hover {
+      background: rgba(255, 213, 74, 0.15);
+      transform: translateY(-1px);
     }
   </style>
 </head>
@@ -148,11 +186,18 @@
 
     <button id="claimBtn" class="claim-btn" disabled>ОТРИМАТИ 100 SHAG</button>
     
-    <div id="timerText" style="text-align:center; font-size:11px; color:#a9b0c2; margin-top:10px;">
+    <div id="timerText" style="text-align:center; font-size:11px; color:#a9b0c2; margin-top:10px; margin-bottom: 5px;">
         Таймер: 24:00:00
     </div>
 
-    <span class="add-token-link" onclick="addToken()">+ Додати SHAG у MetaMask</span>
+    <div class="button-group">
+        <button class="secondary-btn" onclick="addToken()">
+            🦊 Додати SHAG у MetaMask
+        </button>
+        <a href="https://link.metamask.io/rewards?referral=PWEPD8" target="_blank" class="secondary-btn rewards-btn">
+            🎁 Отримати MetaMask Rewards
+        </a>
+    </div>
   </div>
 </div>
 
@@ -247,6 +292,7 @@
   }
 
   async function addToken() {
+    if (!window.ethereum) return alert("Встановіть MetaMask");
     await window.ethereum.request({
       method: 'wallet_watchAsset',
       params: {
