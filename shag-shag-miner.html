@@ -1,68 +1,56 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ШАГ Шахтар - Web3 Edition</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: white; text-align: center; margin: 0; padding: 20px; user-select: none; overflow-x: hidden; }
-        .container { max-width: 420px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); border: 1px solid #1f2d45; position: relative; }
-        
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
-        .modal-content { background: #16213e; margin: 15% auto; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid #4ecca3; box-shadow: 0 0 30px rgba(78, 204, 163, 0.2); }
-        #copyText { background: #0a0e1a; padding: 15px; border-radius: 10px; font-size: 12px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; line-height: 1.5; }
-
-        .header-stats { display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #0f1626; padding: 12px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #1f4a6d; }
-        .balance-box b { color: #f1c40f; }
-        
-        #boostTimerBox { display: none; background: linear-gradient(90deg, #e74c3c, #c0392b); padding: 12px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; font-size: 18px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-
-        .temp-container { width: 280px; height: 18px; background: #0f1626; border-radius: 10px; margin: 15px auto; border: 1px solid #1f4a6d; overflow: hidden; position: relative; }
-        .temp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #e74c3c); transition: width 0.3s ease; }
-        .temp-label { position: absolute; width: 100%; top: 3px; left: 0; font-size: 9px; font-weight: bold; color: white; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px black; pointer-events: none; }
-        .overheat-blink { animation: blink-bg 0.4s infinite; }
-        @keyframes blink-bg { 0% { background: #e74c3c; } 50% { background: #330000; } 100% { background: #e74c3c; } }
-
-        .flying-coin { position: fixed; width: 70px; height: 70px; z-index: 1500; cursor: pointer; filter: drop-shadow(0 0 10px gold); animation: bounceCoin 3s linear infinite; display: none; }
-        @keyframes bounceCoin { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-20px) rotate(10deg); } 50% { transform: translateY(0) rotate(0deg); } 75% { transform: translateY(20px) rotate(-10deg); } }
-
-        .score-container h2 { font-size: 45px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
-        .mine-area { position: relative; height: 300px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
-        #rock { width: 260px; height: 260px; cursor: pointer; transition: transform 0.05s; z-index: 5; border-radius: 50%; object-fit: cover; -webkit-tap-highlight-color: transparent; }
-        #rock:active { transform: scale(0.95); }
-
-        .floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 30px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 100; }
-        .floating-number.boosted { color: #f1c40f; font-size: 40px; text-shadow: 0 0 10px rgba(241,196,15,0.5); } 
-        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-130px); } }
-
-        .stats-row { display: flex; justify-content: space-around; font-size: 13px; color: #8892b0; margin-bottom: 20px; background: #0f1626; padding: 10px; border-radius: 12px; }
-        .shop { text-align: left; }
-        .upgrade-card { background: #1a233a; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #252f47; display: flex; align-items: center; justify-content: space-between; }
-        .upgrade-info { display: flex; align-items: center; }
-        .upgrade-icon { width: 50px; height: 50px; margin-right: 12px; border-radius: 50%; object-fit: cover; }
-        
-        .shop-actions { display: flex; flex-direction: column; gap: 5px; }
-        .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .buy-btn.stone { background: #f1c40f; }
-        .buy-btn.boost { background: #e74c3c; color: white; padding: 10px; }
-
-        /* КНОПКА ОБМІНУ ТА ЕФЕКТ СЯЙВА */
-        .btn-withdraw { background: #252f47; color: #8892b0; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: not-allowed; margin-top: 10px; transition: 0.3s; }
-        .btn-withdraw.active { 
-            background: linear-gradient(45deg, #f1c40f, #e67e22, #f1c40f); 
-            background-size: 200% auto;
-            color: white; 
-            cursor: pointer; 
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
-            animation: shine 2s linear infinite;
-        }
-        @keyframes shine { to { background-position: 200% center; } }
-
-        .btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        .btn-games { display: block; background: #1f2d45; color: #4ecca3; text-decoration: none; padding: 12px; border-radius: 15px; margin-top: 20px; font-size: 14px; font-weight: bold; border: 1px solid #4ecca3; transition: 0.3s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ШАГ Шахтар - Web3 Edition</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<style>
+body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: white; text-align: center; margin: 0; padding: 20px; user-select: none; overflow-x: hidden; }
+.container { max-width: 420px; margin: 0 auto; background: #131b2e; padding: 25px; border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); border: 1px solid #1f2d45; position: relative; }
+.modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
+.modal-content { background: #16213e; margin: 15% auto; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid #4ecca3; box-shadow: 0 0 30px rgba(78, 204, 163, 0.2); }
+#copyText { background: #0a0e1a; padding: 15px; border-radius: 10px; font-size: 12px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; line-height: 1.5; }
+.header-stats { display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #0f1626; padding: 12px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #1f4a6d; }
+.balance-box b { color: #f1c40f; }
+#boostTimerBox { display: none; background: linear-gradient(90deg, #e74c3c, #c0392b); padding: 12px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; font-size: 18px; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+.temp-container { width: 280px; height: 18px; background: #0f1626; border-radius: 10px; margin: 15px auto; border: 1px solid #1f4a6d; overflow: hidden; position: relative; }
+.temp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #e74c3c); transition: width 0.3s ease; }
+.temp-label { position: absolute; width: 100%; top: 3px; left: 0; font-size: 9px; font-weight: bold; color: white; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px black; pointer-events: none; }
+.overheat-blink { animation: blink-bg 0.4s infinite; }
+@keyframes blink-bg { 0% { background: #e74c3c; } 50% { background: #330000; } 100% { background: #e74c3c; } }
+.flying-coin { position: fixed; width: 70px; height: 70px; z-index: 1500; cursor: pointer; filter: drop-shadow(0 0 10px gold); animation: bounceCoin 3s linear infinite; display: none; }
+@keyframes bounceCoin { 0%,100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-20px) rotate(10deg); } 50% { transform: translateY(0) rotate(0deg); } 75% { transform: translateY(20px) rotate(-10deg); } }
+.score-container h2 { font-size: 45px; margin: 0; color: #f1c40f; text-shadow: 0 5px 15px rgba(241, 196, 15, 0.4); }
+.mine-area { position: relative; height: 300px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
+#rock { width: 260px; height: 260px; cursor: pointer; transition: transform 0.05s; z-index: 5; border-radius: 50%; object-fit: cover; -webkit-tap-highlight-color: transparent; }
+#rock:active { transform: scale(0.95); }
+.floating-number { position: absolute; color: #4ecca3; font-weight: bold; font-size: 30px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 100; }
+.floating-number.boosted { color: #f1c40f; font-size: 40px; text-shadow: 0 0 10px rgba(241,196,15,0.5); } 
+@keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-130px); } }
+.stats-row { display: flex; justify-content: space-around; font-size: 13px; color: #8892b0; margin-bottom: 20px; background: #0f1626; padding: 10px; border-radius: 12px; }
+.shop { text-align: left; display: none; }
+.upgrade-card { background: #1a233a; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #252f47; display: flex; align-items: center; justify-content: space-between; }
+.upgrade-info { display: flex; align-items: center; }
+.upgrade-icon { width: 50px; height: 50px; margin-right: 12px; border-radius: 50%; object-fit: cover; }
+.shop-actions { display: flex; flex-direction: column; gap: 5px; }
+.buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
+.buy-btn.stone { background: #f1c40f; }
+.buy-btn.boost { background: #e74c3c; color: white; padding: 10px; }
+.btn-withdraw { background: #252f47; color: #8892b0; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: not-allowed; margin-top: 10px; transition: 0.3s; }
+.btn-withdraw.active { 
+    background: linear-gradient(45deg, #f1c40f, #e67e22, #f1c40f); 
+    background-size: 200% auto;
+    color: white; 
+    cursor: pointer; 
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
+    animation: shine 2s linear infinite;
+}
+@keyframes shine { to { background-position: 200% center; } }
+.btn-connect { background: #4ecca3; color: #0a0e1a; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+.btn-games { display: block; background: #1f2d45; color: #4ecca3; text-decoration: none; padding: 12px; border-radius: 15px; margin-top: 20px; font-size: 14px; font-weight: bold; border: 1px solid #4ecca3; transition: 0.3s; }
+</style>
 </head>
 <body>
 
@@ -76,13 +64,13 @@
     </div>
 </div>
 
-<div class="container">
+<div id="mainContainer" class="container">
     <div class="header-stats">
         <span id="status">🔌 Не підключено</span>
         <span class="balance-box">Баланс: <b id="shagBalance">0.00</b> ШАГ</span>
     </div>
     
-    <div id="boostTimerBox">🚀 ЗОЛОТА ЖИЛА: <span id="boostTimer">100</span> СЕК</div>
+    <div id="boostTimerBox">🚀 ТУРБО РЕЖИМ: <span id="boostTimer">100</span> СЕК</div>
 
     <button id="connectBtn" class="btn-connect" onclick="connect()">⚡ Підключити Гаманець</button>
 
@@ -107,221 +95,161 @@
         <span>Авто: <b id="autoDisplay">0</b>/с</span>
     </div>
 
-    <div class="shop">
-        <div class="upgrade-card" style="border: 1px solid #e74c3c; background: linear-gradient(135deg, #1a233a 0%, #2c1a1a 100%);">
-            <div class="upgrade-info">
-                <div style="background:#e74c3c; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:12px">🔥</div>
-                <div style="text-align:left"><b style="font-size:16px; color:#e74c3c">Золота Жила</b><br><span style="font-size:10px">х10 прибуток (100с)</span></div>
-            </div>
-            <button class="buy-btn boost" onclick="buyBoost()">10 ШАГ</button>
-        </div>
-
-        <div class="upgrade-card">
-            <div class="upgrade-info">
-                <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
-                <div style="text-align:left"><b style="font-size:16px">Залізна Кирка</b><br><span style="font-size:10px">+5 до кліку</span></div>
-            </div>
-            <div class="shop-actions">
-                <button class="buy-btn" onclick="buy(1, 100)">100 ШАГ</button>
-                <button class="buy-btn stone" onclick="buyWithStone(1, 1000000)">1М кам.</button>
-            </div>
-        </div>
-
-        <div class="upgrade-card">
-            <div class="upgrade-info">
-                <img src="assets/1shag/pickaxe_diamond.png" class="upgrade-icon">
-                <div style="text-align:left"><b style="font-size:16px">Алмазна Кирка</b><br><span style="font-size:10px">+25 до кліку</span></div>
-            </div>
-            <div class="shop-actions">
-                <button class="buy-btn" onclick="buy(2, 500)">500 ШАГ</button>
-                <button class="buy-btn stone" onclick="buyWithStone(2, 5000000)">5М кам.</button>
-            </div>
-        </div>
-
-        <div class="upgrade-card">
-            <div class="upgrade-info">
-                <img src="assets/1shag/hedgehogs.png" class="upgrade-icon">
-                <div style="text-align:left"><b style="font-size:16px">Бригада Їжачків</b><br><span style="font-size:10px">+10/с авто</span></div>
-            </div>
-            <div class="shop-actions">
-                <button class="buy-btn" onclick="buy(3, 1000)">1к ШАГ</button>
-                <button class="buy-btn stone" onclick="buyWithStone(3, 10000000)">10М кам.</button>
-            </div>
-        </div>
-    </div>
+    <button onclick="openShop()" class="buy-btn" style="width:100%; margin-bottom:10px">🛒 Відкрити Магазин</button>
 
     <button id="withdrawBtn" class="btn-withdraw" onclick="withdraw()" disabled>🎁 ОБМІНЯТИ КАМІНЬ</button>
     <a href="https://1shag.github.io/shag-site/shag-games2.html" class="btn-games">🎮 БІЛЬШЕ ІГОР ШАГ</a>
 </div>
 
+<div id="shopContainer" class="shop container">
+    <h2>🛒 Магазин</h2>
+    <button onclick="closeShop()" class="buy-btn" style="width:100%; margin-bottom:15px">⬅ Повернутись</button>
+
+    <div class="upgrade-card" style="border: 1px solid #e74c3c; background: linear-gradient(135deg, #1a233a 0%, #2c1a1a 100%);">
+        <div class="upgrade-info">
+            <div style="background:#e74c3c; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:12px">🔥</div>
+            <div style="text-align:left"><b style="font-size:16px; color:#e74c3c">Турбо Режим</b><br><span style="font-size:10px">х10 прибуток (100с)</span></div>
+        </div>
+        <button class="buy-btn boost" onclick="buyBoost()">10 ШАГ</button>
+    </div>
+
+    <div class="upgrade-card">
+        <div class="upgrade-info">
+            <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
+            <div style="text-align:left"><b style="font-size:16px">Залізна Кирка</b><br><span style="font-size:10px">+5 до кліку</span></div>
+        </div>
+        <div class="shop-actions">
+            <button class="buy-btn" onclick="buy(1,100)">100 ШАГ</button>
+            <button class="buy-btn stone" onclick="buyWithStone(1,1000000)">1М кам.</button>
+        </div>
+    </div>
+
+    <div class="upgrade-card">
+        <div class="upgrade-info">
+            <img src="assets/1shag/pickaxe_diamond.png" class="upgrade-icon">
+            <div style="text-align:left"><b style="font-size:16px">Діамантова Кирка</b><br><span style="font-size:10px">+25 до кліку</span></div>
+        </div>
+        <div class="shop-actions">
+            <button class="buy-btn" onclick="buy(2,500)">500 ШАГ</button>
+            <button class="buy-btn stone" onclick="buyWithStone(2,5000000)">5М кам.</button>
+        </div>
+    </div>
+
+    <div class="upgrade-card">
+        <div class="upgrade-info">
+            <img src="assets/1shag/hedgehogs.png" class="upgrade-icon">
+            <div style="text-align:left"><b style="font-size:16px">Бригада Їжачків</b><br><span style="font-size:10px">+10/с авто</span></div>
+        </div>
+        <div class="shop-actions">
+            <button class="buy-btn" onclick="buy(3,1000)">1к ШАГ</button>
+            <button class="buy-btn stone" onclick="buyWithStone(3,10000000)">10М кам.</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    const tokenAddr = "0xd4c35feccf968f4a73be4717524c087d7d0ed229", myWallet = "0x988cE6555C015e0761579de477fC9f816203ea2E", tgNick = "coins_1SHAG";
-    const abi = ["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t, uint256 a) returns (bool)"];
-    
-    let score = 0, pwr = 1, auto = 0, user = null, contract = null, pendingMsg = "", oldScore = 0;
-    let boostMultiplier = 1, boostEndTime = 0, boostInterval;
-    
-    let temperature = 0;
-    const maxTemp = 100, heatPerClick = 2.0, coolingRate = 9;
-    let isOverheated = false, coinTimeout;
+const tokenAddr="0xd4c35feccf968f4a73be4717524c087d7d0ed229", myWallet="0x988cE6555C015e0761579de477fC9f816203ea2E", tgNick="coins_1SHAG";
+const abi=["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t,uint256 a) returns (bool)"];
 
-    window.onload = () => {
-        const saved = localStorage.getItem('shag_miner_pro_v3');
-        if(saved) { 
-            try { 
-                const d = JSON.parse(atob(saved)); 
-                score = d.s||0; pwr = d.p||1; auto = d.a||0; boostEndTime = d.be||0;
-                if (Date.now() < boostEndTime) startBoostTimer();
-                updateMainImage();
-            } catch(e) {}
-        }
-        updateUI();
-        setInterval(() => { if(auto > 0){ score += (auto * boostMultiplier); updateUI(); } }, 1000);
-        setInterval(() => { if (temperature > 0 && !isOverheated) { temperature = Math.max(0, temperature - (coolingRate / 10)); updateTempUI(); } }, 100);
-    };
+let score=0,pwr=1,auto=0,user=null,contract=null,pendingMsg="",oldScore=0;
+let boostMultiplier=1,boostEndTime=0,boostInterval;
+let temperature=0,maxTemp=100,heatPerClick=2.0,coolingRate=9,isOverheated=false,coinTimeout;
 
-    function clickRock(e) {
-        if (isOverheated) return;
-        temperature += heatPerClick;
-        updateTempUI();
-        if (temperature >= maxTemp) { triggerOverheat(); return; }
+window.onload=()=>{
+    const saved=localStorage.getItem('shag_miner_pro_v3');
+    if(saved){ try{ const d=JSON.parse(atob(saved)); score=d.s||0;pwr=d.p||1;auto=d.a||0;boostEndTime=d.be||0;if(Date.now()<boostEndTime)startBoostTimer(); updateMainImage(); }catch(e){}}
+    updateUI();
+    setInterval(()=>{ if(auto>0){ score+=auto*boostMultiplier; updateUI(); } },1000);
+    setInterval(()=>{ if(temperature>0&&!isOverheated){ temperature=Math.max(0,temperature-(coolingRate/10)); updateTempUI(); } },100);
+};
 
-        let earned = pwr * boostMultiplier;
-        score += earned; updateUI();
-        spawnFloatingText(e.clientX, e.clientY, `+${earned}`, boostMultiplier > 1);
-        if (Math.random() < 0.015) spawnShagCoin();
-    }
+function clickRock(e){
+    if(isOverheated)return;
+    temperature+=heatPerClick; updateTempUI();
+    if(temperature>=maxTemp){ triggerOverheat(); return; }
+    let earned=pwr*boostMultiplier;
+    score+=earned; updateUI();
+    spawnFloatingText(e.clientX,e.clientY,`+${earned}`,boostMultiplier>1);
+    if(Math.random()<0.015)spawnShagCoin();
+}
 
-    function triggerOverheat() {
-        isOverheated = true; temperature = maxTemp; updateTempUI();
-        const bar = document.getElementById("temp-bar"), label = document.getElementById("temp-label");
-        bar.classList.add("overheat-blink"); label.innerText = "🚨 ПЕРЕГРІВ!";
-        setTimeout(() => { isOverheated = false; temperature = 0; bar.classList.remove("overheat-blink"); label.innerText = "Температура шахти"; updateTempUI(); }, 10000);
-    }
+function triggerOverheat(){ 
+    isOverheated=true; temperature=maxTemp; updateTempUI();
+    const bar=document.getElementById("temp-bar"),label=document.getElementById("temp-label");
+    bar.classList.add("overheat-blink"); label.innerText="🚨 ПЕРЕГРІВ!";
+    setTimeout(()=>{ isOverheated=false; temperature=0; bar.classList.remove("overheat-blink"); label.innerText="Температура шахти"; updateTempUI(); },10000);
+}
 
-    function updateTempUI() { document.getElementById("temp-bar").style.width = temperature + "%"; }
+function updateTempUI(){ document.getElementById("temp-bar").style.width=temperature+"%"; }
 
-    function updateUI() {
-        document.getElementById("score").innerText = Math.floor(score).toLocaleString('uk-UA');
-        document.getElementById("pwrDisplay").innerText = `+${pwr * boostMultiplier}`;
-        document.getElementById("autoDisplay").innerText = auto * boostMultiplier;
-        
-        const btn = document.getElementById("withdrawBtn");
-        const availableShag = Math.floor(score / 10000);
-        if (availableShag >= 10) {
-            btn.disabled = false;
-            btn.classList.add("active");
-            btn.innerText = `🎁 ОБМІНЯТИ НА ${availableShag} ШАГ`;
-        } else {
-            btn.disabled = true;
-            btn.classList.remove("active");
-            btn.innerText = `🎁 МІНІМУМ 100к КАМ.`;
-        }
-        localStorage.setItem('shag_miner_pro_v3', btoa(JSON.stringify({s:score, p:pwr, a:auto, be:boostEndTime})));
-    }
+function updateUI(){
+    document.getElementById("score").innerText=Math.floor(score).toLocaleString('uk-UA');
+    document.getElementById("pwrDisplay").innerText=`+${pwr*boostMultiplier}`;
+    document.getElementById("autoDisplay").innerText=auto*boostMultiplier;
+    const btn=document.getElementById("withdrawBtn");
+    const availableShag=Math.floor(score/10000);
+    if(availableShag>=10){ btn.disabled=false; btn.classList.add("active"); btn.innerText=`🎁 ОБМІНЯТИ НА ${availableShag} ШАГ`; }
+    else{ btn.disabled=true; btn.classList.remove("active"); btn.innerText=`🎁 МІНІМУМ 100к КАМІНЬ.`; }
+    localStorage.setItem('shag_miner_pro_v3',btoa(JSON.stringify({s:score,p:pwr,a:auto,be:boostEndTime})));
+}
 
-    function withdraw() {
-        if(!user) return alert("Підключіть гаманець!");
-        oldScore = score;
-        const shagAmount = Math.floor(score / 10000);
-        const stoneToCharge = shagAmount * 10000;
-        const remainder = score - stoneToCharge;
-        const code = Math.floor(10000 + Math.random() * 89999);
-        
-        pendingMsg = `👋 ЗАЯВКА НА ОБМІН\n💰 Сума: ${shagAmount} ШАГ\n⚒️ Списано: ${stoneToCharge.toLocaleString()} кам.\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
-        document.getElementById("copyText").innerText = pendingMsg;
-        document.getElementById("withdrawModal").style.display = "block";
-        score = remainder; updateUI();
-    }
+function withdraw(){
+    if(!user)return alert("Підключіть гаманець!");
+    oldScore=score;
+    const shagAmount=Math.floor(score/10000);
+    const stoneToCharge=shagAmount*10000;
+    const remainder=score-stoneToCharge;
+    const code=Math.floor(10000+Math.random()*89999);
+    pendingMsg=`👋 ЗАЯВКА НА ОБМІН\n💰 Сума: ${shagAmount} ШАГ\n⚒️ Списано: ${stoneToCharge.toLocaleString()} кам.\n💼 Гаманець: ${user}\n🔐 Код: ${code}`;
+    document.getElementById("copyText").innerText=pendingMsg;
+    document.getElementById("withdrawModal").style.display="block";
+    score=remainder; updateUI();
+}
 
-    async function connect() {
-        if(!window.ethereum) return alert("MetaMask!");
-        try {
-            const p = new ethers.BrowserProvider(window.ethereum);
-            const s = await p.getSigner();
-            user = await s.getAddress();
-            contract = new ethers.Contract(tokenAddr, abi, s);
-            document.getElementById("status").innerText = "🟢 " + user.slice(0,6);
-            document.getElementById("connectBtn").style.display = "none";
-            updBal();
-        } catch(e) { alert("Помилка"); }
-    }
+async function connect(){
+    if(!window.ethereum)return alert("MetaMask!");
+    try{
+        const p=new ethers.BrowserProvider(window.ethereum);
+        const s=await p.getSigner();
+        user=await s.getAddress();
+        contract=new ethers.Contract(tokenAddr,abi,s);
+        document.getElementById("status").innerText="🟢 "+user.slice(0,6);
+        document.getElementById("connectBtn").style.display="none";
+        updBal();
+    }catch(e){ alert("Помилка"); }
+}
 
-    function spawnShagCoin() {
-        const coin = document.getElementById('flyingShagCoin');
-        coin.style.left = Math.random() * (window.innerWidth - 80) + 'px';
-        coin.style.top = Math.random() * (window.innerHeight - 80) + 'px';
-        coin.style.display = 'block';
-        clearTimeout(coinTimeout);
-        coinTimeout = setTimeout(() => { coin.style.display = 'none'; }, 3000);
-    }
+function spawnShagCoin(){
+    const coin=document.getElementById('flyingShagCoin');
+    coin.style.left=Math.random()*(window.innerWidth-80)+'px';
+    coin.style.top=Math.random()*(window.innerHeight-80)+'px';
+    coin.style.display='block';
+    clearTimeout(coinTimeout);
+    coinTimeout=setTimeout(()=>{ coin.style.display='none'; },3000);
+}
 
-    function collectShagCoin(e) {
-        e.stopPropagation();
-        document.getElementById('flyingShagCoin').style.display = 'none';
-        score += 10000; updateUI();
-        spawnFloatingText(e.clientX, e.clientY, `🎁 +10,000`, true);
-    }
+function collectShagCoin(e){ e.stopPropagation(); document.getElementById('flyingShagCoin').style.display='none'; score+=10000; updateUI(); spawnFloatingText(e.clientX,e.clientY,'🎁 +10,000',true); }
 
-    function spawnFloatingText(x, y, text, isBoosted) {
-        const n = document.createElement('div');
-        n.className = 'floating-number' + (isBoosted ? ' boosted' : '');
-        n.innerText = text; n.style.left = (x - 20) + 'px'; n.style.top = (y - 40) + 'px';
-        document.body.appendChild(n); setTimeout(() => n.remove(), 700);
-    }
+function spawnFloatingText(x,y,text,isBoosted){ const n=document.createElement('div'); n.className='floating-number'+(isBoosted?' boosted':''); n.innerText=text; n.style.left=(x-20)+'px'; n.style.top=(y-40)+'px'; document.body.appendChild(n); setTimeout(()=>n.remove(),700); }
 
-    async function updBal() {
-        if(!contract || !user) return;
-        const b = await contract.balanceOf(user), d = await contract.decimals();
-        document.getElementById("shagBalance").innerText = parseFloat(ethers.formatUnits(b, d)).toFixed(2);
-    }
+async function updBal(){ if(!contract||!user)return; const b=await contract.balanceOf(user), d=await contract.decimals(); document.getElementById("shagBalance").innerText=parseFloat(ethers.formatUnits(b,d)).toFixed(2); }
 
-    function buyWithStone(t, price) {
-        if (score < price) return alert("Мало каменю!");
-        score -= price; if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
-        updateMainImage(); updateUI();
-    }
+function buyWithStone(t,price){ if(score<price)return alert("Мало каменю!"); score-=price; if(t===1)pwr+=5; else if(t===2)pwr+=25; else if(t===3)auto+=10; updateMainImage(); updateUI(); }
 
-    async function buy(t, pr) {
-        if(!contract) return alert("Гаманець!");
-        try {
-            const d = await contract.decimals();
-            const tx = await contract.transfer(myWallet, ethers.parseUnits(pr.toString(), d));
-            await tx.wait(); if(t === 1) pwr += 5; else if(t === 2) pwr += 25; else if(t === 3) auto += 10;
-            updateMainImage(); updateUI(); updBal();
-        } catch(e) { alert("Скасовано"); }
-    }
+async function buy(t,pr){ if(!contract)return alert("Гаманець!"); try{ const d=await contract.decimals(); const tx=await contract.transfer(myWallet,ethers.parseUnits(pr.toString(),d)); await tx.wait(); if(t===1)pwr+=5; else if(t===2)pwr+=25; else if(t===3)auto+=10; updateMainImage(); updateUI(); updBal(); }catch(e){ alert("Скасовано"); } }
 
-    async function buyBoost() {
-        if(!contract) return alert("Гаманець!");
-        try {
-            const d = await contract.decimals();
-            const tx = await contract.transfer(myWallet, ethers.parseUnits("10", d));
-            await tx.wait(); boostEndTime = Date.now() + 100000; startBoostTimer(); updBal();
-        } catch(e) { alert("Скасовано"); }
-    }
+async function buyBoost(){ if(!contract)return alert("Гаманець!"); try{ const d=await contract.decimals(); const tx=await contract.transfer(myWallet,ethers.parseUnits("10",d)); await tx.wait(); boostEndTime=Date.now()+100000; startBoostTimer(); updBal(); }catch(e){ alert("Скасовано"); } }
 
-    function startBoostTimer() {
-        boostMultiplier = 10;
-        document.getElementById("boostTimerBox").style.display = "block";
-        document.getElementById("rock").style.filter = "drop-shadow(0 0 20px #e74c3c)";
-        boostInterval = setInterval(() => {
-            let r = boostEndTime - Date.now();
-            if (r <= 0) { clearInterval(boostInterval); boostMultiplier = 1; document.getElementById("boostTimerBox").style.display = "none"; document.getElementById("rock").style.filter = "none"; updateUI(); return; }
-            document.getElementById("boostTimer").innerText = Math.ceil(r / 1000);
-        }, 100);
-    }
+function startBoostTimer(){ boostMultiplier=10; document.getElementById("boostTimerBox").style.display="block"; document.getElementById("rock").style.filter="drop-shadow(0 0 20px #e74c3c)"; boostInterval=setInterval(()=>{ let r=boostEndTime-Date.now(); if(r<=0){ clearInterval(boostInterval); boostMultiplier=1; document.getElementById("boostTimerBox").style.display="none"; document.getElementById("rock").style.filter="none"; updateUI(); return; } document.getElementById("boostTimer").innerText=Math.ceil(r/1000); },100); }
 
-    function copyAndGo() { navigator.clipboard.writeText(pendingMsg).then(() => { oldScore = 0; window.open(`https://t.me/${tgNick}`, '_blank'); document.getElementById("withdrawModal").style.display = "none"; }); }
-    function closeModal() { score = oldScore; updateUI(); document.getElementById("withdrawModal").style.display = "none"; }
+function copyAndGo(){ navigator.clipboard.writeText(pendingMsg).then(()=>{ oldScore=0; window.open(`https://t.me/${tgNick}`,'_blank'); document.getElementById("withdrawModal").style.display="none"; }); }
 
-    function updateMainImage() {
-        const m = document.getElementById("rock");
-        if(auto > 0) m.src = "assets/1shag/hedgehogs.png";
-        else if(pwr > 25) m.src = "assets/1shag/pickaxe_diamond.png";
-        else if(pwr > 1) m.src = "assets/1shag/pickaxe_iron.png";
-        else m.src = "assets/1shag/rock.png";
-    }
+function closeModal(){ score=oldScore; updateUI(); document.getElementById("withdrawModal").style.display="none"; }
+
+function updateMainImage(){ const m=document.getElementById("rock"); if(auto>0)m.src="assets/1shag/hedgehogs.png"; else if(pwr>25)m.src="assets/1shag/pickaxe_diamond.png"; else if(pwr>1)m.src="assets/1shag/pickaxe_iron.png"; else m.src="assets/1shag/rock.png"; }
+
+function openShop(){ document.getElementById("mainContainer").style.display="none"; document.getElementById("shopContainer").style.display="block"; }
+function closeShop(){ document.getElementById("shopContainer").style.display="none"; document.getElementById("mainContainer").style.display="block"; }
 </script>
 </body>
 </html>
