@@ -38,6 +38,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
 .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
 .buy-btn.stone { background: #f1c40f; }
 .buy-btn.boost { background: #e74c3c; color: white; padding: 10px; }
+.buy-btn.rent { background: #2ecc71; color: #0a0e1a; border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
 .btn-withdraw { background: #252f47; color: #8892b0; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: not-allowed; margin-top: 10px; transition: 0.3s; }
 .btn-withdraw.active { 
     background: linear-gradient(45deg, #f1c40f, #e67e22, #f1c40f); 
@@ -83,6 +84,10 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div id="temp-bar" class="temp-bar"></div>
         <div id="temp-label" class="temp-label">Температура шахти</div>
     </div>
+    <!-- Таймер оренди під блоком перегріву -->
+    <div id="rentTimerBox" style="display:none; color:#2ecc71; font-weight:bold; margin-top:5px; font-size:12px;">
+        ⏱ Орена кирки: <span id="rentTimer">0</span> сек
+    </div>
 
     <img src="assets/1shag/1SHAG_logo_128.png" id="flyingShagCoin" class="flying-coin" onclick="collectShagCoin(event)">
 
@@ -121,6 +126,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div class="shop-actions">
             <button class="buy-btn" onclick="buy(1,100)">100 ШАГ</button>
             <button class="buy-btn stone" onclick="buyWithStone(1,1000000)">1М кам.</button>
+            <button class="buy-btn rent" onclick="rentPickaxe(1,100,30)">ОРЕНДА +5 на 30с</button>
         </div>
     </div>
 
@@ -132,6 +138,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div class="shop-actions">
             <button class="buy-btn" onclick="buy(2,500)">500 ШАГ</button>
             <button class="buy-btn stone" onclick="buyWithStone(2,5000000)">5М кам.</button>
+            <button class="buy-btn rent" onclick="rentPickaxe(2,500,30)">ОРЕНДА +25 на 30с</button>
         </div>
     </div>
 
@@ -154,6 +161,7 @@ const abi=["function balanceOf(address o) view returns (uint256)","function deci
 let score=0,pwr=1,auto=0,user=null,contract=null,pendingMsg="",oldScore=0;
 let boostMultiplier=1,boostEndTime=0,boostInterval;
 let temperature=0,maxTemp=100,heatPerClick=2.0,coolingRate=9,isOverheated=false,coinTimeout;
+let rentTimeout, rentEndTime;
 
 window.onload=()=>{
     const saved=localStorage.getItem('shag_miner_pro_v3');
@@ -250,6 +258,30 @@ function updateMainImage(){ const m=document.getElementById("rock"); if(auto>0)m
 
 function openShop(){ document.getElementById("mainContainer").style.display="none"; document.getElementById("shopContainer").style.display="block"; }
 function closeShop(){ document.getElementById("shopContainer").style.display="none"; document.getElementById("mainContainer").style.display="block"; }
+
+// --- Оренда кирок ---
+function rentPickaxe(type, cost, duration){
+    if(score < cost) return alert("Мало каменю для оренди!");
+    score -= cost;
+    let addedPwr = type === 1 ? 5 : 25;
+    pwr += addedPwr;
+    rentEndTime = Date.now() + duration*1000;
+    updateUI();
+    document.getElementById("rentTimerBox").style.display = "block";
+
+    clearInterval(rentTimeout);
+    rentTimeout = setInterval(()=>{
+        let rem = Math.ceil((rentEndTime - Date.now())/1000);
+        if(rem <= 0){
+            clearInterval(rentTimeout);
+            pwr -= addedPwr; // прибрати бонус
+            document.getElementById("rentTimerBox").style.display = "none";
+            updateUI();
+        } else {
+            document.getElementById("rentTimer").innerText = rem;
+        }
+    }, 500);
+}
 </script>
 </body>
 </html>
