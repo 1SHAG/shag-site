@@ -13,7 +13,8 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
 #copyText { background: #0a0e1a; padding: 15px; border-radius: 10px; font-size: 12px; text-align: left; margin: 15px 0; border: 1px solid #1f4a6d; color: #4ecca3; font-family: monospace; white-space: pre-wrap; line-height: 1.5; }
 .header-stats { display: flex; justify-content: space-between; align-items: center; font-size: 13px; background: #0f1626; padding: 12px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #1f4a6d; }
 .balance-box b { color: #f1c40f; }
-#boostTimerBox { display: none; background: linear-gradient(90deg, #e74c3c, #c0392b); padding: 12px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; font-size: 18px; animation: pulse 1s infinite; }
+#boostTimerBox, #rentTimerBox { display: none; background: linear-gradient(90deg, #e74c3c, #c0392b); padding: 12px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; font-size: 18px; animation: pulse 1s infinite; }
+#rentTimerBox { background: linear-gradient(90deg, #2ecc71, #27ae60); }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
 .temp-container { width: 280px; height: 18px; background: #0f1626; border-radius: 10px; margin: 15px auto; border: 1px solid #1f4a6d; overflow: hidden; position: relative; }
 .temp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #e74c3c); transition: width 0.3s ease; }
@@ -38,7 +39,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
 .buy-btn { background: #4ecca3; color: #0a0e1a; border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
 .buy-btn.stone { background: #f1c40f; }
 .buy-btn.boost { background: #e74c3c; color: white; padding: 10px; }
-.buy-btn.rent { background: #2ecc71; color: #0a0e1a; border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
+.buy-btn.rent { background: #2ecc71; color: white; }
 .btn-withdraw { background: #252f47; color: #8892b0; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 15px; cursor: not-allowed; margin-top: 10px; transition: 0.3s; }
 .btn-withdraw.active { 
     background: linear-gradient(45deg, #f1c40f, #e67e22, #f1c40f); 
@@ -72,6 +73,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
     </div>
     
     <div id="boostTimerBox">🚀 ТУРБО РЕЖИМ: <span id="boostTimer">100</span> СЕК</div>
+    <div id="rentTimerBox">⏱ ОРЕНДА: <span id="rentTimer">0</span> СЕК</div>
 
     <button id="connectBtn" class="btn-connect" onclick="connect()">⚡ Підключити Гаманець</button>
 
@@ -83,10 +85,6 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
     <div class="temp-container">
         <div id="temp-bar" class="temp-bar"></div>
         <div id="temp-label" class="temp-label">Температура шахти</div>
-    </div>
-    <!-- Таймер оренди під блоком перегріву -->
-    <div id="rentTimerBox" style="display:none; color:#2ecc71; font-weight:bold; margin-top:5px; font-size:12px;">
-        ⏱ Орена кирки: <span id="rentTimer">0</span> сек
     </div>
 
     <img src="assets/1shag/1SHAG_logo_128.png" id="flyingShagCoin" class="flying-coin" onclick="collectShagCoin(event)">
@@ -110,6 +108,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
     <h2>🛒 Магазин</h2>
     <button onclick="closeShop()" class="buy-btn" style="width:100%; margin-bottom:15px">⬅ Повернутись</button>
 
+    <!-- Турбо режим -->
     <div class="upgrade-card" style="border: 1px solid #e74c3c; background: linear-gradient(135deg, #1a233a 0%, #2c1a1a 100%);">
         <div class="upgrade-info">
             <div style="background:#e74c3c; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:12px">🔥</div>
@@ -118,6 +117,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <button class="buy-btn boost" onclick="buyBoost()">10 ШАГ</button>
     </div>
 
+    <!-- Кирки -->
     <div class="upgrade-card">
         <div class="upgrade-info">
             <img src="assets/1shag/pickaxe_iron.png" class="upgrade-icon">
@@ -126,7 +126,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div class="shop-actions">
             <button class="buy-btn" onclick="buy(1,100)">100 ШАГ</button>
             <button class="buy-btn stone" onclick="buyWithStone(1,1000000)">1М кам.</button>
-            <button class="buy-btn rent" onclick="rentPickaxe(1,100,30)">ОРЕНДА +5 на 30с</button>
+            <button class="buy-btn rent" onclick="rentPickaxe(1,100,30)">Оренда 30с (100 кам)</button>
         </div>
     </div>
 
@@ -138,7 +138,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div class="shop-actions">
             <button class="buy-btn" onclick="buy(2,500)">500 ШАГ</button>
             <button class="buy-btn stone" onclick="buyWithStone(2,5000000)">5М кам.</button>
-            <button class="buy-btn rent" onclick="rentPickaxe(2,500,30)">ОРЕНДА +25 на 30с</button>
+            <button class="buy-btn rent" onclick="rentPickaxe(2,500,30)">Оренда 30с (500 кам)</button>
         </div>
     </div>
 
@@ -158,14 +158,14 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
 const tokenAddr="0xd4c35feccf968f4a73be4717524c087d7d0ed229", myWallet="0x988cE6555C015e0761579de477fC9f816203ea2E", tgNick="coins_1SHAG";
 const abi=["function balanceOf(address o) view returns (uint256)","function decimals() view returns (uint8)","function transfer(address t,uint256 a) returns (bool)"];
 
-let score=0,pwr=1,auto=0,user=null,contract=null,pendingMsg="",oldScore=0;
+let score=0, basePwr=1, pwr=1, auto=0,user=null,contract=null,pendingMsg="",oldScore=0;
 let boostMultiplier=1,boostEndTime=0,boostInterval;
 let temperature=0,maxTemp=100,heatPerClick=2.0,coolingRate=9,isOverheated=false,coinTimeout;
-let rentTimeout, rentEndTime;
+let rentEndTime=0, rentTimeout=null, currentRentBonus=0;
 
 window.onload=()=>{
     const saved=localStorage.getItem('shag_miner_pro_v3');
-    if(saved){ try{ const d=JSON.parse(atob(saved)); score=d.s||0;pwr=d.p||1;auto=d.a||0;boostEndTime=d.be||0;if(Date.now()<boostEndTime)startBoostTimer(); updateMainImage(); }catch(e){}}
+    if(saved){ try{ const d=JSON.parse(atob(saved)); score=d.s||0;basePwr=d.p||1; auto=d.a||0; boostEndTime=d.be||0; if(Date.now()<boostEndTime)startBoostTimer(); updatePwr(); updateMainImage(); }catch(e){}}
     updateUI();
     setInterval(()=>{ if(auto>0){ score+=auto*boostMultiplier; updateUI(); } },1000);
     setInterval(()=>{ if(temperature>0&&!isOverheated){ temperature=Math.max(0,temperature-(coolingRate/10)); updateTempUI(); } },100);
@@ -190,6 +190,8 @@ function triggerOverheat(){
 
 function updateTempUI(){ document.getElementById("temp-bar").style.width=temperature+"%"; }
 
+function updatePwr(){ pwr = basePwr + (rentEndTime && Date.now()<rentEndTime ? currentRentBonus : 0); }
+
 function updateUI(){
     document.getElementById("score").innerText=Math.floor(score).toLocaleString('uk-UA');
     document.getElementById("pwrDisplay").innerText=`+${pwr*boostMultiplier}`;
@@ -198,7 +200,7 @@ function updateUI(){
     const availableShag=Math.floor(score/10000);
     if(availableShag>=10){ btn.disabled=false; btn.classList.add("active"); btn.innerText=`🎁 ОБМІНЯТИ НА ${availableShag} ШАГ`; }
     else{ btn.disabled=true; btn.classList.remove("active"); btn.innerText=`🎁 МІНІМУМ 100к КАМІНЬ.`; }
-    localStorage.setItem('shag_miner_pro_v3',btoa(JSON.stringify({s:score,p:pwr,a:auto,be:boostEndTime})));
+    localStorage.setItem('shag_miner_pro_v3',btoa(JSON.stringify({s:score,p:basePwr,a:auto,be:boostEndTime})));
 }
 
 function withdraw(){
@@ -242,9 +244,9 @@ function spawnFloatingText(x,y,text,isBoosted){ const n=document.createElement('
 
 async function updBal(){ if(!contract||!user)return; const b=await contract.balanceOf(user), d=await contract.decimals(); document.getElementById("shagBalance").innerText=parseFloat(ethers.formatUnits(b,d)).toFixed(2); }
 
-function buyWithStone(t,price){ if(score<price)return alert("Мало каменю!"); score-=price; if(t===1)pwr+=5; else if(t===2)pwr+=25; else if(t===3)auto+=10; updateMainImage(); updateUI(); }
+function buyWithStone(t,price){ if(score<price)return alert("Мало каменю!"); score-=price; if(t===1) basePwr+=5; else if(t===2) basePwr+=25; else if(t===3) auto+=10; updatePwr(); updateUI(); }
 
-async function buy(t,pr){ if(!contract)return alert("Гаманець!"); try{ const d=await contract.decimals(); const tx=await contract.transfer(myWallet,ethers.parseUnits(pr.toString(),d)); await tx.wait(); if(t===1)pwr+=5; else if(t===2)pwr+=25; else if(t===3)auto+=10; updateMainImage(); updateUI(); updBal(); }catch(e){ alert("Скасовано"); } }
+async function buy(t,pr){ if(!contract)return alert("Гаманець!"); try{ const d=await contract.decimals(); const tx=await contract.transfer(myWallet,ethers.parseUnits(pr.toString(),d)); await tx.wait(); if(t===1) basePwr+=5; else if(t===2) basePwr+=25; else if(t===3) auto+=10; updatePwr(); updateUI(); updBal(); }catch(e){ alert("Скасовано"); } }
 
 async function buyBoost(){ if(!contract)return alert("Гаманець!"); try{ const d=await contract.decimals(); const tx=await contract.transfer(myWallet,ethers.parseUnits("10",d)); await tx.wait(); boostEndTime=Date.now()+100000; startBoostTimer(); updBal(); }catch(e){ alert("Скасовано"); } }
 
@@ -263,9 +265,9 @@ function closeShop(){ document.getElementById("shopContainer").style.display="no
 function rentPickaxe(type, cost, duration){
     if(score < cost) return alert("Мало каменю для оренди!");
     score -= cost;
-    let addedPwr = type === 1 ? 5 : 25;
-    pwr += addedPwr;
+    currentRentBonus = type === 1 ? 5 : 25;
     rentEndTime = Date.now() + duration*1000;
+    updatePwr();
     updateUI();
     document.getElementById("rentTimerBox").style.display = "block";
 
@@ -274,7 +276,8 @@ function rentPickaxe(type, cost, duration){
         let rem = Math.ceil((rentEndTime - Date.now())/1000);
         if(rem <= 0){
             clearInterval(rentTimeout);
-            pwr -= addedPwr; // прибрати бонус
+            currentRentBonus = 0;
+            updatePwr();
             document.getElementById("rentTimerBox").style.display = "none";
             updateUI();
         } else {
