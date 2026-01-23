@@ -126,7 +126,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div class="shop-actions">
             <button class="buy-btn" onclick="buy(1,100)">100 ШАГ</button>
             <button class="buy-btn stone" onclick="buyWithStone(1,1000000)">1М кам.</button>
-            <button class="buy-btn rent" onclick="rentPickaxe(1,100,30)">Оренда 30с (100 кам)</button>
+            <button class="buy-btn rent" id="rentBtnIron" onclick="rentPickaxe(1,100,30)">Оренда 30с (100 кам)</button>
         </div>
     </div>
 
@@ -138,7 +138,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #0a0e1a; color: wh
         <div class="shop-actions">
             <button class="buy-btn" onclick="buy(2,500)">500 ШАГ</button>
             <button class="buy-btn stone" onclick="buyWithStone(2,5000000)">5М кам.</button>
-            <button class="buy-btn rent" onclick="rentPickaxe(2,500,30)">Оренда 30с (500 кам)</button>
+            <button class="buy-btn rent" id="rentBtnDiamond" onclick="rentPickaxe(2,500,30)">Оренда 30с (500 кам)</button>
         </div>
     </div>
 
@@ -261,15 +261,26 @@ function updateMainImage(){ const m=document.getElementById("rock"); if(auto>0)m
 function openShop(){ document.getElementById("mainContainer").style.display="none"; document.getElementById("shopContainer").style.display="block"; }
 function closeShop(){ document.getElementById("shopContainer").style.display="none"; document.getElementById("mainContainer").style.display="block"; }
 
-// --- Оренда кирок ---
+// --- Оренда кирок з блокуванням кнопки ---
 function rentPickaxe(type, cost, duration){
+    const btnId = type === 1 ? 'rentBtnIron' : 'rentBtnDiamond';
+    const rentBtn = document.getElementById(btnId);
+
     if(score < cost) return alert("Мало каменю для оренди!");
+    if(rentEndTime && Date.now() < rentEndTime){
+        return alert("Оренда вже активна! Чекайте завершення.");
+    }
+
     score -= cost;
     currentRentBonus = type === 1 ? 5 : 25;
     rentEndTime = Date.now() + duration*1000;
     updatePwr();
     updateUI();
+
     document.getElementById("rentTimerBox").style.display = "block";
+    document.getElementById("rentTimer").innerText = duration;
+
+    if(rentBtn) rentBtn.disabled = true;
 
     clearInterval(rentTimeout);
     rentTimeout = setInterval(()=>{
@@ -277,13 +288,17 @@ function rentPickaxe(type, cost, duration){
         if(rem <= 0){
             clearInterval(rentTimeout);
             currentRentBonus = 0;
+            rentEndTime = 0;
             updatePwr();
             document.getElementById("rentTimerBox").style.display = "none";
             updateUI();
+            if(rentBtn) rentBtn.disabled = false;
         } else {
             document.getElementById("rentTimer").innerText = rem;
         }
     }, 500);
+
+    alert(`✅ Оренда успішно активована на ${duration} секунд!`);
 }
 </script>
 </body>
