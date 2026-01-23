@@ -238,7 +238,27 @@ function spawnShagCoin(){
     coinTimeout=setTimeout(()=>{ coin.style.display='none'; },3000);
 }
 
-function collectShagCoin(e){ e.stopPropagation(); document.getElementById('flyingShagCoin').style.display='none'; score+=10000; updateUI(); spawnFloatingText(e.clientX,e.clientY,'🎁 +10,000',true); }
+function collectShagCoin(e){ 
+    e.stopPropagation(); 
+    document.getElementById('flyingShagCoin').style.display='none'; 
+    
+    let rand = Math.random(); // випадкове число від 0 до 1
+    let bonus = 0;
+
+    if(rand < 0.55){          // 55%
+        bonus = 5000;
+    } else if(rand < 0.55 + 0.25){ // 25%
+        bonus = 10000;
+    } else if(rand < 0.55 + 0.25 + 0.15){ // 15%
+        bonus = 20000;
+    } else {                   // залишок 5%
+        bonus = 25000;
+    }
+
+    score += bonus; 
+    updateUI(); 
+    spawnFloatingText(e.clientX, e.clientY, `🎁 +${bonus.toLocaleString()}`, true); 
+}
 
 function spawnFloatingText(x,y,text,isBoosted){ const n=document.createElement('div'); n.className='floating-number'+(isBoosted?' boosted':''); n.innerText=text; n.style.left=(x-20)+'px'; n.style.top=(y-40)+'px'; document.body.appendChild(n); setTimeout(()=>n.remove(),700); }
 
