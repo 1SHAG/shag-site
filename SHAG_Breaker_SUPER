@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SHAG Breaker | Арканоїд "Цегляний Ламач"</title>
+  
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      --bg: #1c160b;
+      --card: #271f12;
+      --line: #42361f;
+      --ink: #f5ecd7;
+      --muted: #c4b797;
+      --gold: #f2b632;
+      --gold-deep: #e09a12;
+      --gold-soft: #382c16;
+      --gold-text: #ffcf5c;
+      --shadow: 0 8px 24px rgba(0,0,0,0.5);
+      --radius: 16px;
+      --font: 'Fredoka', 'Nunito', system-ui, -apple-system, sans-serif;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 2px 2px, rgba(242, 182, 50, 0.12) 2px, transparent 0);
+      background-size: 24px 24px;
+      color: var(--ink);
+      font-family: var(--font);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: none;
+      overscroll-behavior: none;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    /* Layout Container */
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      padding: 16px 12px 24px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 8px;
+        gap: 12px;
+      }
+    }
+
+    /* Game Stage */
+    .stage-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .frame {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 360 / 540;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 0 0 3px var(--line), var(--shadow);
+      background: #2b2416;
+      touch-action: none;
+    }
+
+    #game {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    /* Controls Bar */
+    .tools-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #2b2416;
+      background: var(--gold);
+      box-shadow: 0 4px 0 var(--gold-deep);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #ffe28a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 var(--gold-deep);
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--gold-deep);
+    }
+
+    .btn.secondary {
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 0 var(--line);
+    }
+
+    .btn.secondary:hover {
+      background: var(--gold-soft);
+      border-color: var(--gold);
+    }
+
+    /* Information Panel */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--gold-text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h1 img, .overlay h2 img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    .card strong {
+      color: var(--ink);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: var(--gold-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-box .val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--gold-text);
+    }
+
+    .stat-box .lbl {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .guide-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .guide-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brick-preview {
+      width: 44px;
+      height: 22px;
+      display: block;
+      flex-shrink: 0;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .bonus-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      color: #1c160b;
+      margin-right: 4px;
+    }
+
+    /* Overlays */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      background: rgba(28, 22, 11, 0.88);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      gap: 12px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .overlay[hidden] {
+      display: none !important;
+    }
+
+    .overlay h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: var(--gold-text);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .overlay .score-big {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      margin: 4px 0;
+    }
+
+    .overlay .badge {
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffe28a, #f2b632);
+      color: #5a2a08;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px rgba(242, 182, 50, 0.6);
+    }
+
+    .hint-text {
+      font-size: 0.85rem;
+      color: #d9cdb2;
+      max-width: 280px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .key-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container">
+    <!-- Ігрове Поле -->
+    <div class="stage-box">
+      <div class="frame" id="stage">
+        <canvas id="game" width="360" height="540"></canvas>
+
+        <!-- Екран початку гри -->
+        <div class="overlay" id="titleOverlay">
+          <h2>
+            <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/logo.png.png" alt="SHAG Logo">
+            SHAG Breaker
+          </h2>
+          <p class="hint-text">Відбивай м'яч дощечкою, ламай цеглинки, збирай монети SHAG та використовуй супер-бонуси!</p>
+          <button class="btn" id="startBtn" type="button">Почати Гру</button>
+          <p class="hint-text" style="font-size:0.78rem; margin-top:8px;">
+            Керування: Тачскрін, Миша або Стрілки.<br>Пробіл / Тап — запуск м'яча або постріл.
+          </p>
+        </div>
+
+        <!-- Екран Game Over -->
+        <div class="overlay" id="overOverlay" hidden>
+          <h2>М'ячі закінчилися!</h2>
+          <div class="badge" id="bestBadge" hidden>Новий рекорд!</div>
+          <div class="score-big" id="finalScore">0</div>
+          <p class="hint-text" id="overText">Пройдено рівнів: 1</p>
+          <button class="btn" id="againBtn" type="button">Грати знову</button>
+        </div>
+
+        <!-- Пауза -->
+        <div class="overlay" id="pauseOverlay" hidden>
+          <h2>Пауза</h2>
+          <p class="hint-text">Натисніть кнопку або тапніть для продовження</p>
+          <button class="btn" id="resumeBtn" type="button">Продовжити</button>
+        </div>
+      </div>
+
+      <!-- Звукові кнопки -->
+      <div class="tools-bar">
+        <button class="btn secondary" id="muteSfxBtn" type="button">Звук: УВІМК</button>
+        <button class="btn secondary" id="muteMusicBtn" type="button">Музика: УВІМК</button>
+      </div>
+      <div class="key-hint">Клавіша <strong>M</strong> — вимкнути всі звуки</div>
+    </div>
+
+    <!-- Правила та Рекорди -->
+    <div class="card">
+      <h1>
+        <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/logo.png.png" alt="SHAG Logo">
+        SHAG Breaker
+      </h1>
+      <p>Арканоїд у всесвіті SHAG. Ламай цеглу, уникай пасток і вибивай максимальні комбо!</p>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="val" id="guiBest">0</div>
+          <div class="lbl">Рекорд</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" id="guiLevel">1</div>
+          <div class="lbl">Рівень</div>
+        </div>
+      </div>
+
+      <p><strong>🧱 Типи Цеглин:</strong></p>
+      <ul class="guide-list">
+        <li class="guide-item">
+          <canvas class="brick-preview" data-type="normal" data-hp="1" width="44" height="22"></canvas>
+          <span><strong>Звичайна</strong> — 1 удар (10 балів × рівень).</span>
+        </li>
+        <li class="guide-item">
+          <canvas class="brick-preview" data-type="silicate" data-hp="2" width="44" height="22"></canvas>
+          <span><strong>Сілікатна</strong> — 2 удари (20 балів × рівень).</span>
+        </li>
+        <li class="guide-item">
+          <canvas class="brick-preview" data-type="ceramic" data-hp="3" width="44" height="22"></canvas>
+          <span><strong>Кераміка</strong> — 3 удари (30 балів × рівень).</span>
+        </li>
+        <li class="guide-item">
+          <canvas class="brick-preview" data-type="tnt" data-hp="1" width="44" height="22"></canvas>
+          <span><strong>💣 Вибухівка TNT</strong> — підриває сусідні блоки 3×3.</span>
+        </li>
+        <li class="guide-item">
+          <canvas class="brick-preview" data-type="chest" data-hp="2" width="44" height="22"></canvas>
+          <span><strong>🎁 Скриня удачі</strong> — містить гарантирований супер-бонус.</span>
+        </li>
+      </ul>
+
+      <p><strong>🎁 Бонуси та Пастки:</strong></p>
+      <ul class="guide-list">
+        <li><span class="bonus-tag" style="background:#f2b632;">SHAG</span> <strong>Монета:</strong> +50 додаткових балів * на рівень.</li>
+        <li><span class="bonus-tag" style="background:#6fc3ff;">WIDE</span> <strong>Широка дошка:</strong> розширює ракетку на 15 сек.</li>
+        <li><span class="bonus-tag" style="background:#ff5252; color:#fff;">NARROW</span> <strong>Пастка:</strong> звужує ракетку на 10 сек.</li>
+        <li><span class="bonus-tag" style="background:#8fbf6a;">MULTI</span> <strong>Потрійний м'яч:</strong> розділяє м'яч на 3 частини.</li>
+        <li><span class="bonus-tag" style="background:#e09a12; color:#fff;">🧲 MAG</span> <strong>Магніт:</strong> прилипання м'яча до дощечки на 10 сек.</li>
+        <li><span class="bonus-tag" style="background:#ff4081; color:#fff;">🔫 GUN</span> <strong>Лазери:</strong> встановлює бластери (10 пострілів).</li>
+        <li><span class="bonus-tag" style="background:#ff6d00; color:#fff;">🔥 FIRE</span> <strong>Вогняний м'яч:</strong> пробиває цеглу напролом 8 сек.</li>
+        <li><span class="bonus-tag" style="background:#00e5ff;">🛡️ NET</span> <strong>Сітка:</strong> захисний світловий бар'єр внизу (1 раз).</li>
+        <li><span class="bonus-tag" style="background:#ffd600;">⚡ FAST</span> <strong>Пастка:</strong> прискорює м'яч на 50% на 6 сек.</li>
+      </ul>
+
+      <p><strong>⚡ Очищення та Комбо:</strong></p>
+      <p style="font-size:0.82rem; color:var(--muted); border-top:1px solid var(--line); padding-top:8px; line-height:1.45;">
+        🎁 <strong>СКРИНІ:</strong> Усі бонуси та пастки випадають лише зі скринь; вибухівка з'являється з 6-го рівня — одна на стіну.<br>🪂 <strong>AIRDROP РІВЕНЬ:</strong> Кожні 5 рівнів — спеціальний раунд із дощем монет $SHAG!<br>
+        🔥 <strong>КОМБО-МНОЖНИК:</strong> Серія влучань без торкання дощечки примножує бали до ×5!<br>
+        ↔️ <strong>РУХОМА ЦЕГЛА:</strong> З 3-го рівня частина цеглин починає переміщуватися.<br>
+        1 Очищення рівня від цегли дає +100 балів * на рівень.<br>
+        2 Кожен наступний рівень прискорює м'яч.
+      </p>
+
+      <a href="https://1shag.github.io/shag-site/index.html" class="btn secondary" style="margin-top: 6px; width: 100%;">
+        🏠 Повернутись на головну сторінку
+      </a>
+    </div>
+  </div>
+
+  <script>
+    /* ===================================================================
+       Telegram Mini App & Mobile Init
+       =================================================================== */
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    window.addEventListener('contextmenu', e => e.preventDefault());
+
+    function vibrate(pattern) {
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+        if (typeof pattern === 'number') {
+          if (pattern > 30) window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+          else window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+        } else {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+        }
+      } else if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    /* ===================================================================
+       Основа Гри
+       =================================================================== */
+    const W = 360, H = 540;
+    const COLS = 8, ROWS = 6;
+    const BW = (W - 32 - (COLS - 1) * 4) / COLS;
+    const BH = 18, TOP = 72;
+    const PY = H - 44, PW0 = 78, BR = 7;
+    const FONT = "'Fredoka', 'Nunito', system-ui, sans-serif";
+
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const titleOverlay = document.getElementById('titleOverlay');
+    const overOverlay = document.getElementById('overOverlay');
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const startBtn = document.getElementById('startBtn');
+    const againBtn = document.getElementById('againBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const muteSfxBtn = document.getElementById('muteSfxBtn');
+    const muteMusicBtn = document.getElementById('muteMusicBtn');
+    const guiBest = document.getElementById('guiBest');
+    const guiLevel = document.getElementById('guiLevel');
+    const finalScore = document.getElementById('finalScore');
+    const overText = document.getElementById('overText');
+    const bestBadge = document.getElementById('bestBadge');
+
+    let localBestScore = 0;
+    try { localBestScore = parseInt(localStorage.getItem('shag-breaker-best')) || 0; } catch (e) {}
+    guiBest.textContent = localBestScore.toLocaleString();
+
+    function setBestScore(val) {
+      if (val > localBestScore) {
+        localBestScore = val;
+        try { localStorage.setItem('shag-breaker-best', val); } catch (e) {}
+        guiBest.textContent = localBestScore.toLocaleString();
+        return true;
+      }
+      return false;
+    }
+
+    /* ===================================================================
+       1. WEBAUDIO ЗВУКИ ТА МУЗИКА
+       =================================================================== */
+    let audioCtx = null;
+    let soundOn = true;
+    let musicOn = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function beep(type, f0, f1, dur, gain = 0.07, at = 0) {
+      if (!soundOn || !audioCtx) return;
+      try {
+        const t = audioCtx.currentTime + at;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(f0, t);
+        if (f1 !== f0) osc.frequency.exponentialRampToValueAtTime(Math.max(10, f1), t + dur);
+        g.gain.setValueAtTime(gain, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
+      } catch (e) {}
+    }
+
+    function noise(dur, gain = 0.1, f0 = 2000, f1 = 300, type = 'lowpass', at = 0) {
+      if (!soundOn || !audioCtx) return;
+      try {
+        const t = audioCtx.currentTime + at;
+        const bufferSize = audioCtx.sampleRate * dur;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = type;
+        filter.frequency.setValueAtTime(f0, t);
+        if (f1 !== f0) filter.frequency.exponentialRampToValueAtTime(Math.max(10, f1), t + dur);
+
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(gain, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+        src.connect(filter);
+        filter.connect(g);
+        g.connect(audioCtx.destination);
+        src.start(t);
+        src.stop(t + dur + 0.02);
+      } catch (e) {}
+    }
+
+    const SFX = {
+      bounce: () => beep('sine', 600, 400, 0.05, 0.05),
+      pop: () => beep('triangle', 320, 160, 0.08, 0.08),
+      crunch: () => { noise(0.1, 0.12, 3000, 400); beep('triangle', 180, 80, 0.08, 0.06); },
+      coin: (combo = 1) => beep('square', 880 * Math.pow(1.05, combo), 1400 * Math.pow(1.05, combo), 0.1, 0.06),
+      power: () => { beep('square', 523, 523, 0.08); beep('square', 659, 659, 0.08, 0.06, 0.08); beep('square', 784, 1046, 0.2, 0.06, 0.16); },
+      combo: (n = 1) => { const f = 523 * Math.pow(2, Math.min(n, 16) / 12); beep('square', f, f, 0.05, 0.04); beep('square', f * 1.5, f * 1.5, 0.08, 0.04, 0.05); },
+      win: () => { beep('square', 523, 523, 0.1); beep('square', 659, 659, 0.1, 0.06, 0.1); beep('square', 784, 784, 0.1, 0.06, 0.2); beep('square', 1046, 1046, 0.25, 0.06, 0.3); },
+      hit: () => { beep('sawtooth', 220, 70, 0.25, 0.1); noise(0.14, 0.1, 2500, 300); },
+      bad: () => beep('sawtooth', 200, 80, 0.15, 0.06),
+      shot: () => beep('square', 900, 300, 0.08, 0.06),
+      laser: () => beep('sawtooth', 1200, 400, 0.06, 0.05),
+      gameover: () => { [494, 415, 330].forEach((f, i) => beep('square', f, f, 0.12, 0.06, i * 0.14)); beep('triangle', 262, 180, 0.5, 0.08, 0.42); },
+      newbest: () => { [523, 659, 784, 1046].forEach((f, i) => beep('square', f, f, 0.08, 0.06, i * 0.08)); beep('square', 1318, 1318, 0.3, 0.06, 0.32); }
+    };
+
+    let musicTimer = null;
+    let musicStep = 0;
+    const musicBpm = 128;
+    const musicNotes = [
+      62, 65, 69, 65, 62, 65, 69, 72,
+      60, 64, 67, 64, 60, 64, 67, 70,
+      58, 62, 65, 62, 58, 62, 65, 69,
+      57, 60, 64, 60, 57, 60, 64, 67
+    ];
+
+    function stepMusic() {
+      if (!musicOn || !audioCtx) return;
+      try {
+        const note = musicNotes[musicStep % musicNotes.length];
+        const freq = 440 * Math.pow(2, (note - 69) / 12);
+        const t = audioCtx.currentTime;
+
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.015, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.14);
+
+        if (musicStep % 4 === 0) {
+          const bassOsc = audioCtx.createOscillator();
+          const bassG = audioCtx.createGain();
+          bassOsc.type = 'triangle';
+          bassOsc.frequency.value = freq / 2;
+          bassG.gain.setValueAtTime(0.035, t);
+          bassG.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+          bassOsc.connect(bassG);
+          bassG.connect(audioCtx.destination);
+          bassOsc.start(t);
+          bassOsc.stop(t + 0.22);
+        }
+
+        musicStep++;
+      } catch (e) {}
+    }
+
+    function startMusic() {
+      if (!musicTimer) {
+        musicStep = 0;
+        const interval = (60 / musicBpm / 2) * 1000;
+        musicTimer = setInterval(stepMusic, interval);
+      }
+    }
+
+    function stopMusic() {
+      if (musicTimer) {
+        clearInterval(musicTimer);
+        musicTimer = null;
+      }
+    }
+
+    /* ===================================================================
+       2. ЕФЕКТИ
+       =================================================================== */
+    const floatersList = [];
+    function addFloater(x, y, text, color = '#ffd27a', size = 20) {
+      floatersList.push({ x, y, text: String(text), color, size, t: 0, life: 0.85 });
+      if (floatersList.length > 20) floatersList.shift();
+    }
+
+    function updateFloaters(dt) {
+      for (let i = floatersList.length - 1; i >= 0; i--) {
+        const f = floatersList[i];
+        f.t += dt;
+        f.y -= 35 * dt;
+        if (f.t > f.life) floatersList.splice(i, 1);
+      }
+    }
+
+    function drawFloaters() {
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (const f of floatersList) {
+        ctx.globalAlpha = Math.min(1, (f.life - f.t) / 0.3);
+        ctx.font = `800 ${f.size}px ${FONT}`;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#2b2416';
+        ctx.strokeText(f.text, f.x, f.y);
+        ctx.fillStyle = f.color;
+        ctx.fillText(f.text, f.x, f.y);
+      }
+      ctx.restore();
+    }
+
+    const particlePool = [];
+    function burstParticles(x, y, count, color, spread = 100, opts = {}) {
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const v = (0.3 + Math.random() * 0.7) * spread;
+        particlePool.push({
+          x, y,
+          vx: Math.cos(a) * v,
+          vy: Math.sin(a) * v - (opts.up || 0),
+          t: 0,
+          life: opts.life || (0.35 + Math.random() * 0.4),
+          color: opts.colors ? opts.colors[i % opts.colors.length] : color,
+          r: (opts.r || 3) * (0.6 + Math.random() * 0.8),
+          g: opts.g !== undefined ? opts.g : 400,
+          shape: opts.shape || 'dot',
+          spin: Math.random() * 6
+        });
+      }
+      if (particlePool.length > 200) particlePool.splice(0, particlePool.length - 200);
+    }
+
+    function updateParticles(dt) {
+      for (let i = particlePool.length - 1; i >= 0; i--) {
+        const p = particlePool[i];
+        p.t += dt;
+        if (p.t >= p.life) {
+          particlePool.splice(i, 1);
+          continue;
+        }
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += p.g * dt;
+        p.spin += 8 * dt;
+      }
+    }
+
+    function drawParticles() {
+      ctx.save();
+      for (const p of particlePool) {
+        const k = p.t / p.life;
+        ctx.globalAlpha = 1 - k;
+        ctx.fillStyle = p.color;
+        ctx.strokeStyle = p.color;
+        if (p.shape === 'chip') {
+          ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+        } else if (p.shape === 'spark') {
+          ctx.lineWidth = p.r;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - p.vx * 0.03, p.y - p.vy * 0.03);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * (1 - k * 0.5), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    let shakeTime = 0;
+    function addShake(amount) { shakeTime = Math.max(shakeTime, amount); }
+    function applyShake() {
+      if (shakeTime > 0) {
+        const dx = (Math.random() - 0.5) * 10 * shakeTime;
+        const dy = (Math.random() - 0.5) * 10 * shakeTime;
+        ctx.translate(dx, dy);
+      }
+    }
+
+    /* ===================================================================
+       3. СТАН ГРИ
+       =================================================================== */
+    let gameState = 'ready';
+    let lastTime = 0;
+    let lives = 3;
+    let level = 1;
+    let score = 0;
+    let scoreDisplay = 0;
+    let heatGlow = 0;
+    let rallyCount = 0;
+    let caughtCoins = 0;
+    let targetX = null;
+
+    // Стан бонусів та пасток
+    let wideTimer = 0;
+    let narrowTimer = 0;
+    let magnetTimer = 0;
+    let laserAmmo = 0;
+    let fireTimer = 0;
+    let shieldActive = false;
+    let turboTimer = 0;
+
+    // Airdrop режим
+    let airdropTimer = 0;
+    let airdropSpawnAcc = 0;
+
+    let paddle = { x: W / 2, hit: 0 };
+    let balls = [];
+    let bricks = [];
+    let drops = [];
+    let rings = [];
+    let lasers = [];
+
+    const getPW = () => PW0 * (wideTimer > 0 ? 1.5 : (narrowTimer > 0 ? 0.7 : 1));
+    const getBallSpeed = () => (280 + (level - 1) * 28) * (turboTimer > 0 ? 1.5 : 1);
+
+    function mulberry32(a) {
+      return function() {
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function generateBricks() {
+      const rng = mulberry32((1337 + level * 2654435761) >>> 0);
+      bricks = [];
+      airdropTimer = 0;
+      airdropSpawnAcc = 0;
+
+      // Перемішуємо всі позиції, щоб спеціальні цеглини не стояли завжди в одному місці.
+      const cells = [];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          cells.push({
+            r, c,
+            x: 16 + c * (BW + 4),
+            y: TOP + r * (BH + 4),
+            isMoving: level >= 3 && (r % 2 === 1) && (rng() < 0.5)
+          });
+        }
+      }
+      for (let i = cells.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [cells[i], cells[j]] = [cells[j], cells[i]];
+      }
+
+      // Скрині: рівень 1 — одна; далі випадково від 1 до номера рівня.
+      // Кількість обмежена доступними клітинками.
+      const chestCount = Math.min(cells.length - (level >= 6 ? 1 : 0),
+        level === 1 ? 1 : 1 + Math.floor(rng() * Math.min(level, 12)));
+      const chestDrops = [
+        'coin', 'wide', 'narrow', 'multi', 'magnet',
+        'laser', 'fire', 'shield', 'turbo'
+      ];
+
+      for (let i = 0; i < chestCount; i++) {
+        const cell = cells.pop();
+        bricks.push({
+          x: cell.x, y: cell.y,
+          hp: 5, max: 5,
+          type: 'chest',
+          drop: chestDrops[Math.floor(rng() * chestDrops.length)],
+          isMoving: cell.isMoving,
+          dir: cell.c % 2 === 0 ? 1 : -1,
+          wobble: 0, born: 0.2 + i * 0.04
+        });
+      }
+
+      // Починаючи з 6-го рівня — рівно одна вибухівка на кожній стіні.
+      if (level >= 6 && cells.length) {
+        const cell = cells.pop();
+        bricks.push({
+          x: cell.x, y: cell.y,
+          hp: 1, max: 1,
+          type: 'tnt', drop: null,
+          isMoving: cell.isMoving,
+          dir: cell.c % 2 === 0 ? 1 : -1,
+          wobble: 0, born: 0.25
+        });
+      }
+
+      // Решта поля: звичайна цегла на старті ~60%, силікатна ~30%,
+      // керамічна ~10%. З рівнями звичайної меншає, силікатної та
+      // керамічної більшає. Бонуси випадають тільки зі скринь.
+      const remaining = cells.length;
+      const normalShare = Math.max(0.15, 0.60 - (level - 1) * 0.045);
+      const silicateShare = Math.min(0.55, 0.30 + (level - 1) * 0.025);
+      let normalCount = Math.round(remaining * normalShare);
+      let silicateCount = Math.round(remaining * silicateShare);
+      normalCount = Math.min(normalCount, remaining);
+      silicateCount = Math.min(silicateCount, remaining - normalCount);
+      const ceramicCount = remaining - normalCount - silicateCount;
+
+      const types = [
+        ...Array(normalCount).fill('normal'),
+        ...Array(silicateCount).fill('silicate'),
+        ...Array(ceramicCount).fill('ceramic')
+      ];
+      for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [types[i], types[j]] = [types[j], types[i]];
+      }
+
+      cells.forEach((cell, i) => {
+        const type = types[i];
+        const hp = type === 'normal' ? 1 : (type === 'silicate' ? 2 : 3);
+        bricks.push({
+          x: cell.x, y: cell.y,
+          hp, max: hp, type,
+          drop: null,
+          isMoving: cell.isMoving,
+          dir: cell.c % 2 === 0 ? 1 : -1,
+          wobble: 0,
+          born: 0.2 + (cell.c * 0.02) + (cell.r * 0.03)
+        });
+      });
+    }
+
+    function createBall(x, y, angle, stuck = false) {
+      const spd = getBallSpeed();
+      return {
+        x, y,
+        vx: stuck ? 0 : Math.sin(angle) * spd,
+        vy: stuck ? 0 : -Math.cos(angle) * spd,
+        stuck,
+        roll: 0,
+        trail: []
+      };
+    }
+
+    function serveBall() {
+      balls = [createBall(paddle.x, PY - BR - 1, 0, true)];
+      rallyCount = 0;
+    }
+
+    function resetGame() {
+      gameState = 'ready';
+      paddle = { x: W / 2, hit: 0 };
+      lives = 3;
+      level = 1;
+      score = 0;
+      scoreDisplay = 0;
+      wideTimer = 0;
+      narrowTimer = 0;
+      magnetTimer = 0;
+      laserAmmo = 0;
+      fireTimer = 0;
+      shieldActive = false;
+      turboTimer = 0;
+      airdropTimer = 0;
+      caughtCoins = 0;
+      drops = [];
+      rings = [];
+      lasers = [];
+      floatersList.length = 0;
+      particlePool.length = 0;
+      
+      generateBricks();
+      serveBall();
+
+      guiLevel.textContent = level;
+      titleOverlay.hidden = false;
+      overOverlay.hidden = true;
+      pauseOverlay.hidden = true;
+    }
+
+    function shootLasers() {
+      if (laserAmmo > 0 && gameState === 'play') {
+        laserAmmo--;
+        const pw = getPW();
+        lasers.push({ x: paddle.x - pw / 2 + 6, y: PY - 8 });
+        lasers.push({ x: paddle.x + pw / 2 - 6, y: PY - 8 });
+        SFX.laser();
+        vibrate(8);
+      }
+    }
+
+    function launchBall() {
+      if (gameState === 'ready') {
+        gameState = 'play';
+        titleOverlay.hidden = true;
+        initAudio();
+        startMusic();
+      }
+      if (gameState !== 'play') return;
+
+      let launchedAny = false;
+      balls.forEach(b => {
+        if (b.stuck) {
+          const angle = (Math.random() - 0.5) * 0.8;
+          const spd = getBallSpeed();
+          b.vx = Math.sin(angle) * spd;
+          b.vy = -Math.cos(angle) * spd;
+          b.stuck = false;
+          launchedAny = true;
+        }
+      });
+
+      if (launchedAny) {
+        SFX.shot();
+        vibrate(15);
+        burstParticles(paddle.x, PY - 10, 6, '#ffe28a', 70, { up: 60, shape: 'spark' });
+      } else if (laserAmmo > 0) {
+        shootLasers();
+      }
+    }
+
+    function togglePause() {
+      if (gameState === 'play') {
+        gameState = 'paused';
+        pauseOverlay.hidden = false;
+        stopMusic();
+        vibrate(10);
+      } else if (gameState === 'paused') {
+        gameState = 'play';
+        pauseOverlay.hidden = true;
+        startMusic();
+        vibrate(10);
+      }
+    }
+
+    function explodeTNT(tntBrick) {
+      SFX.hit();
+      vibrate([60, 60, 60]);
+      addShake(0.35);
+      burstParticles(tntBrick.x + BW / 2, tntBrick.y + BH / 2, 30, '#ff3d00', 220, { shape: 'chip', colors: ['#ff3d00', '#ff9100', '#ffff00', '#212121'] });
+
+      const radius = 55;
+      const cx = tntBrick.x + BW / 2;
+      const cy = tntBrick.y + BH / 2;
+
+      bricks.forEach(b => {
+        if (b.hp <= 0) return;
+        const bcx = b.x + BW / 2;
+        const bcy = b.y + BH / 2;
+        if (Math.hypot(bcx - cx, bcy - cy) <= radius) {
+          const pts = b.hp * 10 * level;
+          score += pts;
+          b.hp = 0;
+          addFloater(bcx, bcy, '+' + pts, '#ff9100', 18);
+          burstParticles(bcx, bcy, 8, '#ff9100', 100, { shape: 'chip' });
+          if (b.drop) drops.push({ x: bcx, y: bcy, t: 0, kind: b.drop });
+        }
+      });
+    }
+
+    /* ===================================================================
+       4. ОНОВЛЕННЯ ФІЗИКИ
+       =================================================================== */
+    function update(dt) {
+      updateFloaters(dt);
+      updateParticles(dt);
+      if (shakeTime > 0) shakeTime -= dt;
+      
+      // Таймери бонусів
+      if (wideTimer > 0) wideTimer -= dt;
+      if (narrowTimer > 0) narrowTimer -= dt;
+      if (magnetTimer > 0) magnetTimer -= dt;
+      if (fireTimer > 0) fireTimer -= dt;
+      if (turboTimer > 0) turboTimer -= dt;
+      if (paddle.hit > 0) paddle.hit -= dt;
+      heatGlow = Math.max(0, heatGlow - dt);
+
+      // Airdrop генератор дощу монет
+      if (airdropTimer > 0) {
+        airdropTimer -= dt;
+        airdropSpawnAcc += dt;
+        if (airdropSpawnAcc >= 0.35) {
+          airdropSpawnAcc = 0;
+          drops.push({ x: 20 + Math.random() * (W - 40), y: 0, t: 0, kind: 'coin' });
+        }
+      }
+
+      if (scoreDisplay < score) {
+        scoreDisplay = Math.min(score, scoreDisplay + Math.max(1, (score - scoreDisplay) * dt * 10));
+      }
+
+      for (let i = rings.length - 1; i >= 0; i--) {
+        rings[i].t += dt;
+        rings[i].r += 160 * dt;
+        if (rings[i].t > 0.4) rings.splice(i, 1);
+      }
+
+      // Анімація та рух цеглин
+      bricks.forEach(b => {
+        if (b.wobble > 0) b.wobble -= dt;
+        if (b.born > 0) b.born = Math.max(0, b.born - dt);
+        if (b.hp > 0 && b.isMoving) {
+          b.x += b.dir * 35 * dt;
+          if (b.x <= 8) { b.x = 8; b.dir = 1; }
+          if (b.x + BW >= W - 8) { b.x = W - 8 - BW; b.dir = -1; }
+        }
+      });
+
+      // Рух дощечки
+      if (targetX !== null) {
+        const dist = targetX - paddle.x;
+        paddle.x += Math.abs(dist) < 1200 * dt ? dist : Math.sign(dist) * 1200 * dt;
+      }
+      const pw = getPW();
+      paddle.x = Math.max(pw / 2, Math.min(W - pw / 2, paddle.x));
+
+      balls.forEach(b => {
+        if (b.stuck) {
+          b.x = paddle.x;
+          b.y = PY - BR - 1;
+        }
+      });
+
+      if (gameState !== 'play') return;
+
+      // Оновлення лазерних пострілів
+      for (let li = lasers.length - 1; li >= 0; li--) {
+        const l = lasers[li];
+        l.y += -750 * dt;
+
+        for (const b of bricks) {
+          if (b.hp <= 0) continue;
+          if (l.x >= b.x && l.x <= b.x + BW && l.y >= b.y && l.y <= b.y + BH) {
+            b.hp--;
+            b.wobble = 0.2;
+            SFX.crunch();
+            vibrate(10);
+            burstParticles(l.x, l.y, 6, '#ff4081', 80, { shape: 'spark' });
+
+            if (b.hp === 0) {
+              const pts = b.max * 10 * level;
+              score += pts;
+              addFloater(b.x + BW / 2, b.y, '+' + pts, '#ffcf5c', 18);
+              if (b.type === 'tnt') explodeTNT(b);
+              if (b.drop) drops.push({ x: b.x + BW / 2, y: b.y + BH / 2, t: 0, kind: b.drop });
+            }
+            lasers.splice(li, 1);
+            break;
+          }
+        }
+        if (l.y < 0) lasers.splice(li, 1);
+      }
+
+      // Падаючі бонуси
+      for (let i = drops.length - 1; i >= 0; i--) {
+        const d = drops[i];
+        d.y += 140 * dt;
+        d.t += dt;
+
+        if (d.y + 10 >= PY - 6 && d.y - 10 <= PY + 8 && Math.abs(d.x - paddle.x) <= pw / 2 + 8) {
+          drops.splice(i, 1);
+          paddle.hit = 0.15;
+          vibrate(25);
+          burstParticles(d.x, PY - 10, 12, '#ffffff', 130, { up: 80, shape: 'spark' });
+
+          if (d.kind === 'coin') {
+            const coinPts = 50 * level;
+            score += coinPts;
+            caughtCoins++;
+            SFX.coin(caughtCoins);
+            addFloater(d.x, PY - 24, `+${coinPts} SHAG`, '#f2b632', 22);
+          } else if (d.kind === 'wide') {
+            wideTimer = 15; narrowTimer = 0;
+            SFX.power();
+            addFloater(d.x, PY - 24, 'ШИРОКА ДОШКА!', '#6fc3ff', 22);
+          } else if (d.kind === 'narrow') {
+            narrowTimer = 10; wideTimer = 0;
+            SFX.bad();
+            addFloater(d.x, PY - 24, 'ЗВУЖЕННЯ!', '#ff5252', 22);
+          } else if (d.kind === 'multi') {
+            SFX.power();
+            addFloater(d.x, PY - 24, 'ПОТРІЙНИЙ М\'ЯЧ!', '#8fbf6a', 22);
+            const activeBall = balls.find(b => !b.stuck) || balls[0];
+            for (const da of [-0.4, 0.4]) {
+              const currentAngle = Math.atan2(activeBall.vx, -activeBall.vy) + da;
+              balls.push(createBall(activeBall.x, activeBall.y, currentAngle, false));
+            }
+          } else if (d.kind === 'magnet') {
+            magnetTimer = 10;
+            SFX.power();
+            addFloater(d.x, PY - 24, 'МАГНІТ 🧲', '#e09a12', 22);
+          } else if (d.kind === 'laser') {
+            laserAmmo += 10;
+            SFX.power();
+            addFloater(d.x, PY - 24, 'ЛАЗЕРИ 🔫', '#ff4081', 22);
+          } else if (d.kind === 'fire') {
+            fireTimer = 8;
+            SFX.power();
+            addFloater(d.x, PY - 24, 'ВОГОНЬ 🔥', '#ff6d00', 22);
+          } else if (d.kind === 'shield') {
+            shieldActive = true;
+            SFX.power();
+            addFloater(d.x, PY - 24, 'СІТКА 🛡️', '#00e5ff', 22);
+          } else if (d.kind === 'turbo') {
+            turboTimer = 6;
+            SFX.bad();
+            addFloater(d.x, PY - 24, 'ПРИСКОРЕННЯ ⚡', '#ffd600', 22);
+          }
+          continue;
+        }
+
+        if (d.y > H + 20) drops.splice(i, 1);
+      }
+
+      // Фізика м'ячів та зіткнення
+      for (let bi = balls.length - 1; bi >= 0; bi--) {
+        const ball = balls[bi];
+        if (ball.stuck) continue;
+
+        const steps = Math.ceil(Math.hypot(ball.vx, ball.vy) * dt / 6);
+        for (let s = 0; s < steps; s++) {
+          ball.x += ball.vx * (dt / steps);
+          ball.y += ball.vy * (dt / steps);
+
+          if (ball.x < BR) { ball.x = BR; ball.vx = Math.abs(ball.vx); SFX.bounce(); }
+          if (ball.x > W - BR) { ball.x = W - BR; ball.vx = -Math.abs(ball.vx); SFX.bounce(); }
+          if (ball.y < BR) { ball.y = BR; ball.vy = Math.abs(ball.vy); SFX.bounce(); }
+
+          // Захисна сітка внизу
+          if (shieldActive && ball.y + BR >= H - 14) {
+            ball.y = H - 14 - BR;
+            ball.vy = -Math.abs(ball.vy);
+            shieldActive = false;
+            SFX.power();
+            vibrate(30);
+            addFloater(ball.x, H - 32, 'СІТКА ВРЯТУВАЛА!', '#00e5ff', 20);
+            burstParticles(ball.x, H - 12, 15, '#00e5ff', 120, { up: 60, shape: 'spark' });
+          }
+
+          // Відбиття від дощечки
+          if (ball.vy > 0 && ball.y + BR >= PY - 6 && ball.y + BR <= PY + 10 && Math.abs(ball.x - paddle.x) <= pw / 2 + BR) {
+            if (magnetTimer > 0) {
+              ball.stuck = true;
+              ball.vx = 0;
+              ball.vy = 0;
+              ball.y = PY - BR - 1;
+              vibrate(12);
+              SFX.bounce();
+              addFloater(ball.x, PY - 20, 'ПРИЛИП!', '#e09a12', 18);
+              break;
+            }
+
+            const hitFactor = Math.max(-1, Math.min(1, (ball.x - paddle.x) / (pw / 2))) * 1.05;
+            const spd = getBallSpeed();
+            ball.vx = Math.sin(hitFactor) * spd;
+            ball.vy = -Math.cos(hitFactor) * spd;
+            ball.y = PY - 6 - BR;
+            paddle.hit = 0.15;
+            rallyCount = 0; // Скидання комбо при торканні дощечки
+            SFX.bounce();
+            vibrate(8);
+            burstParticles(ball.x, PY - 6, 5, '#ffe28a', 60, { up: 50, shape: 'spark' });
+          }
+
+          // Зіткнення з цеглинами
+          for (const b of bricks) {
+            if (b.hp <= 0) continue;
+
+            const nx = Math.max(b.x, Math.min(ball.x, b.x + BW));
+            const ny = Math.max(b.y, Math.min(ball.y, b.y + BH));
+            if ((ball.x - nx) ** 2 + (ball.y - ny) ** 2 >= BR * BR) continue;
+
+            // Вогняний м'яч не відбивається, а пробиває цеглу
+            if (fireTimer <= 0) {
+              const ox = Math.min(ball.x + BR - b.x, b.x + BW - (ball.x - BR));
+              const oy = Math.min(ball.y + BR - b.y, b.y + BH - (ball.y - BR));
+              if (ox < oy) ball.vx = ball.x < b.x + BW / 2 ? -Math.abs(ball.vx) : Math.abs(ball.vx);
+              else ball.vy = ball.y < b.y + BH / 2 ? -Math.abs(ball.vy) : Math.abs(ball.vy);
+            }
+
+            b.hp--;
+            b.wobble = 0.2;
+
+            rallyCount++;
+            const comboMult = Math.min(5, Math.max(1, rallyCount));
+            const pts = (b.hp === 0 ? b.max * 10 * level : 5) * comboMult;
+            score += pts;
+
+            addFloater(b.x + BW / 2, b.y, '+' + pts, b.hp === 0 ? '#ffcf5c' : '#ffffff', 18);
+            if (comboMult > 1) {
+              addFloater(b.x + BW / 2, b.y - 14, `×${comboMult} КОМБО!`, '#ffd54f', 18);
+            }
+
+            const brickColor = b.type === 'tnt' ? '#ff3d00' : (b.type === 'chest' ? '#ffd54f' : (b.max === 3 ? '#8d6e63' : (b.max === 2 ? '#cfd8dc' : '#ff8a65')));
+
+            if (b.hp === 0) {
+              SFX.crunch();
+              vibrate(15);
+              if (rallyCount >= 2) SFX.combo(rallyCount);
+
+              burstParticles(b.x + BW / 2, b.y + BH / 2, 12, brickColor, 140, { shape: 'chip', r: 3 });
+              heatGlow = 0.35;
+              addShake(b.type === 'tnt' ? 0.3 : 0.08);
+
+              if (b.type === 'tnt') explodeTNT(b);
+              if (b.drop) drops.push({ x: b.x + BW / 2, y: b.y + BH / 2, t: 0, kind: b.drop });
+            } else {
+              SFX.bounce();
+              vibrate(10);
+              burstParticles(b.x + BW / 2, b.y + BH / 2, 4, brickColor, 90, { shape: 'chip', r: 2 });
+            }
+            if (fireTimer <= 0) break;
+          }
+        }
+
+        if (ball.y > H + BR) {
+          balls.splice(bi, 1);
+          if (balls.length > 0) {
+            SFX.bad();
+          }
+        }
+      }
+
+      // Перевірка проходження рівня
+      if (!bricks.some(b => b.hp > 0)) {
+        const bonus = 100 * level;
+        score += bonus;
+        addFloater(W / 2, H / 2, `Рівень ${level} пройдено! +${bonus}`, '#f2b632', 26);
+        SFX.win();
+        vibrate(35);
+        burstParticles(W / 2, H / 2, 35, '#f2b632', 220, { shape: 'chip', colors: ['#f2b632', '#ff8a80', '#8fbf6a', '#6fc3ff'] });
+
+        level++;
+        guiLevel.textContent = level;
+        generateBricks();
+        serveBall();
+      }
+
+      // Втрата останнього м'яча
+      if (balls.length === 0) {
+        lives--;
+        addShake(0.4);
+        SFX.hit();
+        vibrate([40, 50, 40]);
+        burstParticles(paddle.x, PY, 16, '#ff8a80', 150, { shape: 'chip' });
+
+        if (lives <= 0) {
+          triggerGameOver();
+        } else {
+          serveBall();
+          addFloater(W / 2, H / 2 + 20, lives === 1 ? 'Останній м\'яч!' : `Залишилось м'ячів: ${lives}`, '#ff8a80', 24);
+        }
+      }
+    }
+
+    function triggerGameOver() {
+      gameState = 'over';
+      stopMusic();
+      vibrate([100, 100, 200]);
+
+      const isNewBest = setBestScore(score);
+      if (isNewBest) {
+        SFX.newbest();
+        bestBadge.hidden = false;
+      } else {
+        SFX.gameover();
+        bestBadge.hidden = true;
+      }
+
+      finalScore.textContent = Math.round(score).toLocaleString();
+      overText.textContent = `Пройдено рівнів: ${level} | Зібрано монет: ${caughtCoins}`;
+      overOverlay.hidden = false;
+    }
+
+    /* ===================================================================
+       5. РЕНДЕР
+       =================================================================== */
+
+    function drawCoin(targetCtx, x, y, size, angle = 0) {
+      targetCtx.save();
+      targetCtx.translate(x, y);
+      const scaleX = Math.max(0.15, Math.abs(Math.cos(angle)));
+      const w = size * scaleX;
+
+      targetCtx.fillStyle = '#a86c00';
+      targetCtx.beginPath();
+      targetCtx.ellipse(0, 0, w / 2 + 1, size / 2 + 1, 0, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      targetCtx.fillStyle = '#f2b632';
+      targetCtx.beginPath();
+      targetCtx.ellipse(0, 0, w / 2, size / 2, 0, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      if (scaleX > 0.4) {
+        targetCtx.fillStyle = '#5a2a08';
+        targetCtx.font = `800 ${Math.round(size * 0.5)}px ${FONT}`;
+        targetCtx.textAlign = 'center';
+        targetCtx.textBaseline = 'middle';
+        targetCtx.fillText('S', 0, 1);
+      }
+      targetCtx.restore();
+    }
+
+    function drawBrickStyle(targetCtx, w, h, hp, max, wobble = 0, born = 0, drop = null, type = 'normal') {
+      const dmg = (max - hp) / max;
+      const dropOffset = born > 0 ? Math.min(1, born / 0.2) * -30 : 0;
+
+      targetCtx.save();
+      targetCtx.translate(w / 2, h / 2 + dropOffset);
+      if (wobble > 0) targetCtx.scale(1 + wobble * 0.4, 1 - wobble * 0.4);
+      targetCtx.translate(-w / 2, -h / 2);
+
+      let bgGrad, strokeColor, highlightColor;
+
+      if (type === 'tnt') {
+        bgGrad = targetCtx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#e53935');
+        bgGrad.addColorStop(0.5, '#b71c1c');
+        bgGrad.addColorStop(1, '#4a0000');
+        strokeColor = '#ff8a80';
+        highlightColor = 'rgba(255, 235, 238, 0.6)';
+      } else if (type === 'chest') {
+        bgGrad = targetCtx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#ffd54f');
+        bgGrad.addColorStop(0.5, '#ffb300');
+        bgGrad.addColorStop(1, '#ff6f00');
+        strokeColor = '#ffe082';
+        highlightColor = 'rgba(255, 255, 255, 0.8)';
+      } else if (max === 3) {
+        bgGrad = targetCtx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#8d6e63');
+        bgGrad.addColorStop(0.4, '#4e342e');
+        bgGrad.addColorStop(1, '#271c19');
+        strokeColor = '#1b0000';
+        highlightColor = 'rgba(255, 205, 178, 0.4)';
+      } else if (max === 2) {
+        bgGrad = targetCtx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#ffffff');
+        bgGrad.addColorStop(0.4, '#b0bec5');
+        bgGrad.addColorStop(1, '#78909c');
+        strokeColor = '#455a64';
+        highlightColor = 'rgba(255, 255, 255, 0.8)';
+      } else {
+        bgGrad = targetCtx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#ff8a65');
+        bgGrad.addColorStop(0.4, '#d84315');
+        bgGrad.addColorStop(1, '#8c2500');
+        strokeColor = '#4e0d00';
+        highlightColor = 'rgba(255, 204, 188, 0.6)';
+      }
+
+      targetCtx.fillStyle = bgGrad;
+      targetCtx.strokeStyle = strokeColor;
+      targetCtx.lineWidth = 1.5;
+      targetCtx.globalAlpha = 1 - dmg * 0.35;
+
+      const radius = 3;
+      targetCtx.beginPath();
+      targetCtx.roundRect(0, 0, w, h, radius);
+      targetCtx.fill();
+      targetCtx.stroke();
+
+      targetCtx.strokeStyle = highlightColor;
+      targetCtx.lineWidth = 1.2;
+      targetCtx.beginPath();
+      targetCtx.moveTo(2, 2); targetCtx.lineTo(w - 2, 2);
+      targetCtx.stroke();
+
+      targetCtx.strokeStyle = 'rgba(0,0,0,0.35)';
+      targetCtx.beginPath();
+      targetCtx.moveTo(2, h - 2); targetCtx.lineTo(w - 2, h - 2);
+      targetCtx.stroke();
+
+      if (type === 'tnt') {
+        targetCtx.fillStyle = '#ffffff';
+        targetCtx.font = `800 ${Math.round(h * 0.6)}px ${FONT}`;
+        targetCtx.textAlign = 'center';
+        targetCtx.textBaseline = 'middle';
+        targetCtx.fillText('💣', w / 2, h / 2 + 1);
+      } else if (type === 'chest') {
+        targetCtx.fillStyle = '#ffffff';
+        targetCtx.font = `800 ${Math.round(h * 0.6)}px ${FONT}`;
+        targetCtx.textAlign = 'center';
+        targetCtx.textBaseline = 'middle';
+        targetCtx.fillText('🎁', w / 2, h / 2 + 1);
+      } else if (max === 3) {
+        targetCtx.fillStyle = 'rgba(20, 10, 5, 0.65)';
+        const holeR = Math.min(2.5, w * 0.08);
+        const cy = h / 2;
+        [w * 0.25, w * 0.5, w * 0.75].forEach(cx => {
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, holeR, 0, Math.PI * 2);
+          targetCtx.fill();
+        });
+      } else if (max === 2) {
+        targetCtx.strokeStyle = 'rgba(69, 90, 100, 0.5)';
+        targetCtx.beginPath();
+        targetCtx.moveTo(w / 2, 2); targetCtx.lineTo(w / 2, h - 2);
+        targetCtx.stroke();
+      } else {
+        targetCtx.strokeStyle = 'rgba(140, 37, 0, 0.4)';
+        targetCtx.beginPath();
+        targetCtx.moveTo(w * 0.33, 2); targetCtx.lineTo(w * 0.33, h - 2);
+        targetCtx.moveTo(w * 0.66, 2); targetCtx.lineTo(w * 0.66, h - 2);
+        targetCtx.stroke();
+      }
+
+      if (dmg > 0) {
+        targetCtx.strokeStyle = 'rgba(20, 10, 0, 0.7)';
+        targetCtx.lineWidth = 1.2;
+        targetCtx.beginPath();
+        targetCtx.moveTo(w * 0.3, 2); targetCtx.lineTo(w * 0.45, h * 0.6); targetCtx.lineTo(w * 0.6, h - 2);
+        if (dmg > 0.5) targetCtx.moveTo(w * 0.7, 1); targetCtx.lineTo(w * 0.55, h * 0.5);
+        targetCtx.stroke();
+      }
+
+      if (drop === 'coin') {
+        drawCoin(targetCtx, w / 2, h / 2, Math.min(11, h * 0.65), performance.now() / 400);
+      } else if (drop && type !== 'tnt' && type !== 'chest') {
+        const dropColors = {
+          wide: '#6fc3ff', narrow: '#ff5252', multi: '#8fbf6a',
+          magnet: '#e09a12', laser: '#ff4081', fire: '#ff6d00',
+          shield: '#00e5ff', turbo: '#ffd600'
+        };
+        targetCtx.fillStyle = dropColors[drop] || '#ffffff';
+        targetCtx.beginPath();
+        targetCtx.arc(w / 2, h / 2, 3.5, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
+
+      targetCtx.restore();
+    }
+
+    function renderLegendPreviews() {
+      document.querySelectorAll('.brick-preview').forEach(previewCanvas => {
+        const hp = parseInt(previewCanvas.getAttribute('data-hp')) || 1;
+        const type = previewCanvas.getAttribute('data-type') || 'normal';
+        const pCtx = previewCanvas.getContext('2d');
+        pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        drawBrickStyle(pCtx, previewCanvas.width, previewCanvas.height, hp, hp, 0, 0, null, type);
+      });
+    }
+
+    function render(now) {
+      ctx.save();
+      applyShake();
+
+      // Фон
+      ctx.fillStyle = '#2b2416';
+      ctx.fillRect(-10, -10, W + 20, H + 20);
+
+      const glowAlpha = Math.min(1, 0.3 + heatGlow * 0.5 + 0.04 * Math.sin(now / 300));
+      const glowGrad = ctx.createRadialGradient(W / 2, H + 20, 20, W / 2, H + 20, 380);
+      glowGrad.addColorStop(0, `rgba(255, 120, 30, ${glowAlpha})`);
+      glowGrad.addColorStop(1, 'rgba(255, 120, 30, 0)');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.strokeStyle = `rgba(255, 110, 40, ${0.4 + heatGlow * 0.6})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 20) {
+        ctx.lineTo(x, H - 6 + ((x / 20) % 2 ? -3 : 3));
+      }
+      ctx.stroke();
+
+      // Захисна Сітка Внизу
+      if (shieldActive) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(0, 229, 255, ${0.7 + 0.3 * Math.sin(now / 100)})`;
+        ctx.lineWidth = 4;
+        ctx.shadowColor = '#00e5ff';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(0, H - 12); ctx.lineTo(W, H - 12);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Цегли
+      bricks.forEach(b => {
+        if (b.hp > 0) {
+          ctx.save();
+          ctx.translate(b.x, b.y);
+          drawBrickStyle(ctx, BW, BH, b.hp, b.max, b.wobble, b.born, b.drop, b.type);
+          ctx.restore();
+        }
+      });
+
+      // Лазерні промені
+      lasers.forEach(l => {
+        ctx.fillStyle = '#ff4081';
+        ctx.shadowColor = '#ff4081';
+        ctx.shadowBlur = 8;
+        ctx.fillRect(l.x - 1.5, l.y, 3, 10);
+        ctx.shadowBlur = 0;
+      });
+
+      // Бонуси
+      drops.forEach(d => {
+        if (d.kind === 'coin') {
+          drawCoin(ctx, d.x, d.y, 18, d.t * 6);
+        } else {
+          const dropConfigs = {
+            wide: ['#6fc3ff', 'WIDE'],
+            narrow: ['#ff5252', 'NARROW'],
+            multi: ['#8fbf6a', 'MULTI'],
+            magnet: ['#e09a12', '🧲 MAG'],
+            laser: ['#ff4081', '🔫 GUN'],
+            fire: ['#ff6d00', '🔥 FIRE'],
+            shield: ['#00e5ff', '🛡️ NET'],
+            turbo: ['#ffd600', '⚡ FAST']
+          };
+          const cfg = dropConfigs[d.kind] || ['#ffffff', d.kind.toUpperCase()];
+          
+          ctx.fillStyle = cfg[0];
+          ctx.beginPath();
+          ctx.roundRect(d.x - 20, d.y - 9, 40, 18, 6);
+          ctx.fill();
+          ctx.fillStyle = '#1c160b';
+          ctx.font = `800 9px ${FONT}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(cfg[1], d.x, d.y + 1);
+        }
+      });
+
+      // Хвилі
+      rings.forEach(r => {
+        ctx.globalAlpha = 1 - r.t / 0.4;
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+
+      // Ракетка
+      const pw = getPW();
+      const dip = paddle.hit > 0 ? Math.sin(paddle.hit / 0.15 * Math.PI) * 3 : 0;
+      ctx.save();
+      ctx.translate(paddle.x, PY + dip);
+
+      const padGrad = ctx.createLinearGradient(0, -6, 0, 6);
+      padGrad.addColorStop(0, paddle.hit > 0 ? '#e8b878' : '#c48a4a');
+      padGrad.addColorStop(1, '#7d5320');
+      ctx.fillStyle = padGrad;
+      ctx.strokeStyle = '#4a2c0e';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -6, pw, 12, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255, 230, 180, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-pw / 2 + 8, -2); ctx.lineTo(pw / 2 - 8, -2);
+      ctx.stroke();
+
+      // Малювання лазерних гармат
+      if (laserAmmo > 0) {
+        ctx.fillStyle = '#ff4081';
+        ctx.fillRect(-pw / 2 + 2, -10, 5, 6);
+        ctx.fillRect(pw / 2 - 7, -10, 5, 6);
+      }
+
+      // Аура бонусів на ракетці
+      if (wideTimer > 0) {
+        ctx.strokeStyle = `rgba(111, 195, 255, ${0.5 + 0.3 * Math.sin(now / 150)})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-pw / 2 - 3, -9, pw + 6, 18, 9);
+        ctx.stroke();
+      } else if (narrowTimer > 0) {
+        ctx.strokeStyle = `rgba(255, 82, 82, ${0.5 + 0.3 * Math.sin(now / 150)})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-pw / 2 - 3, -9, pw + 6, 18, 9);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // М'ячі
+      balls.forEach(ball => {
+        if (!ball.stuck) {
+          ball.trail.push([ball.x, ball.y]);
+          if (ball.trail.length > 8) ball.trail.shift();
+          ball.roll += Math.hypot(ball.vx, ball.vy) / 2500;
+        }
+
+        ctx.fillStyle = fireTimer > 0 ? '#ff6d00' : '#f2b632';
+        ball.trail.forEach(([tx, ty], i) => {
+          ctx.globalAlpha = (i / ball.trail.length) * 0.35;
+          ctx.beginPath();
+          ctx.arc(tx, ty, BR * (0.3 + (i / ball.trail.length) * 0.6), 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        drawCoin(ctx, ball.x, ball.y, BR * 2 + 2, ball.roll);
+      });
+
+      drawParticles();
+      drawFloaters();
+      ctx.restore();
+
+      // HUD Верхнє Табло
+      ctx.fillStyle = '#fff4d4';
+      ctx.font = `800 20px ${FONT}`;
+      ctx.textAlign = 'left';
+      ctx.fillText(Math.round(scoreDisplay).toLocaleString(), 16, 32);
+
+      ctx.textAlign = 'center';
+      ctx.font = `700 13px ${FONT}`;
+      ctx.fillStyle = '#d9cdb2';
+      
+      let statusStr = `Рівень ${level}`;
+      if (airdropTimer > 0) statusStr = `🪂 AIRDROP ${Math.ceil(airdropTimer)}s`;
+      else if (laserAmmo > 0) statusStr += ` · 🔫 ${laserAmmo}`;
+      else if (fireTimer > 0) statusStr += ` · 🔥 ${Math.ceil(fireTimer)}s`;
+      else if (magnetTimer > 0) statusStr += ` · 🧲 ${Math.ceil(magnetTimer)}s`;
+      ctx.fillText(statusStr, W / 2 - 10, 30);
+
+      // Життя
+      for (let i = 0; i < 3; i++) {
+        if (i < lives) {
+          drawCoin(ctx, W - 52 - i * 16, 26, 12, 0);
+        } else {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(W - 52 - i * 16, 26, 5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      // Мобільна Кнопка Паузи ⏸
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.beginPath();
+      ctx.arc(W - 20, 25, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff4d4';
+      ctx.font = `800 12px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⏸', W - 20, 25);
+
+      if (gameState === 'play' && balls.every(b => b.stuck)) {
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff4d4';
+        ctx.globalAlpha = 0.65 + 0.35 * Math.sin(now / 220);
+        ctx.font = `800 20px ${FONT}`;
+        ctx.fillText('Тапніть для запуску', W / 2, H / 2 + 40);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    function gameLoop(now) {
+      const dt = Math.min(0.04, (now - lastTime) / 1000);
+      lastTime = now;
+
+      if (gameState === 'play') {
+        update(dt);
+      }
+      render(now);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    /* ===================================================================
+       6. КЕРУВАННЯ
+       =================================================================== */
+    function getCanvasCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (W / rect.width),
+        y: (clientY - rect.top) * (H / rect.height)
+      };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const pos = getCanvasCoords(e);
+      
+      if (Math.hypot(pos.x - (W - 20), pos.y - 25) <= 22) {
+        togglePause();
+        return;
+      }
+
+      targetX = pos.x;
+      launchBall();
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'mouse' || e.buttons) {
+        const pos = getCanvasCoords(e);
+        targetX = pos.x;
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        launchBall();
+      }
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+        targetX = null;
+        paddle.x -= 24;
+      }
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+        targetX = null;
+        paddle.x += 24;
+      }
+      if (e.code === 'KeyP' || e.code === 'Escape') {
+        togglePause();
+      }
+      if (e.code === 'KeyM') {
+        toggleAllSound();
+      }
+    });
+
+    function toggleAllSound() {
+      soundOn = !soundOn;
+      musicOn = soundOn;
+      muteSfxBtn.textContent = soundOn ? 'Звук: УВІМК' : 'Звук: ВИМК';
+      muteMusicBtn.textContent = musicOn ? 'Музика: УВІМК' : 'Музика: ВИМК';
+      if (!musicOn) stopMusic();
+      else if (gameState === 'play') startMusic();
+    }
+
+    muteSfxBtn.addEventListener('click', () => {
+      soundOn = !soundOn;
+      muteSfxBtn.textContent = soundOn ? 'Звук: УВІМК' : 'Звук: ВИМК';
+    });
+
+    muteMusicBtn.addEventListener('click', () => {
+      musicOn = !musicOn;
+      muteMusicBtn.textContent = musicOn ? 'Музика: УВІМК' : 'Музика: ВИМК';
+      if (!musicOn) stopMusic();
+      else if (gameState === 'play') startMusic();
+    });
+
+    startBtn.addEventListener('click', () => {
+      initAudio();
+      launchBall();
+    });
+
+    againBtn.addEventListener('click', () => {
+      resetGame();
+      launchBall();
+    });
+
+    resumeBtn.addEventListener('click', () => {
+      gameState = 'play';
+      pauseOverlay.hidden = true;
+      startMusic();
+    });
+
+    // Ініціалізація
+    resetGame();
+    renderLegendPreviews();
+
+    requestAnimationFrame((t) => {
+      lastTime = t;
+      gameLoop(t);
+    });
+  </script>
+</body>
+</html>
