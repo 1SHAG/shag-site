@@ -67,11 +67,63 @@
     }
 
     @media (max-width: 768px) {
-      .game-container {
-        grid-template-columns: minmax(0, 1fr);
-        padding: 8px;
-        gap: 12px;
+      html, body {
+        height: auto;
+        min-height: 100%;
+        align-items: stretch;
+        overflow-y: auto;
+        touch-action: pan-y;
       }
+      .game-container {
+        display: block;
+        width: 100%;
+        padding: 8px 8px 18px;
+      }
+      .stage-box { margin: 0 auto; }
+      body.mobile-guide .stage-box { display: none !important; }
+      body.mobile-guide .card {
+        display: flex;
+        max-height: calc(100dvh - 16px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        margin: 0 auto;
+        padding: 16px;
+        touch-action: pan-y;
+      }
+      body.mobile-play .card { display: none !important; }
+      body.mobile-play .stage-box { display: flex; }
+      .mobile-guide-button {
+        display: block;
+        width: 100%;
+        margin: 0 0 8px;
+      }
+      .touch-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 66px;
+        width: 100%;
+        margin-top: 10px;
+        border: 2px solid var(--gold);
+        border-radius: 14px;
+        background: linear-gradient(180deg, #382c16, #21190c);
+        color: var(--gold-text);
+        font-weight: 800;
+        text-align: center;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .touch-control small {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 0.75rem;
+      }
+    }
+    @media (min-width: 769px) {
+      .mobile-guide-button, .touch-control { display: none !important; }
     }
 
     /* Game Stage */
@@ -362,6 +414,14 @@
         </div>
       </div>
 
+      <!-- Мобільна зона керування: палець не закриває ігрове поле -->
+      <div class="touch-control" id="touchControl" aria-label="Зона керування дощечкою">
+        <div>Веди пальцем тут — рухай дощечку
+          <small>Палець можна тримати нижче ігрового поля</small>
+        </div>
+      </div>
+      <button class="btn secondary mobile-guide-button" id="showGuideBtn" type="button">📖 Типи цеглин і бонуси</button>
+
       <!-- Звукові кнопки -->
       <div class="tools-bar">
         <button class="btn secondary" id="muteSfxBtn" type="button">Звук: УВІМК</button>
@@ -371,7 +431,8 @@
     </div>
 
     <!-- Правила та Рекорди -->
-    <div class="card">
+    <div class="card" id="guideCard">
+      <button class="btn mobile-guide-button" id="playNowBtn" type="button">🎮 До гри</button>
       <h1>
         <img src="https://raw.githubusercontent.com/1SHAG/shag-site/main/logo.png.png" alt="SHAG Logo">
         SHAG Breaker
@@ -408,8 +469,8 @@
           <span><strong>💣 Вибухівка TNT</strong> — підриває сусідні блоки 3×3.</span>
         </li>
         <li class="guide-item">
-          <canvas class="brick-preview" data-type="chest" data-hp="2" width="44" height="22"></canvas>
-          <span><strong>🎁 Скриня удачі</strong> — містить секретний бонус.</span>
+          <canvas class="brick-preview" data-type="chest" data-hp="5" width="44" height="22"></canvas>
+          <span><strong>🎁 Скриня удачі</strong> — містить гарантирований супер-бонус.</span>
         </li>
       </ul>
 
@@ -428,7 +489,7 @@
 
       <p><strong>⚡ Очищення та Комбо:</strong></p>
       <p style="font-size:0.82rem; color:var(--muted); border-top:1px solid var(--line); padding-top:8px; line-height:1.45;">
-        🎁 <strong>СКРИНІ:</strong> Усі бонуси та пастки випадають лише зі скринь; вибухівка з'являється з 6-го рівня — одна на стіну.<br>🪂 <strong>AIRDROP РІВЕНЬ:</strong> Кожні 5 рівнів — спеціальний раунд із дощем монет $SHAG!<br>
+        🎁 <strong>СКРИНІ:</strong> Усі бонуси та пастки випадають лише зі скринь; вибухівка з'являється з 6-го рівня — одна на стіну.<br>🪂 <strong>AIRDROP РІВЕНЬ:</strong> На 5-му, 10-му, 15-му та кожному наступному 5-му рівні — 12 секунд дощу монет $SHAG!<br>
         🔥 <strong>КОМБО-МНОЖНИК:</strong> Серія влучань без торкання дощечки примножує бали до ×5!<br>
         ↔️ <strong>РУХОМА ЦЕГЛА:</strong> З 3-го рівня частина цеглин починає переміщуватися.<br>
         1 Очищення рівня від цегли дає +100 балів * на рівень.<br>
@@ -1293,6 +1354,15 @@
         guiLevel.textContent = level;
         generateBricks();
         serveBall();
+
+        // Кожен 5-й рівень — окремий Airdrop-раунд із дощем монет.
+        if (level % 5 === 0) {
+          airdropTimer = 12;
+          airdropSpawnAcc = 0;
+          addFloater(W / 2, H / 2 - 30, '🪂 AIRDROP! ДОЩ МОНЕТ SHAG', '#f2b632', 23);
+          burstParticles(W / 2, H / 2, 28, '#f2b632', 180,
+            { shape: 'chip', colors: ['#f2b632', '#ffdf70', '#ffffff'] });
+        }
       }
 
       // Втрата останнього м'яча
@@ -1756,11 +1826,34 @@
     });
 
     canvas.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'mouse' || e.buttons) {
+      if (e.pointerType === 'mouse' || e.pointerType === 'touch' || e.buttons) {
         const pos = getCanvasCoords(e);
         targetX = pos.x;
       }
     });
+
+    // Мобільна зона керування під грою — координата X визначається
+    // відносно всієї зони, тому палець не перекриває м'яч і дощечку.
+    const touchControl = document.getElementById('touchControl');
+    if (touchControl) {
+      const movePaddleFromControl = (e) => {
+        e.preventDefault();
+        const rect = touchControl.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        targetX = ratio * W;
+      };
+      touchControl.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+          try { touchControl.setPointerCapture(e.pointerId); } catch (_) {}
+        }
+        movePaddleFromControl(e);
+      });
+      touchControl.addEventListener('pointermove', (e) => {
+        if (e.pointerType === 'mouse' ? e.buttons !== 0 : true) movePaddleFromControl(e);
+      });
+      touchControl.addEventListener('pointerup', () => { targetX = null; });
+      touchControl.addEventListener('pointercancel', () => { targetX = null; });
+    }
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
@@ -1820,9 +1913,51 @@
       startMusic();
     });
 
+    // Мобільний режим: спочатку довідник, потім автоматичний перехід до гри.
+    const isMobileLayout = () => window.matchMedia('(max-width: 768px)').matches;
+    const guideCard = document.getElementById('guideCard');
+    const playNowBtn = document.getElementById('playNowBtn');
+    const showGuideBtn = document.getElementById('showGuideBtn');
+    let mobileGuideTimer = null;
+
+    function showMobileGame() {
+      if (mobileGuideTimer) {
+        clearTimeout(mobileGuideTimer);
+        mobileGuideTimer = null;
+      }
+      document.body.classList.remove('mobile-guide');
+      document.body.classList.add('mobile-play');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showMobileGuide(autoReturn = false) {
+      if (!isMobileLayout()) return;
+      if (mobileGuideTimer) clearTimeout(mobileGuideTimer);
+      document.body.classList.remove('mobile-play');
+      document.body.classList.add('mobile-guide');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (autoReturn) {
+        // Автоматичний перехід через 18 секунд; можна перейти раніше кнопкою «До гри».
+        mobileGuideTimer = setTimeout(showMobileGame, 18000);
+      }
+    }
+
+    if (playNowBtn) playNowBtn.addEventListener('click', showMobileGame);
+    if (showGuideBtn) showGuideBtn.addEventListener('click', () => showMobileGuide(false));
+
     // Ініціалізація
     resetGame();
     renderLegendPreviews();
+    if (isMobileLayout()) showMobileGuide(true);
+    window.addEventListener('resize', () => {
+      if (!isMobileLayout()) {
+        if (mobileGuideTimer) clearTimeout(mobileGuideTimer);
+        document.body.classList.remove('mobile-guide', 'mobile-play');
+      } else if (!document.body.classList.contains('mobile-guide') &&
+                 !document.body.classList.contains('mobile-play')) {
+        showMobileGuide(true);
+      }
+    });
 
     requestAnimationFrame((t) => {
       lastTime = t;
